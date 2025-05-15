@@ -1,2 +1,8 @@
 build/
 .vscode/
+.vs/
+Shittle
+*.sln
+*.vcxproj*
+x64
+Debug

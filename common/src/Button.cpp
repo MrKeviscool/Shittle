@@ -1,5 +1,6 @@
 #include "Button.hpp"
 
+#include "ResourceManager.hpp"
 
 Button::Button(const sf::Vector2f size) : m_shape(size), m_tintShape(size)
 {
@@ -7,12 +8,34 @@ Button::Button(const sf::Vector2f size) : m_shape(size), m_tintShape(size)
 }
 
 Button::Button(const sf::Vector2f size, const sf::Vector2f position)
- : m_shape(size), m_tintShape(size)
+    : Button(size)
 {
     m_shape.setPosition(position);
     m_tintShape.setPosition(position);
 }
 
+Button::Button(const sf::Vector2f size, const sf::Vector2f position, std::function<void()> func)
+    : m_shape(size), m_tintShape(size), m_clickFunc(func)
+{
+    m_shape.setPosition(position);
+    m_tintShape.setPosition(position);
+}
+
+Button::Button(const sf::Vector2f size, const sf::Vector2f position, std::string textureName) 
+    : Button(size, position) 
+{
+    m_shape.setPosition(position);
+    m_tintShape.setPosition(position);
+    m_shape.setTexture(static_cast<const sf::Texture*>(ResourceManager::getRef().getResource(textureName)));
+}
+
+Button::Button(const sf::Vector2f size, const sf::Vector2f position, std::string textureName, std::function<void()> func) 
+    : m_shape(size), m_tintShape(size), m_clickFunc(func)
+{
+    m_shape.setPosition(position);
+    m_tintShape.setPosition(position);
+    m_shape.setTexture(static_cast<const sf::Texture*>(ResourceManager::getRef().getResource(textureName)));
+}
 
 void Button::setPosition(const sf::Vector2f pos){
     m_shape.setPosition(pos);
@@ -43,6 +66,7 @@ bool Button::poll(){
         if(event.event.button == sf::Mouse::Button::Left &&
             event.buttonState == InputState::ButtonState::released)
         {
+            if (m_clickFunc) m_clickFunc();
             return true;
         }
     }
@@ -55,7 +79,7 @@ inline bool Button::isHovering() const {
     return m_hovering;
 }
 
-const sf::RectangleShape& Button::getShape() const {
+sf::RectangleShape& Button::getShape() {
     return m_shape;
 }
 

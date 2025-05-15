@@ -20,14 +20,15 @@ public:
 
     inline bool isHovering() const;
 
-    const sf::RectangleShape& getShape() const;
+    sf::RectangleShape& getShape();
     const sf::RectangleShape& getTintShape() const;
 
 private:
     sf::RectangleShape m_shape;
     sf::RectangleShape m_tintShape;
-    bool m_hovering;
+    bool m_hovering = false;
     InputState* m_input = nullptr;
+    std::function<void()> m_clickFunc;
 
     const sf::Color tintColor = {127, 127, 127, 127};
 };

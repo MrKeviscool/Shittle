@@ -10,7 +10,9 @@ public:
     static ResourceManager* getPtr();
     static ResourceManager& getRef();
 
-    Resource* getResource(std::string& path);
+    void* getResource(const std::string& path);
+
+    void unload();
 
 private:
     static ResourceManager m_manager;

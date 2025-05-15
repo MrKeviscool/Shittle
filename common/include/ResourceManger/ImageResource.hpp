@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/Texture.hpp>
 
 #include "Resource.hpp"
 
@@ -11,5 +11,5 @@ public:
     void* getResource() override;
 
 protected:
-    sf::Image image;
+    sf::Texture image;
 };
