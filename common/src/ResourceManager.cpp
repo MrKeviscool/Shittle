@@ -2,20 +2,6 @@
 
 #include "ResourceManger/ResourceFactory.hpp"
 
-ResourceManager ResourceManager::m_manager;
-
-
-
-ResourceManager* ResourceManager::getPtr(){
-    return &m_manager;
-}
-
-ResourceManager& ResourceManager::getRef(){
-    return m_manager;
-}
-
-
-
 void* ResourceManager::getResource(const std::string& path){
     if(resources.find(path) == resources.end()){
         resources.emplace(path, ResourceFactory(path));
@@ -25,6 +11,6 @@ void* ResourceManager::getResource(const std::string& path){
 
 }
 
-void ResourceManager::unload() {
+void ResourceManager::unloadAll() {
     resources.clear();
 }

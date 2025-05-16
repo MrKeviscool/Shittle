@@ -3,6 +3,7 @@
 #include "InputState.hpp"
 #include "ResourceManager.hpp"
 #include "Button.hpp"
+#include "Peg.hpp"
 
 
 int main(){
@@ -11,8 +12,17 @@ int main(){
 
     InputState::initalise(&window);
     InputState& input = InputState::getRef();
+    ResourceManager resourceManger;
 
-    Button button({ 100, 100 }, { 0,0 }, "resources/extIco.png", [&window]() {window.close(); });
+    std::vector<Button> buttons = {
+        Button(sf::Vector2f{50, 50}, sf::Vector2f{1920-50, 0}, static_cast<sf::Texture*>(resourceManger.getResource("resources/extIco.png")), [&window](){window.close();}),
+        Button(sf::Vector2f{50, 50}, sf::Vector2f{0, 0}, static_cast<sf::Texture*>(resourceManger.getResource("resources/brickButton.png"))),
+    };
+
+    buttons[0].setText("exit", static_cast<sf::Font*>(resourceManger.getResource("resources/robotto.ttf")), 20.0f, 1.0f);
+    buttons[1].setText("brick", static_cast<sf::Font*>(resourceManger.getResource("resources/robotto.ttf")), 20.0f, 0.0f);
+
+
 
     while (window.isOpen()) {
 
@@ -22,16 +32,12 @@ int main(){
             if (keyEvnt.event.code == sf::Keyboard::Escape)
                 window.close();
         }
-
-        button.poll();
-
+        for(auto& butt : buttons)
+            butt.poll();
         window.clear();
-        window.draw(button.getShape());
-        window.draw(button.getTintShape());
+        for(auto& butt: buttons)
+            butt.draw(window);
         window.display();
-
     }
-
-    ResourceManager::getRef().unload();
 
 }

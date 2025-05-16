@@ -1,6 +1,7 @@
 #include "ResourceManger/ResourceFactory.hpp"
 
 #include "ResourceManger/ImageResource.hpp"
+#include "ResourceManger/FontResource.hpp"
 
 #include <stdexcept>
 
@@ -35,5 +36,8 @@ std::unique_ptr<Resource> ResourceFactory(const std::string& path){
         || fileTypeBuff == "jpg")
         return std::unique_ptr<Resource>(new ImageResource(path));
     
+    if(fileTypeBuff == "ttf")
+        return std::unique_ptr<Resource>(new FontResource(path));
+
     else throw std::runtime_error("error loading extention");
 };

@@ -30,6 +30,8 @@ void InputState::reset(){
 
 void InputState::pollEvents(){
 
+	reset();
+
 	sf::Event event;
 
 	while (m_renderWindow->pollEvent(event)) {
