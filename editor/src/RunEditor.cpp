@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 
-#include <vector>
+#include <unordered_map>
 
 #include "Button.hpp"
 #include "InputState.hpp"
@@ -27,6 +27,11 @@ bool askToExit(sf::RenderWindow& window, InputState& input, ResourceManager& res
 		input.pollEvents();
 		if (yesButton.poll()) return true;
 		if (noButton.poll()) return false;
+		for (auto& event : input.keyEvents) {
+			if (event.event.code == sf::Keyboard::Escape
+				&& event.buttonState == InputState::ButtonState::released
+				) return false;
+		}
 		window.clear();
 		yesButton.draw(window);
 		noButton.draw(window);
@@ -44,14 +49,19 @@ struct CursorType {
 	CursorType& operator=(CursorType&& other) = default;
 };
 
-void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& resources, std::vector<Button>& buttons) {
+void placePeg(const InputState& input, const CursorType& cursorType, std::vector<Peg>& pegs) {
+	pegs.emplace_back(cursorType.peg);
+}
+
+void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& resources, std::unordered_map<std::string, Button>& buttons) {
 
 	CursorType cursorType;
 
-	buttons[0].setFunction([&cursorType]() {cursorType = CursorType(Peg(PegShape::Circle), false); });
-	buttons[1].setFunction([&cursorType]() {cursorType = CursorType(Peg(PegShape::Rect), false); });
-	buttons[2].setFunction([&cursorType]() {cursorType = CursorType(cursorType.peg, true); });
+	buttons["cursorPeg"].setFunction([&cursorType]() {cursorType = CursorType(Peg(PegShape::Circle), false); });
+	buttons["cursorBrick"].setFunction([&cursorType]() {cursorType = CursorType(Peg(PegShape::Rect), false); });
+	buttons["cursorSelect"].setFunction([&cursorType]() {cursorType = CursorType(cursorType.peg, true); });
 
+	std::vector<Peg> pegs;
 
 	while (window.isOpen()) {
 		input.pollEvents();
@@ -68,9 +78,16 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 
 		bool buttonIsHovered = false;
 		for (auto& butt : buttons) {
-			if (butt.isHovering()) buttonIsHovered = true;
-			butt.poll();
-			butt.draw(window);
+			if (butt.second.isHovering()) buttonIsHovered = true;
+			butt.second.poll();
+			butt.second.draw(window);
+		}
+
+		for (auto& mouseEvnt : input.mouseEvents) {
+			if (!buttonIsHovered && mouseEvnt.event.button == sf::Mouse::Left && mouseEvnt.buttonState == InputState::ButtonState::released) {
+				if (!cursorType.isCursor) placePeg(input, cursorType, pegs);
+				else throw std::exception();
+			}
 		}
 
 		if (!buttonIsHovered && !cursorType.isCursor) {
@@ -81,6 +98,9 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 		else {
 			window.setMouseCursorVisible(true);
 		}
+
+		for (auto& peg : pegs)
+			window.draw(peg.getShape());
 
 		window.display();
 

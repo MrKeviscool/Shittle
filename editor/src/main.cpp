@@ -1,5 +1,7 @@
 #include <SFML/Graphics.hpp>
 
+#include <unordered_map>
+
 #include "InputState.hpp"
 #include "ResourceManager.hpp"
 #include "Button.hpp"
@@ -15,16 +17,16 @@ int main(){
     InputState& input = InputState::getRef();
     ResourceManager resourceManger;
 
-    std::vector<Button> buttons = {
-        Button(sf::Vector2f{50, 50}, sf::Vector2f{0, 0}, static_cast<sf::Texture*>(resourceManger.getResource("resources/pegButton.png"))),
-        Button(sf::Vector2f{50, 50}, sf::Vector2f{50, 0}, static_cast<sf::Texture*>(resourceManger.getResource("resources/brickButton.png"))),
-        Button(sf::Vector2f{50, 50}, sf::Vector2f{100, 0}, static_cast<sf::Texture*>(resourceManger.getResource("resources/jankyCursor.png"))),
+    std::unordered_map<std::string, Button> buttons = {
+        {"cursorPeg", Button(sf::Vector2f{50, 50}, sf::Vector2f{0, 0}, static_cast<sf::Texture*>(resourceManger.getResource("resources/pegButton.png")))},
+        {"cursorBrick", Button(sf::Vector2f{50, 50}, sf::Vector2f{50, 0}, static_cast<sf::Texture*>(resourceManger.getResource("resources/brickButton.png")))},
+        {"cursorSelect", Button(sf::Vector2f{50, 50}, sf::Vector2f{100, 0}, static_cast<sf::Texture*>(resourceManger.getResource("resources/jankyCursor.png")))},
     };
     
     const sf::Font* textFont = static_cast<const sf::Font*>(resourceManger.getResource("resources/robotto.ttf"));
-    buttons[0].setText("peg", textFont, 15.0f, 0.0f);
-    buttons[1].setText("brick", textFont, 15.0f, 0.0f);
-    buttons[2].setText("select", textFont, 15.0f, 0.0f);
+    buttons["cursorPeg"].setText("peg", textFont, 15.0f, 0.0f);
+    buttons["cursorBrick"].setText("brick", textFont, 15.0f, 0.0f);
+    buttons["cursorSelect"].setText("select", textFont, 15.0f, 0.0f);
     
     runEditor(window, input, resourceManger, buttons);
 }

@@ -24,14 +24,14 @@ public:
     };
 
     sf::Vector2i mousePos;
-    std::vector<MouseInfo> mouseEvents;
+    std::vector<MouseInfo> mouseEvents; //change to forwad linked list for O(1) eliment removal
 
 
     struct KeyInfo {
         sf::Event::KeyEvent event;
         ButtonState buttonState;
     };
-    std::vector<KeyInfo> keyEvents;
+    std::vector<KeyInfo> keyEvents; //change to forwad linked list for O(1) eliment removal
 
     void reset();
     void pollEvents();
