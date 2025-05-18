@@ -1,15 +1,22 @@
 #include "Peg.hpp"
 
-Peg::Peg(const PegShape shape, const PegType type) : m_pegShape(shape), m_pegType(type) {
-    if(shape == PegShape::Circle)
+Peg::Peg(const PegShape shape) : m_pegShape(shape){
+    if (shape == PegShape::Circle) {
         new(m_shapeData) sf::CircleShape;
-    else new(m_shapeData) sf::RectangleShape;
+        reinterpret_cast<sf::CircleShape*>(m_shapeData)->setRadius(30.0f);
+    }
+    else {
+        new(m_shapeData) sf::RectangleShape;
+        reinterpret_cast<sf::RectangleShape*>(m_shapeData)->setSize({ 60.0f, 30.0f });
+    }
+
+    
 }
 
-PegShape Peg::getShape() const {
+PegShape Peg::getShapeType() const {
     return m_pegShape;
 }
 
-PegType Peg::getType() const {
-    return m_pegType;
+sf::Shape& Peg::getShape() {
+    return *(reinterpret_cast<sf::Shape*>(m_shapeData));
 }

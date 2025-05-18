@@ -21,7 +21,7 @@ Button::Button(const sf::Vector2f size, const sf::Vector2f position, std::functi
     m_tintShape.setPosition(position);
 }
 
-Button::Button(const sf::Vector2f size, const sf::Vector2f position, sf::Texture* texture) 
+Button::Button(const sf::Vector2f size, const sf::Vector2f position, const sf::Texture* texture) 
     : Button(size, position) 
 {
     m_shape.setPosition(position);
@@ -29,7 +29,7 @@ Button::Button(const sf::Vector2f size, const sf::Vector2f position, sf::Texture
     m_shape.setTexture(texture);
 }
 
-Button::Button(const sf::Vector2f size, const sf::Vector2f position, sf::Texture* texture, std::function<void()> func) 
+Button::Button(const sf::Vector2f size, const sf::Vector2f position, const sf::Texture* texture, std::function<void()> func) 
     : m_shape(size), m_tintShape(size), m_clickFunc(func)
 {
     m_shape.setPosition(position);
@@ -97,4 +97,12 @@ void Button::draw(sf::RenderTarget& target) const {
     target.draw(m_shape);
     target.draw(m_tintShape);
     target.draw(m_text);
+}
+
+void Button::setTexture(const sf::Texture* texture) {
+    m_shape.setTexture(texture);
+}
+
+void Button::setFunction(std::function<void()> func) {
+    m_clickFunc = func;
 }

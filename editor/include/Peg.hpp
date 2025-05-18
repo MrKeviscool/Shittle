@@ -19,21 +19,14 @@ enum class PegShape{
     Rect,
 };
 
-enum class PegType{
-    blue,
-    orange,
-    green,
-    purple
-};
-
 class Peg{
 public:
-    Peg(const PegShape pegShape, const PegType = PegType::blue);
-    PegShape getShape() const;
-    PegType getType() const;
+    Peg(const PegShape pegShape);
+    PegShape getShapeType() const;
+    sf::Shape& getShape();
+    
 private:
     PegShape m_pegShape;
-    PegType m_pegType;
     alignas(Bigger<sf::CircleShape, sf::RectangleShape>::type) 
         char m_shapeData[sizeof(Bigger<sf::CircleShape, sf::RectangleShape>::type)];
 };
