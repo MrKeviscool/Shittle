@@ -24,6 +24,7 @@ public:
     Peg(const PegShape pegShape);
     PegShape getShapeType() const;
     sf::Shape& getShape();
+    bool contains(const sf::Vector2f pos) const;
     
 private:
     PegShape m_pegShape;

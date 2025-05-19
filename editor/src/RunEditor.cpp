@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <unordered_map>
+#include <chrono>
 
 #include "Button.hpp"
 #include "InputState.hpp"
@@ -53,6 +54,59 @@ void placePeg(const InputState& input, const CursorType& cursorType, std::vector
 	pegs.emplace_back(cursorType.peg);
 }
 
+bool clickedMouse(InputState& input){
+	const std::chrono::milliseconds maxClickLength(200);
+
+	for(auto iter = input.mouseEvents.begin(); iter != input.mouseEvents.end(); iter++){
+		if(iter == input.mouseEvents.end() - 1 && iter->buttonState != InputState::ButtonState::released)
+		return false;
+	}
+
+	auto startTime = std::chrono::steady_clock::now();
+	while(std::chrono::steady_clock::now() - startTime > maxClickLength){
+		input.pollEvents();
+		for(auto& evnt : input.mouseEvents){
+			if(evnt.event.button == sf::Mouse::Button::Left && evnt.buttonState == InputState::ButtonState::released)
+				return false;
+		}
+	}
+	return true;
+};
+
+void selectPeg(const InputState& input, std::vector<Peg>& pegs, std::vector<Peg*>& selectedPegs){
+	for(auto& peg : pegs){
+		if(peg.contains({static_cast<float>(input.mousePos.x), static_cast<float>(input.mousePos.y)}))
+			selectedPegs.push_back(&peg);
+	}
+}
+
+void moveSelected(const InputState& input, const sf::Vector2f mouseOrigin, const std::vector<Peg*>& selected){
+
+}
+
+void drawSelected(sf::RenderTarget& window, const std::vector<Peg*>& selectedPegs){
+	for(Peg* peg : selectedPegs){
+		if(peg->getShapeType() == PegShape::Circle){
+			const sf::CircleShape* shape = static_cast<sf::CircleShape*>(&peg->getShape());
+			const float radius = shape->getRadius() * 1.5f;
+
+			sf::CircleShape shapeToDraw(radius);
+			shapeToDraw.setPosition(peg->getShape().getPosition() - sf::Vector2f(shape->getRadius()/2.0f, shape->getRadius()/2.0f));
+			shapeToDraw.setFillColor(sf::Color::Yellow);
+			window.draw(shapeToDraw);
+		}
+		
+		else{
+			const sf::RectangleShape* shape = static_cast<sf::RectangleShape*>(&peg->getShape());
+			sf::RectangleShape shapeToDraw(shape->getSize() * 1.5f);
+
+			shapeToDraw.setPosition(shape->getPosition() - (shape->getSize()/4.0f));
+			shapeToDraw.setFillColor(sf::Color::Yellow);
+			window.draw(shapeToDraw);
+		}
+	}
+}
+
 void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& resources, std::unordered_map<std::string, Button>& buttons) {
 
 	CursorType cursorType;
@@ -62,6 +116,7 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 	buttons["cursorSelect"].setFunction([&cursorType]() {cursorType = CursorType(cursorType.peg, true); });
 
 	std::vector<Peg> pegs;
+	std::vector<Peg*> selectedPegs;
 
 	while (window.isOpen()) {
 		input.pollEvents();
@@ -86,7 +141,7 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 		for (auto& mouseEvnt : input.mouseEvents) {
 			if (!buttonIsHovered && mouseEvnt.event.button == sf::Mouse::Left && mouseEvnt.buttonState == InputState::ButtonState::released) {
 				if (!cursorType.isCursor) placePeg(input, cursorType, pegs);
-				else throw std::exception();
+				else selectPeg(input, pegs, selectedPegs);
 			}
 		}
 
@@ -98,6 +153,8 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 		else {
 			window.setMouseCursorVisible(true);
 		}
+
+		drawSelected(window, selectedPegs);
 
 		for (auto& peg : pegs)
 			window.draw(peg.getShape());
