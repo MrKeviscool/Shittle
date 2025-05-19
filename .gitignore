@@ -6,3 +6,4 @@ Shittle
 *.vcxproj*
 x64
 Debug
+.old

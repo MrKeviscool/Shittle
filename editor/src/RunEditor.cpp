@@ -4,6 +4,8 @@
 
 #include <unordered_map>
 #include <chrono>
+#include <iostream>
+#include <forward_list>
 
 #include "Button.hpp"
 #include "InputState.hpp"
@@ -50,30 +52,31 @@ struct CursorType {
 	CursorType& operator=(CursorType&& other) = default;
 };
 
-void placePeg(const InputState& input, const CursorType& cursorType, std::vector<Peg>& pegs) {
-	pegs.emplace_back(cursorType.peg);
+void placePeg(const InputState& input, const CursorType& cursorType, std::forward_list<Peg>& pegs) {
+	pegs.emplace_front(cursorType.peg);
 }
 
-bool clickedMouse(InputState& input){
+bool heldMouse(InputState& input){
 	const std::chrono::milliseconds maxClickLength(200);
 
 	for(auto iter = input.mouseEvents.begin(); iter != input.mouseEvents.end(); iter++){
-		if(iter == input.mouseEvents.end() - 1 && iter->buttonState != InputState::ButtonState::released)
-		return false;
+		if (iter == input.mouseEvents.end() - 1 && iter->buttonState != InputState::ButtonState::pressed && iter->event.button != sf::Mouse::Left) {
+			std::cout << "no button press found\n";
+			return false;
+		}
 	}
 
 	auto startTime = std::chrono::steady_clock::now();
-	while(std::chrono::steady_clock::now() - startTime > maxClickLength){
+	while(std::chrono::steady_clock::now() - startTime < maxClickLength){
+		std::cout << "time heled ms: " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime).count() << '\n';
 		input.pollEvents();
-		for(auto& evnt : input.mouseEvents){
-			if(evnt.event.button == sf::Mouse::Button::Left && evnt.buttonState == InputState::ButtonState::released)
-				return false;
-		}
+		if (!sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+			return false;
 	}
 	return true;
 };
 
-void selectPeg(const InputState& input, std::vector<Peg>& pegs, std::vector<Peg*>& selectedPegs){
+void selectPeg(const InputState& input, std::forward_list<Peg>& pegs, std::vector<Peg*>& selectedPegs){
 	for(auto& peg : pegs){
 		if(peg.contains({static_cast<float>(input.mousePos.x), static_cast<float>(input.mousePos.y)}))
 			selectedPegs.push_back(&peg);
@@ -81,7 +84,7 @@ void selectPeg(const InputState& input, std::vector<Peg>& pegs, std::vector<Peg*
 }
 
 void moveSelected(const InputState& input, const sf::Vector2f mouseOrigin, const std::vector<Peg*>& selected){
-
+	std::cout << "move selected\n";
 }
 
 void drawSelected(sf::RenderTarget& window, const std::vector<Peg*>& selectedPegs){
@@ -95,7 +98,7 @@ void drawSelected(sf::RenderTarget& window, const std::vector<Peg*>& selectedPeg
 			shapeToDraw.setFillColor(sf::Color::Yellow);
 			window.draw(shapeToDraw);
 		}
-		
+	
 		else{
 			const sf::RectangleShape* shape = static_cast<sf::RectangleShape*>(&peg->getShape());
 			sf::RectangleShape shapeToDraw(shape->getSize() * 1.5f);
@@ -114,7 +117,7 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 	buttons["cursorBrick"].setFunction([&cursorType]()  {cursorType = CursorType(Peg(PegShape::Rect), false);	});
 	buttons["cursorSelect"].setFunction([&cursorType]() {cursorType = CursorType(cursorType.peg, true);			});
 
-	std::vector<Peg> pegs;
+	std::forward_list<Peg> pegs;
 	std::vector<Peg*> selectedPegs;
 
 	while (window.isOpen()) {
@@ -141,7 +144,12 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 		for (auto& mouseEvnt : input.mouseEvents) {
 			if (!buttonIsHovered && mouseEvnt.event.button == sf::Mouse::Left && mouseEvnt.buttonState == InputState::ButtonState::released) {
 				if (!cursorType.isCursor) placePeg(input, cursorType, pegs);
-				else selectPeg(input, pegs, selectedPegs);
+				else if (!heldMouse(input)) {
+					selectPeg(input, pegs, selectedPegs);
+				}
+				else {
+					moveSelected(input, { static_cast<float>(input.mousePos.x), static_cast<float>(input.mousePos.y) }, selectedPegs);
+				}
 			}
 		}
 
