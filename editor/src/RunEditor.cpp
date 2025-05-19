@@ -20,8 +20,8 @@ bool askToExit(sf::RenderWindow& window, InputState& input, ResourceManager& res
 	exitText.setPosition((1920 / 2 - exitText.getGlobalBounds().width / 2), 1080 / 4);
 
 
-	yesButton.setText("exit", textFont, 20.0f);
-	noButton.setText("cancel", textFont, 20.0f);
+	yesButton.setText("exit", textFont, 20U);
+	noButton.setText("cancel", textFont, 20U);
 
 	window.setMouseCursorVisible(true);
 	while (window.isOpen()) {
@@ -108,12 +108,11 @@ void drawSelected(sf::RenderTarget& window, const std::vector<Peg*>& selectedPeg
 }
 
 void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& resources, std::unordered_map<std::string, Button>& buttons) {
-
 	CursorType cursorType;
 
-	buttons["cursorPeg"].setFunction([&cursorType]() {cursorType = CursorType(Peg(PegShape::Circle), false); });
-	buttons["cursorBrick"].setFunction([&cursorType]() {cursorType = CursorType(Peg(PegShape::Rect), false); });
-	buttons["cursorSelect"].setFunction([&cursorType]() {cursorType = CursorType(cursorType.peg, true); });
+	buttons["cursorPeg"].setFunction([&cursorType]()	{cursorType = CursorType(Peg(PegShape::Circle), false); });
+	buttons["cursorBrick"].setFunction([&cursorType]()  {cursorType = CursorType(Peg(PegShape::Rect), false);	});
+	buttons["cursorSelect"].setFunction([&cursorType]() {cursorType = CursorType(cursorType.peg, true);			});
 
 	std::vector<Peg> pegs;
 	std::vector<Peg*> selectedPegs;
@@ -135,7 +134,8 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 		for (auto& butt : buttons) {
 			if (butt.second.isHovering()) buttonIsHovered = true;
 			butt.second.poll();
-			butt.second.draw(window);
+			window.draw(butt.second.getShape());
+			window.draw(butt.second.getTintShape());
 		}
 
 		for (auto& mouseEvnt : input.mouseEvents) {
@@ -160,6 +160,6 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 			window.draw(peg.getShape());
 
 		window.display();
-
+		window.clear();
 	}
 }

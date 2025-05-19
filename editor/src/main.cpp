@@ -24,9 +24,9 @@ int main(){
     };
     
     const sf::Font* textFont = static_cast<const sf::Font*>(resourceManger.getResource("resources/robotto.ttf"));
-    buttons["cursorPeg"].setText("peg", textFont, 15.0f, 0.0f);
-    buttons["cursorBrick"].setText("brick", textFont, 15.0f, 0.0f);
-    buttons["cursorSelect"].setText("select", textFont, 15.0f, 0.0f);
+    buttons["cursorPeg"].setText("peg", textFont, 15U, 0.0f);
+    buttons["cursorBrick"].setText("brick", textFont, 15U, 0.0f);
+    buttons["cursorSelect"].setText("select", textFont, 15U, 0.0f);
     
     runEditor(window, input, resourceManger, buttons);
 }

@@ -47,7 +47,7 @@ void Button::setSize(const sf::Vector2f size){
     m_tintShape.setSize(size);
 }
 
-void Button::setText(const std::string& text, const sf::Font* font, const float size, const float offsetAmount){
+void Button::setText(const std::string& text, const sf::Font* font, const unsigned int size, const float offsetAmount){
     m_text = sf::Text(text, *font, size);
     const sf::Vector2f newPos = {m_shape.getPosition().x + (m_shape.getSize().x/2) - (m_text.getGlobalBounds().width * 0.5f) , m_shape.getPosition().y + m_shape.getSize().y + offsetAmount};
     m_text.setPosition(newPos);
@@ -85,7 +85,7 @@ bool Button::isHovering() const {
     return m_hovering;
 }
 
-sf::RectangleShape& Button::getShape() {
+const sf::RectangleShape& Button::getShape() const {
     return m_shape;
 }
 

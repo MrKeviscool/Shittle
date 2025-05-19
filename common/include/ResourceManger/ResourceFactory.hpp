@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 
-#include "ResourceManger/Resource.hpp"
+class Resource;
 
 
 std::unique_ptr<Resource> ResourceFactory(const std::string& path);

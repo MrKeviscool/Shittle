@@ -19,7 +19,7 @@ std::string getFileTypeStr(const std::string& path){
     std::string fileTypeBuff;
     fileTypeBuff.reserve(extentionSize);
 
-    for (std::uint8_t i = path.size() - extentionSize; i < path.size(); i++)
+    for (std::uint8_t i = static_cast<uint8_t>(path.size()) - extentionSize; i < path.size(); i++)
         fileTypeBuff.push_back(path[i]);
     
 

@@ -15,7 +15,7 @@ public:
 
     void setPosition(const sf::Vector2f);
     void setSize(const sf::Vector2f);
-    void setText(const std::string& text, const sf::Font* font, const float size = 12, const float offsetAmount = 2);
+    void setText(const std::string& text, const sf::Font* font, const unsigned int size = 12, const float offsetAmount = 2);
     void setTexture(const sf::Texture* texture);
     void setFunction(std::function<void()> func);
 
@@ -25,7 +25,7 @@ public:
 
     bool isHovering() const;
 
-    sf::RectangleShape& getShape();
+    const sf::RectangleShape& getShape() const;
     const sf::RectangleShape& getTintShape() const;
 
 private:
