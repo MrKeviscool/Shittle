@@ -81,7 +81,7 @@ bool Button::poll(){
 
 }
 
-inline bool Button::isHovering() const {
+bool Button::isHovering() const {
     return m_hovering;
 }
 

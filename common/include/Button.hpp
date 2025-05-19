@@ -23,7 +23,7 @@ public:
     
     void draw(sf::RenderTarget& target) const;
 
-    inline bool isHovering() const;
+    bool isHovering() const;
 
     sf::RectangleShape& getShape();
     const sf::RectangleShape& getTintShape() const;
