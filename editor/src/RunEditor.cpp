@@ -110,6 +110,44 @@ void drawSelected(sf::RenderTarget& window, const std::vector<Peg*>& selectedPeg
 	}
 }
 
+void exitCheck(sf::RenderWindow& window, InputState& input, ResourceManager& resources) {
+	for (auto& keyEvnt : input.keyEvents) {
+		if (keyEvnt.event.code == sf::Keyboard::Escape
+			&& keyEvnt.buttonState == InputState::ButtonState::released
+			&& askToExit(window, input, resources))
+		{
+			window.close();
+		}
+	}
+}
+
+//returns true if a button is hovered
+bool pollButtons(std::unordered_map<std::string, Button>& buttons) {
+	bool out = false;
+	for (auto& butt : buttons) {
+		butt.second.poll();
+		out = out || butt.second.isHovering();
+	}
+	return out;
+}
+
+void drawButtons(sf::RenderTarget& target, std::unordered_map<std::string, Button>& buttons) {
+	for (auto& butt : buttons)
+		butt.second.draw(target);
+}
+
+void drawPegOrCursor(sf::RenderWindow& window, bool isButtonHovered, sf::Vector2i mousePos, CursorType& cursorType) {
+	if (!cursorType.isCursor && !isButtonHovered) {
+		cursorType.peg.getShape().setPosition({ static_cast<float>(mousePos.x), static_cast<float>(mousePos.y) });
+		window.draw(cursorType.peg.getShape());
+		window.setMouseCursorVisible(false);
+	}
+	else 
+		window.setMouseCursorVisible(true);
+	
+}
+
+
 void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& resources, std::unordered_map<std::string, Button>& buttons) {
 	CursorType cursorType;
 
@@ -123,23 +161,12 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 	while (window.isOpen()) {
 		input.pollEvents();
 
-		for (auto& keyEvnt : input.keyEvents) {
-			if (keyEvnt.event.code == sf::Keyboard::Escape &&
-				keyEvnt.buttonState == InputState::ButtonState::released) 
-			{
-				if (askToExit(window, input, resources)) window.close();
-			}
-		}
+		exitCheck(window, input, resources);
 
 		window.clear();
 
-		bool buttonIsHovered = false;
-		for (auto& butt : buttons) {
-			if (butt.second.isHovering()) buttonIsHovered = true;
-			butt.second.poll();
-			window.draw(butt.second.getShape());
-			window.draw(butt.second.getTintShape());
-		}
+		const bool buttonIsHovered = pollButtons(buttons);
+		drawButtons(window, buttons);
 
 		for (auto& mouseEvnt : input.mouseEvents) {
 			if (!buttonIsHovered && mouseEvnt.event.button == sf::Mouse::Left && mouseEvnt.buttonState == InputState::ButtonState::released) {
@@ -153,15 +180,17 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 			}
 		}
 
-		if (!buttonIsHovered && !cursorType.isCursor) {
-			cursorType.peg.getShape().setPosition({static_cast<float>(input.mousePos.x), static_cast<float>(input.mousePos.y) });
-			window.draw(cursorType.peg.getShape());
-			window.setMouseCursorVisible(false);
-		}
-		else {
-			window.setMouseCursorVisible(true);
-		}
+		//if (placePegCheck(input, buttonIsHovered, cursorType, pegs)) {
+		//	placePeg(input, cursorType, pegs);
+		//}
+		//else if (!heldMouse(input)) {
+		//	selectPeg(input, pegs, selectedPegs);
+		//}
+		//else {
+		//	moveSelected(input, { static_cast<float>(input.mousePos.x), static_cast<float>(input.mousePos.y) }, selectedPegs);
+		//}
 
+		drawPegOrCursor(window, buttonIsHovered, input.mousePos, cursorType);
 		drawSelected(window, selectedPegs);
 
 		for (auto& peg : pegs)
