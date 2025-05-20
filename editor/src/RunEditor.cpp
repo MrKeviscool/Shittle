@@ -133,8 +133,8 @@ void drawSelected(sf::RenderTarget& window, const std::unordered_set<Peg*>& sele
 }
 
 void moveSelected(sf::RenderWindow& window, InputState& input, const sf::Vector2f mouseOrigin, std::forward_list<Peg>& pegs, const std::unordered_map<std::string, Button>& buttons, std::unordered_set<Peg*>& selected) {
-	std::vector<sf::Vector2f> pegOrigins;
-	for (auto pegPtr : selected) pegOrigins.push_back(pegPtr->getShape().getPosition());
+
+	sf::Vector2f lastMousePos = mouseOrigin;
 
 	while (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 		drawSelected(window, selected);
@@ -144,12 +144,12 @@ void moveSelected(sf::RenderWindow& window, InputState& input, const sf::Vector2
 		window.display();
 		window.clear();
 
-		auto selectedIter = selected.begin();
-		auto posIter = pegOrigins.cbegin();
+		const sf::Vector2f curMousePos = {static_cast<float>(input.mousePos.x), static_cast<float>(input.mousePos.y)};
 
-		for (; posIter != pegOrigins.end(); selectedIter++, posIter++) {
-			(*selectedIter)->getShape().setPosition(*posIter - (mouseOrigin - sf::Vector2f(static_cast<float>(input.mousePos.x), static_cast<float>(input.mousePos.y))));
-		}
+		for(auto pegPtr : selected)
+			pegPtr->getShape().move(curMousePos - lastMousePos);
+		
+		lastMousePos = curMousePos;
 
 	}
 }
@@ -198,13 +198,16 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 
 		for (auto& mouseEvnt : input.mouseEvents) {
 			if (!buttonIsHovered && mouseEvnt.event.button == sf::Mouse::Left && mouseEvnt.buttonState == InputState::ButtonState::pressed) {
-				if (!cursorType.isCursor) placePeg(input, cursorType, pegs);
-				else if (!heldMouse(input)) {
+				if (!cursorType.isCursor){
+					placePeg(input, cursorType, pegs);
+					break;
+				}
+				const sf::Vector2f mousePos = {static_cast<float>(input.mousePos.x), static_cast<float>(input.mousePos.y)};
+				if (!heldMouse(input)) {
 					togglePegSelect(input, pegs, selectedPegs);
+					break;
 				}
-				else {
-					moveSelected(window, input, { static_cast<float>(input.mousePos.x), static_cast<float>(input.mousePos.y) }, pegs, buttons, selectedPegs);
-				}
+				moveSelected(window, input, mousePos, pegs, buttons, selectedPegs);
 			}
 		}
 
