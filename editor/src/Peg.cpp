@@ -23,6 +23,10 @@ sf::Shape& Peg::getShape() {
     return *(reinterpret_cast<sf::Shape*>(m_shapeData));
 }
 
+const sf::Shape& Peg::getShape() const {
+    return *(reinterpret_cast<const sf::Shape*>(m_shapeData));
+} 
+
 bool Peg::contains(const sf::Vector2f pos) const {
     if(m_pegShape == PegShape::Circle){
         const sf::CircleShape* shape = reinterpret_cast<const sf::CircleShape*>(m_shapeData);

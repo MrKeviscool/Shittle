@@ -10,6 +10,7 @@ public:
     Peg(const PegShape pegShape);
     PegShape getShapeType() const;
     sf::Shape& getShape();
+    const sf::Shape& getShape() const;
     bool contains(const sf::Vector2f pos) const;
     
 private:
