@@ -26,6 +26,8 @@ bool InputState::isInitalised() {
 void InputState::reset(){
     mouseEvents.clear();
     keyEvents.clear();
+	resisedWindow = false;
+	shouldClose = false;
 }
 
 void InputState::pollEvents(){
@@ -37,9 +39,8 @@ void InputState::pollEvents(){
 	while (m_renderWindow->pollEvent(event)) {
 		switch (event.type) {
 		case sf::Event::Closed:
-			m_renderWindow->close();
+			shouldClose = true;
 			break;
-
 		case sf::Event::KeyPressed:
 			keyEvents.push_back({event.key, InputState::ButtonState::pressed});
 			break;
@@ -57,6 +58,10 @@ void InputState::pollEvents(){
 				break;
 		case sf::Event::MouseButtonReleased:
 			mouseEvents.push_back({ event.mouseButton, InputState::ButtonState::released });
+			break;
+		case sf::Event::Resized:
+			resisedWindow = true;
+			windowSize = m_renderWindow->getSize();
 			break;
 		default:
 			continue;

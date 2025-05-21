@@ -33,13 +33,18 @@ public:
     };
     std::vector<KeyInfo> keyEvents; //change to forwad linked list for O(1) eliment removal
 
+    sf::Vector2u windowSize;
+    bool resisedWindow;
+
+    bool shouldClose;
+
     void reset();
     void pollEvents();
 
 private:
     static bool m_initialised;
     static InputState m_InputState;
-    sf::RenderWindow* m_renderWindow = nullptr;
+    sf::RenderWindow* m_renderWindow;
 
     InputState() = default;
     InputState(const InputState&) = delete;

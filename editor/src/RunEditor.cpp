@@ -34,8 +34,10 @@ bool askToExit(sf::RenderWindow& window, InputState& input, ResourceManager& res
 		if (noButton.poll()) return false;
 		for (auto& event : input.keyEvents) {
 			if (event.event.code == sf::Keyboard::Escape
-				&& event.buttonState == InputState::ButtonState::released
-				) return false;
+				&& event.buttonState == InputState::ButtonState::released)
+			{
+				return false;
+			}
 		}
 		window.clear();
 		yesButton.draw(window);
@@ -155,12 +157,20 @@ void moveSelected(sf::RenderWindow& window, InputState& input, const sf::Vector2
 }
 
 void exitCheck(sf::RenderWindow& window, InputState& input, ResourceManager& resources) {
+	if(input.shouldClose){
+		if(askToExit(window, input, resources)){
+			window.close();
+		}
+		return;
+	}
 	for (auto& keyEvnt : input.keyEvents) {
 		if (keyEvnt.event.code == sf::Keyboard::Escape
-			&& keyEvnt.buttonState == InputState::ButtonState::released
-			&& askToExit(window, input, resources))
+			&& keyEvnt.buttonState == InputState::ButtonState::released)
 		{
-			window.close();
+			if(askToExit(window, input, resources)){
+				window.close();
+			}
+			return;
 		}
 	}
 }
