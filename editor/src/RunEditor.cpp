@@ -91,14 +91,17 @@ Peg* getPegOnMouse(const InputState& input, std::forward_list<Peg>& pegs){
 	return nullptr;
 }
 
-void togglePegSelect(const InputState& input, std::forward_list<Peg>& pegs, std::unordered_set<Peg*>& selectedPegs){
-	Peg* pegUnderCursor = getPegOnMouse(input, pegs);
-	if(!pegUnderCursor) return;
+bool isSelected(const std::unordered_set<Peg*>& selectedPegs, Peg* peg){
+	return selectedPegs.find(peg) != selectedPegs.end();
+}
 
-	if (selectedPegs.find(pegUnderCursor) == selectedPegs.end())
-		selectedPegs.emplace(pegUnderCursor);
+void togglePegSelect(const InputState& input, Peg* peg, std::unordered_set<Peg*>& selectedPegs){
+	if(!peg) return;
+
+	if (selectedPegs.find(peg) == selectedPegs.end())
+		selectedPegs.emplace(peg);
 	else
-		selectedPegs.erase(pegUnderCursor);
+		selectedPegs.erase(peg);
 }
 
 void drawButtons(sf::RenderTarget& target, const std::unordered_map<std::string, Button>& buttons) {
@@ -196,30 +199,88 @@ bool pollButtons(std::unordered_map<std::string, Button>& buttons) {
 	return out;
 }
 
-void handleMousePegEvents(const CursorType& cursorType, sf::RenderWindow& window, InputState& input, std::forward_list<Peg>& pegs, std::unordered_set<Peg*>& selectedPegs, std::unordered_map<std::string, Button>& buttons) {
+void selectBox(const sf::Vector2f origin, sf::RenderWindow& window, InputState& input, std::forward_list<Peg>& pegs, std::unordered_set<Peg*>& selectedPegs, std::unordered_map<std::string, Button>& buttons){
+	sf::RectangleShape selectShape;
+	selectShape.setFillColor({0, 0, 255, 127});
+	selectShape.setPosition(origin);
+	while(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+		input.pollEvents();
+		window.clear();
+		drawSelected(window, selectedPegs);
+		drawPegs(window, pegs);
+		drawButtons(window, buttons);
+		window.draw(selectShape);
+		window.display();
+
+		if(input.mousePos.x <  origin.x){
+			selectShape.setSize({origin.x - input.mousePos.x, selectShape.getSize().y});
+			selectShape.setPosition(input.mousePos.x, selectShape.getPosition().y);
+		}
+		else {
+			selectShape.setSize({input.mousePos.x - origin.x, selectShape.getSize().y});
+		}
+		if(input.mousePos.y < origin.y){
+			selectShape.setSize({selectShape.getSize().x, origin.y - input.mousePos.y});
+			selectShape.setPosition(selectShape.getPosition().x, input.mousePos.y);
+		}
+		else {
+			selectShape.setSize({selectShape.getSize().x, input.mousePos.y - origin.y});
+		}
+	}
+
+	const sf::Vector2f startPos = selectShape.getPosition();
+	const sf::Vector2f endPos = selectShape.getPosition() + selectShape.getSize();
+
+	for(auto& peg : pegs){
+		const sf::Vector2f pegPos = peg.getShape().getPosition();
+
+		if(pegPos.x > startPos.x && pegPos.x < endPos.x && pegPos.y > startPos.y && pegPos.y < endPos.y)
+			selectedPegs.insert(&peg);
+	}
+
+}
+
+void handleMouseEvents(const CursorType& cursorType, sf::RenderWindow& window, InputState& input, std::forward_list<Peg>& pegs, std::unordered_set<Peg*>& selectedPegs, std::unordered_map<std::string, Button>& buttons) {
 	for (auto& mouseEvnt : input.mouseEvents) {
 		if (mouseEvnt.event.button != sf::Mouse::Left || mouseEvnt.buttonState != InputState::ButtonState::pressed)
-			break;
+			continue;
 			
 		if (!cursorType.isCursor){
 			placePeg(input, cursorType, pegs);
-			break;
+			return;
 		}
+
 		const sf::Vector2f mousePos = {static_cast<float>(input.mousePos.x), static_cast<float>(input.mousePos.y)};
-		if (!heldMouse(input)) {
-			togglePegSelect(input, pegs, selectedPegs);
-			break;
+		Peg* pegUnderCursor = getPegOnMouse(input, pegs);
+		bool mouseWasHeld = heldMouse(input);
+
+		if(!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)){
+			deselectAll(selectedPegs);
 		}
-		moveSelected(window, input, mousePos, pegs, buttons, selectedPegs);
+
+		if(!pegUnderCursor){
+			selectBox(mousePos, window, input, pegs, selectedPegs, buttons);
+			return;
+		}
+
+		if (!mouseWasHeld) {
+			togglePegSelect(input, pegUnderCursor, selectedPegs);
+			return;
+		}
+
+		if(isSelected(selectedPegs, pegUnderCursor)){
+			moveSelected(window, input, mousePos, pegs, buttons, selectedPegs);
+			return;
+		}
 	}
 }
 
 void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& resources, std::unordered_map<std::string, Button>& buttons) {
 	CursorType cursorType;
 
-	buttons["cursorPeg"].setFunction([&cursorType]()	{cursorType = CursorType(Peg(PegShape::Circle), false); });
-	buttons["cursorBrick"].setFunction([&cursorType]()  {cursorType = CursorType(Peg(PegShape::Rect), false);	});
-	buttons["cursorSelect"].setFunction([&cursorType]() {cursorType = CursorType(cursorType.peg, true);			});
+	buttons["cursorPeg"].   setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Circle), false);});
+	buttons["cursorBrick"]. setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Rect), false);	});
+	buttons["cursorSelect"].setFunction([&cursorType](){cursorType = CursorType(cursorType.peg, true);		});
 
 	std::forward_list<Peg> pegs;
 	std::unordered_set<Peg*> selectedPegs;
@@ -229,11 +290,9 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 
 		exitCheck(window, input, resources);
 
-		window.clear();
-
 		const bool buttonIsHovered = pollButtons(buttons);
 		if(!buttonIsHovered)
-			handleMousePegEvents(cursorType, window, input, pegs, selectedPegs, buttons);
+			handleMouseEvents(cursorType, window, input, pegs, selectedPegs, buttons);
 
 		drawCursorType(window, buttonIsHovered, input.mousePos, cursorType);
 		drawSelected(window, selectedPegs);
