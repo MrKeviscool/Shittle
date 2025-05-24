@@ -212,19 +212,19 @@ void selectBox(const sf::Vector2f origin, sf::RenderWindow& window, InputState& 
 		window.draw(selectShape);
 		window.display();
 
-		if(input.mousePos.x <  origin.x){
-			selectShape.setSize({origin.x - input.mousePos.x, selectShape.getSize().y});
-			selectShape.setPosition(input.mousePos.x, selectShape.getPosition().y);
+		if(static_cast<float>(input.mousePos.x) <  origin.x){
+			selectShape.setSize({origin.x - static_cast<float>(input.mousePos.x), selectShape.getSize().y});
+			selectShape.setPosition(static_cast<float>(input.mousePos.x), selectShape.getPosition().y);
 		}
 		else {
-			selectShape.setSize({input.mousePos.x - origin.x, selectShape.getSize().y});
+			selectShape.setSize({static_cast<float>(input.mousePos.x) - origin.x, selectShape.getSize().y});
 		}
-		if(input.mousePos.y < origin.y){
-			selectShape.setSize({selectShape.getSize().x, origin.y - input.mousePos.y});
-			selectShape.setPosition(selectShape.getPosition().x, input.mousePos.y);
+		if(static_cast<float>(input.mousePos.y) < origin.y){
+			selectShape.setSize({selectShape.getSize().x, origin.y - static_cast<float>(input.mousePos.y)});
+			selectShape.setPosition(selectShape.getPosition().x, static_cast<float>(input.mousePos.y));
 		}
 		else {
-			selectShape.setSize({selectShape.getSize().x, input.mousePos.y - origin.y});
+			selectShape.setSize({selectShape.getSize().x, static_cast<float>(input.mousePos.y) - origin.y});
 		}
 	}
 
