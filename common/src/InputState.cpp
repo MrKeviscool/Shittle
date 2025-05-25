@@ -24,10 +24,10 @@ bool InputState::isInitalised() {
 }
 
 void InputState::reset(){
-    mouseEvents.clear();
-    keyEvents.clear();
-	resisedWindow = false;
-	shouldClose = false;
+    m_mouseEvents.clear();
+    m_keyEvents.clear();
+	m_resisedWindow = false;
+	m_shouldClose = false;
 }
 
 void InputState::pollEvents(){
@@ -39,29 +39,29 @@ void InputState::pollEvents(){
 	while (m_renderWindow->pollEvent(event)) {
 		switch (event.type) {
 		case sf::Event::Closed:
-			shouldClose = true;
+			m_shouldClose = true;
 			break;
 		case sf::Event::KeyPressed:
-			keyEvents.push_back({event.key, InputState::ButtonState::pressed});
+			m_keyEvents.push_back({event.key, InputState::ButtonState::pressed});
 			break;
 		
 		case sf::Event::KeyReleased:
-			keyEvents.push_back({event.key, InputState::ButtonState::released});
+			m_keyEvents.push_back({event.key, InputState::ButtonState::released});
 			break;
 
 		case sf::Event::MouseMoved:
-			mousePos = {event.mouseMove.x, event.mouseMove.y};
+			m_mousePos = {event.mouseMove.x, event.mouseMove.y};
 			break;
 
 		case sf::Event::MouseButtonPressed:
-			mouseEvents.push_back({ event.mouseButton, InputState::ButtonState::pressed });
-				break;
+			m_mouseEvents.push_back({ event.mouseButton, InputState::ButtonState::pressed });
+			break;
 		case sf::Event::MouseButtonReleased:
-			mouseEvents.push_back({ event.mouseButton, InputState::ButtonState::released });
+			m_mouseEvents.push_back({ event.mouseButton, InputState::ButtonState::released });
 			break;
 		case sf::Event::Resized:
-			resisedWindow = true;
-			windowSize = m_renderWindow->getSize();
+			m_resisedWindow = true;
+			m_windowSize = m_renderWindow->getSize();
 			break;
 		default:
 			continue;
@@ -69,4 +69,24 @@ void InputState::pollEvents(){
 
 	}
 
+}
+
+const std::vector<InputState::KeyInfo>& InputState::keyEvents() const {
+	return m_keyEvents;
+}
+const std::vector<InputState::MouseInfo>& InputState::mouseEvents() const {
+	return m_mouseEvents;
+}
+sf::Vector2u InputState::windowSize() const {
+	return m_windowSize;
+}
+sf::Vector2i InputState::mousePos() const {
+	return m_mousePos;
+}
+
+bool InputState::resisedWindow() const {
+	return m_resisedWindow;
+}
+bool InputState::shouldClose() const {
+	return m_shouldClose;
 }

@@ -23,20 +23,19 @@ public:
         ButtonState buttonState;
     };
 
-    sf::Vector2i mousePos;
-    std::vector<MouseInfo> mouseEvents; //change to forwad linked list for O(1) eliment removal
-
-
     struct KeyInfo {
         sf::Event::KeyEvent event;
         ButtonState buttonState;
     };
-    std::vector<KeyInfo> keyEvents; //change to forwad linked list for O(1) eliment removal
 
-    sf::Vector2u windowSize;
-    bool resisedWindow;
 
-    bool shouldClose;
+    const std::vector<KeyInfo>& keyEvents() const;
+    const std::vector<MouseInfo>& mouseEvents() const;
+    sf::Vector2u windowSize() const;
+    sf::Vector2i mousePos() const;
+
+    bool resisedWindow() const;
+    bool shouldClose() const;
 
     void reset();
     void pollEvents();
@@ -45,6 +44,14 @@ private:
     static bool m_initialised;
     static InputState m_InputState;
     sf::RenderWindow* m_renderWindow;
+
+    std::vector<KeyInfo> m_keyEvents;
+    std::vector<MouseInfo> m_mouseEvents;
+    sf::Vector2i m_mousePos;
+    sf::Vector2u m_windowSize;
+    
+    bool m_resisedWindow;
+    bool m_shouldClose;
 
     InputState() = default;
     InputState(const InputState&) = delete;

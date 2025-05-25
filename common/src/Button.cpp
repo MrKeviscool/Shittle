@@ -56,10 +56,10 @@ void Button::setText(const std::string& text, const sf::Font* font, const unsign
 bool Button::poll(){
     if(!m_input) m_input = InputState::getPtr();
 
-    m_hovering = (m_input->mousePos.x > m_shape.getPosition().x
-        && m_input->mousePos.x < m_shape.getPosition().x + m_shape.getSize().x
-        && m_input->mousePos.y > m_shape.getPosition().y
-        && m_input->mousePos.y < m_shape.getPosition().y  + m_shape.getSize().y);
+    m_hovering = (m_input->mousePos().x > m_shape.getPosition().x
+        && m_input->mousePos().x < m_shape.getPosition().x + m_shape.getSize().x
+        && m_input->mousePos().y > m_shape.getPosition().y
+        && m_input->mousePos().y < m_shape.getPosition().y  + m_shape.getSize().y);
     
     if(!isHovering()){
         m_tintShape.setFillColor({0,0,0,0});
@@ -68,7 +68,7 @@ bool Button::poll(){
 
     m_tintShape.setFillColor(tintColor);
 
-    for(auto& event : m_input->mouseEvents){
+    for(auto& event : m_input->mouseEvents()){
         if(event.event.button == sf::Mouse::Button::Left &&
             event.buttonState == InputState::ButtonState::released)
         {
