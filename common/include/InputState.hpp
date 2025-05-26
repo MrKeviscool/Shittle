@@ -33,6 +33,7 @@ public:
     const std::vector<MouseInfo>& mouseEvents() const;
     sf::Vector2u windowSize() const;
     sf::Vector2i mousePos() const;
+    sf::Vector2i mouseDownOrigin() const;
 
     bool resisedWindow() const;
     bool shouldClose() const;
@@ -48,6 +49,7 @@ private:
     std::vector<KeyInfo> m_keyEvents;
     std::vector<MouseInfo> m_mouseEvents;
     sf::Vector2i m_mousePos;
+    sf::Vector2i m_mouseDownOrigin;
     sf::Vector2u m_windowSize;
     
     bool m_resisedWindow;

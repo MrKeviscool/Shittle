@@ -28,3 +28,13 @@ unsigned int getGcf(const unsigned int a, const unsigned int b){
 	}
 	return _b;
 }
+
+const int getDistance(const sf::Vector2i a, const sf::Vector2i b) {
+	const sf::Vector2i distance {
+		std::abs(a.x - b.x),
+		std::abs(a.y - b.y)
+	};
+
+	return static_cast<int>(std::roundf(std::sqrt(static_cast<float>(distance.x * distance.x + distance.y * distance.y))));
+
+};

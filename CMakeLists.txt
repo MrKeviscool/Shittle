@@ -14,6 +14,7 @@ add_executable(
     ${CMAKE_SOURCE_DIR}/common/src/Button.cpp
     ${CMAKE_SOURCE_DIR}/common/src/InputState.cpp
     ${CMAKE_SOURCE_DIR}/common/src/ResourceManager.cpp
+    ${CMAKE_SOURCE_DIR}/common/src/Algorithms.cpp
     ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/FontResource.cpp
     ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/ImageResource.cpp
     ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/Resource.cpp

@@ -55,6 +55,7 @@ void InputState::pollEvents(){
 
 		case sf::Event::MouseButtonPressed:
 			m_mouseEvents.push_back({ event.mouseButton, InputState::ButtonState::pressed });
+			m_mouseDownOrigin = m_mousePos;
 			break;
 		case sf::Event::MouseButtonReleased:
 			m_mouseEvents.push_back({ event.mouseButton, InputState::ButtonState::released });
@@ -82,6 +83,10 @@ sf::Vector2u InputState::windowSize() const {
 }
 sf::Vector2i InputState::mousePos() const {
 	return m_mousePos;
+}
+
+sf::Vector2i InputState::mouseDownOrigin() const {
+	return m_mouseDownOrigin;
 }
 
 bool InputState::resisedWindow() const {
