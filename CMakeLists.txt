@@ -21,6 +21,7 @@ add_executable(
     ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/ResourceFactory.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/Peg.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/RunEditor.cpp
+    ${CMAKE_SOURCE_DIR}/editor/src/CursorType.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/main.cpp
 )
 

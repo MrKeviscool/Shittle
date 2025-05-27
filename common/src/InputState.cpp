@@ -4,6 +4,24 @@ bool InputState::m_initialised = false;
 InputState InputState::m_InputState;
 sf::RenderWindow* m_renderWindow = nullptr;
 
+size_t InputState::hash::operator()(const KeyInfo& toHash) const noexcept {
+	return (static_cast<size_t>(toHash.event.code) | (static_cast<size_t>(toHash.buttonState) << ((sizeof(size_t) * 8) - sizeof(decltype(toHash.buttonState)) * 8)));
+}
+
+size_t InputState::hash::operator()(const MouseInfo& toHash) const noexcept {
+	return (static_cast<size_t>(toHash.event.button) | (static_cast<size_t>(toHash.buttonState) << ((sizeof(size_t) * 8) - sizeof(decltype(toHash.buttonState)) * 8)));
+};
+
+bool InputState::KeyInfo::operator==(const InputState::KeyInfo& other) const noexcept {
+	return event.code == other.event.code
+		&& buttonState == other.buttonState; 
+}
+
+bool InputState::MouseInfo::operator==(const InputState::MouseInfo& other) const noexcept {
+	return event.button == other.event.button
+		&& buttonState == other.buttonState; 
+}
+
 InputState* InputState::getPtr() {
     if (!m_initialised) throw std::exception();
     return &m_InputState;
@@ -42,11 +60,11 @@ void InputState::pollEvents(){
 			m_shouldClose = true;
 			break;
 		case sf::Event::KeyPressed:
-			m_keyEvents.push_back({event.key, InputState::ButtonState::pressed});
+			m_keyEvents.insert({event.key, InputState::ButtonState::pressed});
 			break;
 		
 		case sf::Event::KeyReleased:
-			m_keyEvents.push_back({event.key, InputState::ButtonState::released});
+			m_keyEvents.insert({event.key, InputState::ButtonState::released});
 			break;
 
 		case sf::Event::MouseMoved:
@@ -54,11 +72,11 @@ void InputState::pollEvents(){
 			break;
 
 		case sf::Event::MouseButtonPressed:
-			m_mouseEvents.push_back({ event.mouseButton, InputState::ButtonState::pressed });
+			m_mouseEvents.insert({ event.mouseButton, InputState::ButtonState::pressed });
 			m_mouseDownOrigin = m_mousePos;
 			break;
 		case sf::Event::MouseButtonReleased:
-			m_mouseEvents.push_back({ event.mouseButton, InputState::ButtonState::released });
+			m_mouseEvents.insert({ event.mouseButton, InputState::ButtonState::released });
 			break;
 		case sf::Event::Resized:
 			m_resisedWindow = true;
@@ -72,10 +90,10 @@ void InputState::pollEvents(){
 
 }
 
-const std::vector<InputState::KeyInfo>& InputState::keyEvents() const {
+const std::unordered_set<InputState::KeyInfo, InputState::hash>& InputState::keyEvents() const {
 	return m_keyEvents;
 }
-const std::vector<InputState::MouseInfo>& InputState::mouseEvents() const {
+const std::unordered_set<InputState::MouseInfo, InputState::hash>& InputState::mouseEvents() const {
 	return m_mouseEvents;
 }
 sf::Vector2u InputState::windowSize() const {

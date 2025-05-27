@@ -1,7 +1,7 @@
 #pragma once
 
 #include <exception>
-#include <vector>
+#include <unordered_set>
 
 #include <SFML/Graphics.hpp>
 
@@ -18,19 +18,25 @@ public:
         released,
     };
 
-    struct MouseInfo {
-        sf::Event::MouseButtonEvent event;
-        ButtonState buttonState;
-    };
-
     struct KeyInfo {
         sf::Event::KeyEvent event;
         ButtonState buttonState;
+        bool operator==(const KeyInfo& other) const noexcept;
+    };
+    struct MouseInfo {
+        sf::Event::MouseButtonEvent event;
+        ButtonState buttonState;
+        bool operator==(const MouseInfo& other) const noexcept;
     };
 
+    // template<typename T>
+    struct hash {
+        size_t operator()(const KeyInfo& toHash) const noexcept;
+        size_t operator()(const MouseInfo& toHash) const noexcept;
+    };
 
-    const std::vector<KeyInfo>& keyEvents() const;
-    const std::vector<MouseInfo>& mouseEvents() const;
+    const std::unordered_set<KeyInfo, hash>& keyEvents() const;
+    const std::unordered_set<MouseInfo, hash>& mouseEvents() const;
     sf::Vector2u windowSize() const;
     sf::Vector2i mousePos() const;
     sf::Vector2i mouseDownOrigin() const;
@@ -46,8 +52,8 @@ private:
     static InputState m_InputState;
     sf::RenderWindow* m_renderWindow;
 
-    std::vector<KeyInfo> m_keyEvents;
-    std::vector<MouseInfo> m_mouseEvents;
+    std::unordered_set<KeyInfo, hash> m_keyEvents;
+    std::unordered_set<MouseInfo, hash> m_mouseEvents;
     sf::Vector2i m_mousePos;
     sf::Vector2i m_mouseDownOrigin;
     sf::Vector2u m_windowSize;
