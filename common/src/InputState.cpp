@@ -46,6 +46,7 @@ void InputState::reset(){
     m_keyEvents.clear();
 	m_resisedWindow = false;
 	m_shouldClose = false;
+	m_mouseMoveAmount = {0,0};
 }
 
 void InputState::pollEvents(){
@@ -53,6 +54,8 @@ void InputState::pollEvents(){
 	reset();
 
 	sf::Event event;
+
+	const sf::Vector2i oldMousePos = m_mousePos;
 
 	while (m_renderWindow->pollEvent(event)) {
 		switch (event.type) {
@@ -70,7 +73,6 @@ void InputState::pollEvents(){
 		case sf::Event::MouseMoved:
 			m_mousePos = {event.mouseMove.x, event.mouseMove.y};
 			break;
-
 		case sf::Event::MouseButtonPressed:
 			m_mouseEvents.insert({ event.mouseButton.button, InputState::ButtonState::pressed });
 			m_mouseDownOrigin = m_mousePos;
@@ -87,7 +89,7 @@ void InputState::pollEvents(){
 		}
 
 	}
-
+	m_mouseMoveAmount = m_mousePos - oldMousePos;
 }
 
 const std::unordered_set<InputState::KeyInfo, InputState::hash>& InputState::keyEvents() const {
@@ -102,9 +104,11 @@ sf::Vector2u InputState::windowSize() const {
 sf::Vector2i InputState::mousePos() const {
 	return m_mousePos;
 }
-
 sf::Vector2i InputState::mouseDownOrigin() const {
 	return m_mouseDownOrigin;
+}
+sf::Vector2i InputState::mouseMoveAmount() const {
+	return m_mouseMoveAmount;
 }
 
 bool InputState::resisedWindow() const {

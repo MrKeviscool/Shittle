@@ -40,6 +40,7 @@ public:
     sf::Vector2u windowSize() const;
     sf::Vector2i mousePos() const;
     sf::Vector2i mouseDownOrigin() const;
+    sf::Vector2i mouseMoveAmount() const;
 
     bool resisedWindow() const;
     bool shouldClose() const;
@@ -56,6 +57,7 @@ private:
     std::unordered_set<MouseInfo, hash> m_mouseEvents;
     sf::Vector2i m_mousePos;
     sf::Vector2i m_mouseDownOrigin;
+    sf::Vector2i m_mouseMoveAmount;
     sf::Vector2u m_windowSize;
     
     bool m_resisedWindow;
