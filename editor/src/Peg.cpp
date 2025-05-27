@@ -48,8 +48,8 @@ bool Peg::contains(const sf::Vector2f pos) const {
 sf::Vector2f Peg::getSize() const {
     if (m_pegShape == PegShape::Circle) {
         const sf::CircleShape* shape = reinterpret_cast<const sf::CircleShape*>(m_shapeData);
-        const float radius = shape->getRadius();
-        return { radius, radius };
+        const float diamiter = shape->getRadius() * 2;
+        return { diamiter, diamiter };
     }
     else {
         const sf::RectangleShape* shape = reinterpret_cast<const sf::RectangleShape*>(m_shapeData);

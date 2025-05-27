@@ -13,7 +13,7 @@ std::vector<int> getPrimes(const int to){
 	}
 	
 	std::vector<int> out;
-	for(int i = 0; i < sieve.size(); i++)
+	for(int i = 0; i < static_cast<int>(sieve.size()); i++)
 		if(sieve[i]) out.push_back(i+2);
 	
 	return out;

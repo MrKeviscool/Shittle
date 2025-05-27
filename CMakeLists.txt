@@ -9,6 +9,7 @@ project(Shittle)
 
 include_directories(${CMAKE_SOURCE_DIR}/common/include ${CMAKE_SOURCE_DIR}/editor/include /usr/include/)
 
+
 add_executable(
     editor
     ${CMAKE_SOURCE_DIR}/common/src/Button.cpp
@@ -24,6 +25,8 @@ add_executable(
     ${CMAKE_SOURCE_DIR}/editor/src/CursorType.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/main.cpp
 )
+
+target_compile_options(editor PUBLIC -Wall)
 
 target_link_libraries(
     editor 

@@ -225,9 +225,12 @@ void selectBox(const sf::Vector2i origin, const sf::Vector2i curMousePos, sf::Re
 
 	for(auto& peg : pegs){
 		const sf::Vector2f pegPos = peg.getShape().getPosition();
+		const sf::Vector2f endPegPos = pegPos + peg.getSize();
 
-		if(pegPos.x > startPos.x && pegPos.x < endPos.x && pegPos.y > startPos.y && pegPos.y < endPos.y)
+		if(startPos.x <= endPegPos.x && endPos.x >= pegPos.x
+		&& startPos.y <= endPegPos.y && endPos.y >= pegPos.y){
 			selectedPegs.insert(&peg);
+		}
 	}
 
 }
@@ -239,7 +242,8 @@ bool hasDragged(const InputState& input){
 MouseState getMouseState(const CursorType& cursorType, const InputState& input, std::forward_list<Peg>& pegs, std::unordered_set<Peg*>& selectedPegs){
 	if(!cursorType.isCursor) return MouseState::None;
 	
-	if(getPegOnMouse(input, pegs)) 
+	Peg* pegUnderCursor = getPegOnMouse(input, pegs);
+	if(pegUnderCursor && selectedPegs.find(pegUnderCursor) != selectedPegs.end()) 
 		return MouseState::Dragging;
 	
 	return MouseState::Selecting;	
@@ -247,26 +251,21 @@ MouseState getMouseState(const CursorType& cursorType, const InputState& input, 
 
 void handleMouseEvents(const MouseState mouseState, const CursorType& cursorType, sf::RenderWindow& window, InputState& input, std::forward_list<Peg>& pegs, std::unordered_set<Peg*>& selectedPegs) {
 	const bool mouseIsDown = sf::Mouse::isButtonPressed(sf::Mouse::Left);
-	static sf::Vector2i mousePosLastFrame = {0,0};
-	const sf::Vector2i mousePos = input.mousePos();
 	if(mouseState == MouseState::Selecting && mouseIsDown && !sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
 		deselectAll(selectedPegs);
 
 	if(mouseState == MouseState::None 
 		&& input.mouseEvents().find({sf::Mouse::Left, InputState::ButtonState::released}) != input.mouseEvents().end()){
 		placePeg(input, cursorType, pegs);
-		mousePosLastFrame = input.mousePos();
 		return;
 	}
 	if(mouseState == MouseState::Selecting && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
 		selectBox(input.mouseDownOrigin(), input.mousePos(), window, pegs, selectedPegs);
-		mousePosLastFrame = input.mousePos();
 		return;
 	}
 
 	if(mouseState == MouseState::Dragging && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
 		moveSelected(input.mouseMoveAmount(), selectedPegs);
-		mousePosLastFrame = input.mousePos();
 		return;
 	}
 }
@@ -278,8 +277,8 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 	std::unordered_set<Peg*> selectedPegs;
 
 	buttons[ButtonType::cursorPeg].   setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Circle), false);});
-	buttons[ButtonType::cursorBrick]. setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Rect), false);	});
-	buttons[ButtonType::cursorSelect].setFunction([&cursorType](){cursorType = CursorType(cursorType.peg, true);		});
+	buttons[ButtonType::cursorBrick]. setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Rect), false);});
+	buttons[ButtonType::cursorSelect].setFunction([&cursorType](){cursorType = CursorType(cursorType.peg, true);});
 
 
 	while (window.isOpen()) {
