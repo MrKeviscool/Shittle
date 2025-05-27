@@ -5,20 +5,20 @@ InputState InputState::m_InputState;
 sf::RenderWindow* m_renderWindow = nullptr;
 
 size_t InputState::hash::operator()(const KeyInfo& toHash) const noexcept {
-	return (static_cast<size_t>(toHash.event.code) | (static_cast<size_t>(toHash.buttonState) << ((sizeof(size_t) * 8) - sizeof(decltype(toHash.buttonState)) * 8)));
+	return (static_cast<size_t>(toHash.key) | (static_cast<size_t>(toHash.buttonState) << ((sizeof(size_t) * 8) - sizeof(decltype(toHash.buttonState)) * 8)));
 }
 
 size_t InputState::hash::operator()(const MouseInfo& toHash) const noexcept {
-	return (static_cast<size_t>(toHash.event.button) | (static_cast<size_t>(toHash.buttonState) << ((sizeof(size_t) * 8) - sizeof(decltype(toHash.buttonState)) * 8)));
+	return (static_cast<size_t>(toHash.button) | (static_cast<size_t>(toHash.buttonState) << ((sizeof(size_t) * 8) - sizeof(decltype(toHash.buttonState)) * 8)));
 };
 
 bool InputState::KeyInfo::operator==(const InputState::KeyInfo& other) const noexcept {
-	return event.code == other.event.code
+	return key == other.key
 		&& buttonState == other.buttonState; 
 }
 
 bool InputState::MouseInfo::operator==(const InputState::MouseInfo& other) const noexcept {
-	return event.button == other.event.button
+	return button == other.button
 		&& buttonState == other.buttonState; 
 }
 
@@ -60,11 +60,11 @@ void InputState::pollEvents(){
 			m_shouldClose = true;
 			break;
 		case sf::Event::KeyPressed:
-			m_keyEvents.insert({event.key, InputState::ButtonState::pressed});
+			m_keyEvents.insert({event.key.code, InputState::ButtonState::pressed});
 			break;
 		
 		case sf::Event::KeyReleased:
-			m_keyEvents.insert({event.key, InputState::ButtonState::released});
+			m_keyEvents.insert({event.key.code, InputState::ButtonState::released});
 			break;
 
 		case sf::Event::MouseMoved:
@@ -72,11 +72,11 @@ void InputState::pollEvents(){
 			break;
 
 		case sf::Event::MouseButtonPressed:
-			m_mouseEvents.insert({ event.mouseButton, InputState::ButtonState::pressed });
+			m_mouseEvents.insert({ event.mouseButton.button, InputState::ButtonState::pressed });
 			m_mouseDownOrigin = m_mousePos;
 			break;
 		case sf::Event::MouseButtonReleased:
-			m_mouseEvents.insert({ event.mouseButton, InputState::ButtonState::released });
+			m_mouseEvents.insert({ event.mouseButton.button, InputState::ButtonState::released });
 			break;
 		case sf::Event::Resized:
 			m_resisedWindow = true;

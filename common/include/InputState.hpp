@@ -19,12 +19,12 @@ public:
     };
 
     struct KeyInfo {
-        sf::Event::KeyEvent event;
+        sf::Keyboard::Key key;
         ButtonState buttonState;
         bool operator==(const KeyInfo& other) const noexcept;
     };
     struct MouseInfo {
-        sf::Event::MouseButtonEvent event;
+        sf::Mouse::Button button;
         ButtonState buttonState;
         bool operator==(const MouseInfo& other) const noexcept;
     };
