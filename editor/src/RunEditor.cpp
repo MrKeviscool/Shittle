@@ -7,6 +7,7 @@
 #include <iostream>
 #include <forward_list>
 #include <unordered_set>
+#include <cmath>
 
 #include "Button.hpp"
 #include "InputState.hpp"
@@ -235,8 +236,24 @@ void selectBox(const sf::Vector2i origin, const sf::Vector2i curMousePos, sf::Re
 
 }
 
-bool hasDragged(const InputState& input){
-	return getDistance(input.mousePos(), input.mouseDownOrigin()) > dragPixels;
+void resizeSelected(const int delta, std::unordered_set<Peg*>& selectedPegs){
+	for(auto pegPtr : selectedPegs){
+		const sf::Vector2f curSize = pegPtr->getSize();
+		const sf::Vector2f newSize = {
+			curSize.x * std::pow(1.1f, static_cast<float>(delta)),
+			curSize.y * std::pow(1.1f, static_cast<float>(delta)),
+		};
+		pegPtr->setSize(newSize);
+	}
+}
+
+void resizeCursor(const int delta, CursorType& cursorType){
+	const sf::Vector2f curSize = cursorType.peg.getSize();
+	const sf::Vector2f newSize = {
+		curSize.x * std::pow(1.1f, static_cast<float>(delta)),
+		curSize.y * std::pow(1.1f, static_cast<float>(delta)),
+	};
+	cursorType.peg.setSize(newSize);
 }
 
 MouseState getMouseState(const CursorType& cursorType, const InputState& input, std::forward_list<Peg>& pegs, std::unordered_set<Peg*>& selectedPegs){
@@ -249,8 +266,18 @@ MouseState getMouseState(const CursorType& cursorType, const InputState& input, 
 	return MouseState::Selecting;	
 }
 
-void handleMouseEvents(const MouseState mouseState, const CursorType& cursorType, sf::RenderWindow& window, InputState& input, std::forward_list<Peg>& pegs, std::unordered_set<Peg*>& selectedPegs) {
+void handleMouseEvents(const MouseState mouseState, CursorType& cursorType, sf::RenderWindow& window, InputState& input, std::forward_list<Peg>& pegs, std::unordered_set<Peg*>& selectedPegs) {
 	const bool mouseIsDown = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+	
+	if(input.mouseScrollDelta() != 0){
+		if(mouseState == MouseState::None){
+			resizeCursor(input.mouseScrollDelta(), cursorType);
+		}
+		else {
+			resizeSelected(input.mouseScrollDelta(), selectedPegs);
+		}
+	}
+	
 	if(mouseState == MouseState::Selecting && mouseIsDown && !sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
 		deselectAll(selectedPegs);
 

@@ -15,6 +15,20 @@ Peg::Peg(const PegShape shape) : m_pegShape(shape){
     
 }
 
+Peg::Peg(const Peg& other){
+    m_pegShape = other.m_pegShape;
+    if(m_pegShape == PegShape::Circle){
+        sf::CircleShape* circShapeData = reinterpret_cast<sf::CircleShape*>(m_shapeData);
+        new (circShapeData) sf::CircleShape;
+        (*circShapeData) = *(reinterpret_cast<const sf::CircleShape*>(other.m_shapeData));
+    }
+    else{
+        sf::RectangleShape* rectShapeData = reinterpret_cast<sf::RectangleShape*>(m_shapeData);
+        new (rectShapeData) sf::RectangleShape;
+        (*rectShapeData) = *reinterpret_cast<const sf::RectangleShape*>(other.m_shapeData);
+    }
+}
+
 PegShape Peg::getShapeType() const {
     return m_pegShape;
 }
@@ -54,5 +68,14 @@ sf::Vector2f Peg::getSize() const {
     else {
         const sf::RectangleShape* shape = reinterpret_cast<const sf::RectangleShape*>(m_shapeData);
         return shape->getSize();
+    }
+}
+
+void Peg::setSize(const sf::Vector2f newSize) {
+    if(m_pegShape == PegShape::Circle){
+        reinterpret_cast<sf::CircleShape*>(m_shapeData)->setRadius(newSize.x / 2);
+    }
+    else {
+        reinterpret_cast<sf::RectangleShape*>(m_shapeData)->setSize(newSize);
     }
 }

@@ -41,6 +41,7 @@ public:
     sf::Vector2i mousePos() const;
     sf::Vector2i mouseDownOrigin() const;
     sf::Vector2i mouseMoveAmount() const;
+    int mouseScrollDelta() const;
 
     bool resisedWindow() const;
     bool shouldClose() const;
@@ -59,6 +60,7 @@ private:
     sf::Vector2i m_mouseDownOrigin;
     sf::Vector2i m_mouseMoveAmount;
     sf::Vector2u m_windowSize;
+    int m_mouseScrollDelta;
     
     bool m_resisedWindow;
     bool m_shouldClose;

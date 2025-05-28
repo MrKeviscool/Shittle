@@ -47,6 +47,7 @@ void InputState::reset(){
 	m_resisedWindow = false;
 	m_shouldClose = false;
 	m_mouseMoveAmount = {0,0};
+	m_mouseScrollDelta = 0;
 }
 
 void InputState::pollEvents(){
@@ -84,6 +85,9 @@ void InputState::pollEvents(){
 			m_resisedWindow = true;
 			m_windowSize = m_renderWindow->getSize();
 			break;
+		case sf::Event::MouseWheelScrolled:
+			m_mouseScrollDelta += event.mouseWheelScroll.delta;
+			break;
 		default:
 			continue;
 		}
@@ -110,7 +114,9 @@ sf::Vector2i InputState::mouseDownOrigin() const {
 sf::Vector2i InputState::mouseMoveAmount() const {
 	return m_mouseMoveAmount;
 }
-
+int InputState::mouseScrollDelta() const {
+	return m_mouseScrollDelta;
+}
 bool InputState::resisedWindow() const {
 	return m_resisedWindow;
 }

@@ -68,13 +68,9 @@ bool Button::poll(){
 
     m_tintShape.setFillColor(tintColor);
 
-    for(auto& event : m_input->mouseEvents()){
-        if(event.button == sf::Mouse::Button::Left &&
-            event.buttonState == InputState::ButtonState::released)
-        {
-            if (m_clickFunc) m_clickFunc();
-            return true;
-        }
+    if(m_input->mouseEvents().find({sf::Mouse::Button::Left, InputState::ButtonState::pressed}) != m_input->mouseEvents().end()){
+        if(m_clickFunc) m_clickFunc();
+        return true;
     }
 
     return false;
