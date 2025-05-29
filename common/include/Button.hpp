@@ -21,7 +21,7 @@ public:
 
     bool poll();
     
-    void draw(sf::RenderTarget& target) const;
+    void draw(sf::RenderWindow& target) const;
 
     bool isHovering() const;
 

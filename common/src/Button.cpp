@@ -89,7 +89,7 @@ const sf::RectangleShape& Button::getTintShape() const {
     return m_tintShape;
 }
 
-void Button::draw(sf::RenderTarget& target) const {
+void Button::draw(sf::RenderWindow& target) const {
     target.draw(m_shape);
     target.draw(m_tintShape);
     target.draw(m_text);

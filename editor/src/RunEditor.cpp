@@ -4,7 +4,6 @@
 
 #include <unordered_map>
 #include <chrono>
-#include <iostream>
 #include <forward_list>
 #include <unordered_set>
 #include <cmath>
@@ -15,9 +14,7 @@
 #include "CursorType.hpp"
 #include "Algorithms.hpp"
 
-const int dragPixels = 10;
-
-enum class MouseState {
+enum class MouseState : uint8_t {
 	None,
 	Selecting,
 	Dragging,
@@ -116,7 +113,7 @@ void togglePegSelect(const InputState& input, Peg* peg, std::unordered_set<Peg*>
 		selectedPegs.erase(peg);
 }
 
-void drawButtons(sf::RenderTarget& target, const std::unordered_map<ButtonType, Button>& buttons) {
+void drawButtons(sf::RenderWindow& target, const std::unordered_map<ButtonType, Button>& buttons) {
 	for (auto& butt : buttons)
 		butt.second.draw(target);
 }
@@ -137,8 +134,9 @@ void drawPegs(sf::RenderWindow& window, const std::forward_list<Peg>& pegs) {
 		window.draw(peg.getShape());
 }
 
-void drawSelected(sf::RenderTarget& window, const std::unordered_set<Peg*>& selectedPegs) {
+void drawSelected(sf::RenderWindow& window, const std::unordered_set<Peg*>& selectedPegs) {
 	for (Peg* peg : selectedPegs) {
+
 		if (peg->getShapeType() == PegShape::Circle) {
 			const sf::CircleShape* shape = static_cast<sf::CircleShape*>(&peg->getShape());
 			const float radius = shape->getRadius() * 1.5f;
@@ -152,9 +150,9 @@ void drawSelected(sf::RenderTarget& window, const std::unordered_set<Peg*>& sele
 		else {
 			const sf::RectangleShape* shape = static_cast<sf::RectangleShape*>(&peg->getShape());
 			sf::RectangleShape shapeToDraw(shape->getSize() * 1.5f);
-
-			shapeToDraw.setPosition(shape->getPosition() - (shape->getSize() / 4.0f));
 			shapeToDraw.setFillColor(sf::Color::Yellow);
+			shapeToDraw.setPosition(shape->getPosition() - (shape->getSize() / 4.0f));
+			shapeToDraw.setRotation(peg->getShape().getRotation());
 			window.draw(shapeToDraw);
 		}
 	}
@@ -241,7 +239,7 @@ void resizeSelected(const int delta, std::unordered_set<Peg*>& selectedPegs){
 		const sf::Vector2f curSize = pegPtr->getSize();
 		const sf::Vector2f newSize = {
 			curSize.x * std::pow(1.1f, static_cast<float>(delta)),
-			curSize.y * std::pow(1.1f, static_cast<float>(delta)),
+			(pegPtr->getShapeType() == PegShape::Rect? curSize.y * std::pow(1.1f, static_cast<float>(delta)) : 0)
 		};
 		pegPtr->setSize(newSize);
 	}
@@ -266,17 +264,43 @@ MouseState getMouseState(const CursorType& cursorType, const InputState& input, 
 	return MouseState::Selecting;	
 }
 
+bool shouldUpdateMouseState(const InputState& input){
+	return input.mouseEvents().find({sf::Mouse::Left, InputState::ButtonState::pressed}) != input.mouseEvents().end();
+}
+
+void rotateSelected(const int delta, std::unordered_set<Peg*>& selectedPegs){
+	for(auto pegPtr : selectedPegs){
+		pegPtr->getShape().rotate(5 * delta); //not bothered to do the math that aligns it rn
+	}
+}
+
+void rotateCursor(){
+
+}
+
+void rotateOrScale(const MouseState mouseState, const InputState& input, CursorType& cursorType, std::unordered_set<Peg*>& selectedPegs){
+	if(input.mouseScrollDelta() != 0){
+		const bool ctrlPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::LControl);
+
+		if(mouseState == MouseState::None && !ctrlPressed){
+			resizeCursor(input.mouseScrollDelta(), cursorType);
+		}
+		else if(!ctrlPressed){
+			resizeSelected(input.mouseScrollDelta(), selectedPegs);
+		}
+		else if(mouseState == MouseState::None) {
+			rotateCursor();
+		}
+		else{
+			rotateSelected(input.mouseScrollDelta(), selectedPegs);
+		}
+	}
+}
+
 void handleMouseEvents(const MouseState mouseState, CursorType& cursorType, sf::RenderWindow& window, InputState& input, std::forward_list<Peg>& pegs, std::unordered_set<Peg*>& selectedPegs) {
 	const bool mouseIsDown = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 	
-	if(input.mouseScrollDelta() != 0){
-		if(mouseState == MouseState::None){
-			resizeCursor(input.mouseScrollDelta(), cursorType);
-		}
-		else {
-			resizeSelected(input.mouseScrollDelta(), selectedPegs);
-		}
-	}
+	rotateOrScale(mouseState, input, cursorType, selectedPegs);
 	
 	if(mouseState == MouseState::Selecting && mouseIsDown && !sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
 		deselectAll(selectedPegs);
@@ -305,8 +329,7 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 
 	buttons[ButtonType::cursorPeg].   setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Circle), false);});
 	buttons[ButtonType::cursorBrick]. setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Rect), false);});
-	buttons[ButtonType::cursorSelect].setFunction([&cursorType](){cursorType = CursorType(cursorType.peg, true);});
-
+	buttons[ButtonType::cursorSelect].setFunction([&cursorType](){cursorType.isCursor = true;});
 
 	while (window.isOpen()) {
 		input.pollEvents();
@@ -315,10 +338,11 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 
 		const bool buttonIsHovered = pollButtons(buttons);
 
+		if(shouldUpdateMouseState(input)){
+			mouseState = getMouseState(cursorType, input, pegs, selectedPegs);
+		}
+
 		if(!buttonIsHovered){
-			if(input.mouseEvents().find({sf::Mouse::Left, InputState::ButtonState::pressed}) != input.mouseEvents().end()){
-				mouseState = getMouseState(cursorType, input, pegs, selectedPegs);
-			}
 			handleMouseEvents(mouseState, cursorType, window, input, pegs, selectedPegs);
 		}
 

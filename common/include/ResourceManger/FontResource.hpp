@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Resource.hpp"
 
 #include <SFML/Graphics/Font.hpp>

@@ -21,7 +21,7 @@ std::vector<int> getPrimes(const int to){
 }
 
 unsigned int getGcf(const unsigned int a, const unsigned int b){
-	int _a = a, _b = b;
+	unsigned int _a = a, _b = b;
 	while(const int remainder = _a % _b){
 		_a = _b;
 		_b = remainder;
