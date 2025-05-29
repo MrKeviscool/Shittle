@@ -234,14 +234,36 @@ void selectBox(const sf::Vector2i origin, const sf::Vector2i curMousePos, sf::Re
 
 }
 
+void resizeInPlace(Peg* peg, const int resizeSteps) {
+	const sf::Vector2f originalSize = peg->getSize();
+
+	if (peg->getShapeType() == PegShape::Circle) {
+
+		const sf::Vector2f newSize = {
+			originalSize.x * std::pow(1.1f, static_cast<float>(resizeSteps)),
+			0
+		};
+
+		const float moveAmount = (originalSize.x - newSize.x) / 2;
+
+		peg->setSize(newSize);
+		peg->getShape().move(moveAmount, moveAmount);
+	}
+	else {
+		const sf::Vector2f newSize = {
+			originalSize.x * std::pow(1.1f, static_cast<float>(resizeSteps)),
+			originalSize.y * std::pow(1.1f, static_cast<float>(resizeSteps)),
+		};
+
+		const sf::Vector2f moveAmount = { (originalSize.x - newSize.x) / 2, (originalSize.y - newSize.y) / 2 };
+		peg->setSize(newSize);
+		peg->getShape().move(moveAmount);
+	}
+}
+
 void resizeSelected(const int delta, std::unordered_set<Peg*>& selectedPegs){
 	for(auto pegPtr : selectedPegs){
-		const sf::Vector2f curSize = pegPtr->getSize();
-		const sf::Vector2f newSize = {
-			curSize.x * std::pow(1.1f, static_cast<float>(delta)),
-			(pegPtr->getShapeType() == PegShape::Rect? curSize.y * std::pow(1.1f, static_cast<float>(delta)) : 0)
-		};
-		pegPtr->setSize(newSize);
+		resizeInPlace(pegPtr, delta);
 	}
 }
 
@@ -249,7 +271,7 @@ void resizeCursor(const int delta, CursorType& cursorType){
 	const sf::Vector2f curSize = cursorType.peg.getSize();
 	const sf::Vector2f newSize = {
 		curSize.x * std::pow(1.1f, static_cast<float>(delta)),
-		curSize.y * std::pow(1.1f, static_cast<float>(delta)),
+		((cursorType.peg.getShapeType() == PegShape::Rect)? curSize.y * std::pow(1.1f, static_cast<float>(delta)) : 0),
 	};
 	cursorType.peg.setSize(newSize);
 }

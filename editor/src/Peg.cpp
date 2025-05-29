@@ -15,7 +15,7 @@ Peg::Peg(const PegShape shape) : m_pegShape(shape){
     
 }
 
-Peg::Peg(const Peg& other){
+Peg::Peg(const Peg& other) : m_shapeData() {
     m_pegShape = other.m_pegShape;
     if(m_pegShape == PegShape::Circle){
         sf::CircleShape* circShapeData = reinterpret_cast<sf::CircleShape*>(m_shapeData);
