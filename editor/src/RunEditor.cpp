@@ -290,9 +290,25 @@ bool shouldUpdateMouseState(const InputState& input){
 	return input.mouseEvents().find({sf::Mouse::Left, InputState::ButtonState::pressed}) != input.mouseEvents().end();
 }
 
+void rotateInPlace(Peg* peg, int rotationSteps){
+	const float rotation = rotationSteps * 5;
+	const sf::Vector2f pegSize = peg->getSize();
+	const sf::Vector2f halfPegSize{pegSize.x / 2.f, pegSize.y / 2.f};
+
+	const float curAngle  = peg->getShape().getRotation();
+	const float middleDistance = getDistance({0.f,0.f}, halfPegSize);
+	const float middleOffsetAngle = getAngle({0.f,0.f}, halfPegSize);
+
+	const sf::Vector2f middle = getPoint(curAngle + middleOffsetAngle, middleDistance);
+	const sf::Vector2f moveAmount = middle - getPoint(curAngle + middleOffsetAngle + rotation, middleDistance);
+
+	peg->getShape().move(moveAmount);
+	peg->getShape().rotate(rotation);
+}
+
 void rotateSelected(const int delta, std::unordered_set<Peg*>& selectedPegs){
 	for(auto pegPtr : selectedPegs){
-		pegPtr->getShape().rotate(5 * delta); //not bothered to do the math that aligns it rn
+		rotateInPlace(pegPtr, delta);
 	}
 }
 
@@ -342,6 +358,8 @@ void handleMouseEvents(const MouseState mouseState, CursorType& cursorType, sf::
 		return;
 	}
 }
+
+#include <iostream>
 
 void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& resources, std::unordered_map<ButtonType, Button>& buttons) {
 	CursorType cursorType;

@@ -29,12 +29,34 @@ unsigned int getGcf(const unsigned int a, const unsigned int b){
 	return _b;
 }
 
-const int getDistance(const sf::Vector2i a, const sf::Vector2i b) {
+int getDistance(const sf::Vector2i a, const sf::Vector2i b) {
 	const sf::Vector2i distance {
 		std::abs(a.x - b.x),
 		std::abs(a.y - b.y)
 	};
 
 	return static_cast<int>(std::roundf(std::sqrt(static_cast<float>(distance.x * distance.x + distance.y * distance.y))));
-
 };
+
+float getDistance(const sf::Vector2f a, const sf::Vector2f b){
+	const sf::Vector2f distance = {
+		std::abs(a.x - b.x),
+		std::abs(a.y - b.y)
+	};
+	return std::sqrt(distance.x * distance.x + distance.y * distance.y);
+}
+
+sf::Vector2f getPoint(const float angle, const float length){
+	return {
+		std::cos((angle - 90) * DEG_TO_RAD) * length,
+		std::sin((angle - 90) * DEG_TO_RAD) * length,
+	};
+}
+
+float getAngle(const float aX, const float aY, const float bX, const float bY){
+	return (std::atan2(aX - bX, bY - aY) * RAD_TO_DEG) + 180.f;
+}
+
+float getAngle(const sf::Vector2f a, const sf::Vector2f b){
+	return getAngle(a.x, a.y, b.x, b.y);
+}
