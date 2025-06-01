@@ -1,5 +1,7 @@
 #include "InputState.hpp"
 
+#include <cmath>
+
 bool InputState::m_initialised = false;
 InputState InputState::m_InputState;
 sf::RenderWindow* m_renderWindow = nullptr;

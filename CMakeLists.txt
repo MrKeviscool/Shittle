@@ -23,6 +23,12 @@ add_executable(
     ${CMAKE_SOURCE_DIR}/editor/src/Peg.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/RunEditor.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/CursorType.cpp
+    ${CMAKE_SOURCE_DIR}/editor/src/PegCommon.cpp
+    ${CMAKE_SOURCE_DIR}/editor/src/SelectCommon.cpp
+    ${CMAKE_SOURCE_DIR}/editor/src/DrawCommon.cpp
+    ${CMAKE_SOURCE_DIR}/editor/src/SelectedPeg.cpp
+    ${CMAKE_SOURCE_DIR}/editor/src/CursorType.cpp
+
     ${CMAKE_SOURCE_DIR}/editor/src/main.cpp
 )
 
