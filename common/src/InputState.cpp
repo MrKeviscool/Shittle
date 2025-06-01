@@ -86,7 +86,7 @@ void InputState::pollEvents(){
 			m_windowSize = m_renderWindow->getSize();
 			break;
 		case sf::Event::MouseWheelScrolled:
-			m_mouseScrollDelta += event.mouseWheelScroll.delta;
+			m_mouseScrollDelta += static_cast<int>(std::roundf(event.mouseWheelScroll.delta));
 			break;
 		default:
 			continue;

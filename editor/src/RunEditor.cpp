@@ -8,11 +8,13 @@
 #include <unordered_set>
 #include <cmath>
 
-#include "Button.hpp"
 #include "InputState.hpp"
 #include "ResourceManager.hpp"
 #include "CursorType.hpp"
 #include "Algorithms.hpp"
+#include "SelectCommon.hpp"
+#include "PegCommon.hpp"
+#include "DrawCommon.hpp"
 
 enum class MouseState : uint8_t {
 	None,
@@ -56,116 +58,6 @@ bool askToExit(sf::RenderWindow& window, InputState& input, ResourceManager& res
 
 void placePeg(const InputState& input, const CursorType& cursorType, std::forward_list<Peg>& pegs) {
 	pegs.emplace_front(cursorType.peg);
-}
-
-void deselectAll(std::unordered_set<Peg*>& selectedPegs){
-	selectedPegs.clear();
-}
-
-Peg* getPegOnMouse(const InputState& input, std::forward_list<Peg>& pegs){
-	for(auto& peg : pegs){
-		if(peg.contains({ static_cast<float>(input.mousePos().x), static_cast<float>(input.mousePos().y) }))
-			return &peg;
-	}
-	return nullptr;
-}
-
-std::vector<Peg*> getPegsOnMouse(const InputState& input, std::forward_list<Peg>& pegs){
-	std::vector<Peg*> out;
-	for(auto& peg : pegs){
-		if(peg.contains({ static_cast<float>(input.mousePos().x), static_cast<float>(input.mousePos().y) }))
-			out.push_back(&peg);
-	}
-	return out;
-}
-
-Peg* getSelectedOnMouse(const InputState& input, std::unordered_set<Peg*>& selectedPegs){
-	for(auto peg : selectedPegs){
-		if(peg->contains({ static_cast<float>(input.mousePos().x), static_cast<float>(input.mousePos().y) }))
-			return peg;
-	}
-	return nullptr;
-}
-
-Peg* getPegAtPosition(const sf::Vector2f pos, std::forward_list<Peg>& pegs){
-	for(auto& peg : pegs)
-		if(peg.contains(pos)) return &peg;
-	return nullptr;
-}
-
-Peg* getPegAtPosition(const sf::Vector2i pos, std::forward_list<Peg>& pegs) {
-	const sf::Vector2f floatPos{ static_cast<float>(pos.x), static_cast<float>(pos.y) };
-	for (auto& peg : pegs)
-		if (peg.contains(floatPos)) return &peg;
-	return nullptr;
-}
-
-bool isSelected(const std::unordered_set<Peg*>& selectedPegs, Peg* peg){
-	return selectedPegs.find(peg) != selectedPegs.end();
-}
-
-void togglePegSelect(const InputState& input, Peg* peg, std::unordered_set<Peg*>& selectedPegs){
-	if(!peg) return;
-
-	if (selectedPegs.find(peg) == selectedPegs.end())
-		selectedPegs.emplace(peg);
-	else
-		selectedPegs.erase(peg);
-}
-
-void drawButtons(sf::RenderWindow& target, const std::unordered_map<ButtonType, Button>& buttons) {
-	for (auto& butt : buttons)
-		butt.second.draw(target);
-}
-
-void drawCursorType(sf::RenderWindow& window, bool isButtonHovered, sf::Vector2i mousePos, CursorType& cursorType) {
-	if (!cursorType.isCursor && !isButtonHovered) {
-		cursorType.peg.getShape().setPosition({ static_cast<float>(mousePos.x), static_cast<float>(mousePos.y) });
-		window.draw(cursorType.peg.getShape());
-		window.setMouseCursorVisible(false);
-	}
-	else
-		window.setMouseCursorVisible(true);
-
-}
-
-void drawPegs(sf::RenderWindow& window, const std::forward_list<Peg>& pegs) {
-	for (auto& peg : pegs)
-		window.draw(peg.getShape());
-}
-
-void drawSelected(sf::RenderWindow& window, const std::unordered_set<Peg*>& selectedPegs) {
-	for (Peg* peg : selectedPegs) {
-
-		if (peg->getShapeType() == PegShape::Circle) {
-			const sf::CircleShape* shape = static_cast<sf::CircleShape*>(&peg->getShape());
-			const float radius = shape->getRadius() * 1.5f;
-
-			sf::CircleShape shapeToDraw(radius);
-			shapeToDraw.setPosition(peg->getShape().getPosition() - sf::Vector2f(shape->getRadius() / 2.0f, shape->getRadius() / 2.0f));
-			shapeToDraw.setFillColor(sf::Color::Yellow);
-			window.draw(shapeToDraw);
-		}
-
-		else {
-			const sf::RectangleShape* shape = static_cast<sf::RectangleShape*>(&peg->getShape());
-			sf::RectangleShape shapeToDraw(shape->getSize() * 1.5f);
-			shapeToDraw.setFillColor(sf::Color::Yellow);
-			shapeToDraw.setPosition(shape->getPosition() - (shape->getSize() / 4.0f));
-			shapeToDraw.setRotation(peg->getShape().getRotation());
-			window.draw(shapeToDraw);
-		}
-	}
-}
-
-void moveSelected(const sf::Vector2f amountToMove, std::unordered_set<Peg*>& selectedPegs){
-	for(Peg* pegPtr : selectedPegs){
-		pegPtr->getShape().move(amountToMove);
-	}
-}
-
-void moveSelected(const sf::Vector2i amountToMove, std::unordered_set<Peg*>& selectedPegs) {
-	moveSelected(sf::Vector2f{static_cast<float>(amountToMove.x), static_cast<float>(amountToMove.y)}, selectedPegs);
 }
 
 void exitCheck(sf::RenderWindow& window, InputState& input, ResourceManager& resources) {
@@ -234,39 +126,6 @@ void selectBox(const sf::Vector2i origin, const sf::Vector2i curMousePos, sf::Re
 
 }
 
-void resizeInPlace(Peg* peg, const int resizeSteps) {
-	const sf::Vector2f originalSize = peg->getSize();
-
-	if (peg->getShapeType() == PegShape::Circle) {
-
-		const sf::Vector2f newSize = {
-			originalSize.x * std::pow(1.1f, static_cast<float>(resizeSteps)),
-			0
-		};
-
-		const float moveAmount = (originalSize.x - newSize.x) / 2;
-
-		peg->setSize(newSize);
-		peg->getShape().move(moveAmount, moveAmount);
-	}
-	else {
-		const sf::Vector2f newSize = {
-			originalSize.x * std::pow(1.1f, static_cast<float>(resizeSteps)),
-			originalSize.y * std::pow(1.1f, static_cast<float>(resizeSteps)),
-		};
-
-		const sf::Vector2f moveAmount = { (originalSize.x - newSize.x) / 2, (originalSize.y - newSize.y) / 2 };
-		peg->setSize(newSize);
-		peg->getShape().move(moveAmount);
-	}
-}
-
-void resizeSelected(const int delta, std::unordered_set<Peg*>& selectedPegs){
-	for(auto pegPtr : selectedPegs){
-		resizeInPlace(pegPtr, delta);
-	}
-}
-
 void resizeCursor(const int delta, CursorType& cursorType){
 	const sf::Vector2f curSize = cursorType.peg.getSize();
 	const sf::Vector2f newSize = {
@@ -288,28 +147,6 @@ MouseState getMouseState(const CursorType& cursorType, const InputState& input, 
 
 bool shouldUpdateMouseState(const InputState& input){
 	return input.mouseEvents().find({sf::Mouse::Left, InputState::ButtonState::pressed}) != input.mouseEvents().end();
-}
-
-void rotateInPlace(Peg* peg, int rotationSteps){
-	const float rotation = rotationSteps * 5;
-	const sf::Vector2f pegSize = peg->getSize();
-	const sf::Vector2f halfPegSize{pegSize.x / 2.f, pegSize.y / 2.f};
-
-	const float curAngle  = peg->getShape().getRotation();
-	const float middleDistance = getDistance({0.f,0.f}, halfPegSize);
-	const float middleOffsetAngle = getAngle({0.f,0.f}, halfPegSize);
-
-	const sf::Vector2f middle = getPoint(curAngle + middleOffsetAngle, middleDistance);
-	const sf::Vector2f moveAmount = middle - getPoint(curAngle + middleOffsetAngle + rotation, middleDistance);
-
-	peg->getShape().move(moveAmount);
-	peg->getShape().rotate(rotation);
-}
-
-void rotateSelected(const int delta, std::unordered_set<Peg*>& selectedPegs){
-	for(auto pegPtr : selectedPegs){
-		rotateInPlace(pegPtr, delta);
-	}
 }
 
 void rotateCursor(){

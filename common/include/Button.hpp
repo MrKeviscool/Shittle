@@ -1,3 +1,5 @@
+#pragma once
+
 #include "InputState.hpp"
 
 #include <SFML/Graphics.hpp>

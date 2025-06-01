@@ -5,7 +5,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #ifndef M_PIf
-#define M_PIf 3.14159265358979323846f;
+#define M_PIf 3.14159265358979323846f
 #endif
 
 #define DEG_TO_RAD M_PIf / 180.f
