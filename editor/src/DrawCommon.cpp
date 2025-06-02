@@ -20,26 +20,8 @@ void drawPegs(sf::RenderWindow& window, const std::forward_list<Peg>& pegs) {
 		window.draw(peg.getShape());
 }
 
-void drawSelected(sf::RenderWindow& window, const std::unordered_set<Peg*>& selectedPegs) {
-	for (Peg* peg : selectedPegs) {
-
-		if (peg->getShapeType() == PegShape::Circle) {
-			const sf::CircleShape* shape = static_cast<sf::CircleShape*>(&peg->getShape());
-			const float radius = shape->getRadius() * 1.5f;
-
-			sf::CircleShape shapeToDraw(radius);
-			shapeToDraw.setPosition(peg->getShape().getPosition() - sf::Vector2f(shape->getRadius() / 2.0f, shape->getRadius() / 2.0f));
-			shapeToDraw.setFillColor(sf::Color::Yellow);
-			window.draw(shapeToDraw);
-		}
-
-		else {
-			const sf::RectangleShape* shape = static_cast<sf::RectangleShape*>(&peg->getShape());
-			sf::RectangleShape shapeToDraw(shape->getSize() * 1.5f);
-			shapeToDraw.setFillColor(sf::Color::Yellow);
-			shapeToDraw.setPosition(shape->getPosition() - (shape->getSize() / 4.0f));
-			shapeToDraw.setRotation(peg->getShape().getRotation());
-			window.draw(shapeToDraw);
-		}
+void drawSelected(sf::RenderWindow& window, const std::unordered_set<SelectedPeg>& selectedPegs) {
+	for (const SelectedPeg& selectedPeg : selectedPegs) {
+		window.draw(selectedPeg.getSelectShape());
 	}
 }

@@ -15,6 +15,7 @@
 #include "SelectCommon.hpp"
 #include "PegCommon.hpp"
 #include "DrawCommon.hpp"
+#include "SelectedPeg.hpp"
 
 enum class MouseState : uint8_t {
 	None,
@@ -89,7 +90,7 @@ bool pollButtons(std::unordered_map<ButtonType, Button>& buttons) {
 	return out;
 }
 
-void selectBox(const sf::Vector2i origin, const sf::Vector2i curMousePos, sf::RenderWindow& window, std::forward_list<Peg>& pegs, std::unordered_set<Peg*>& selectedPegs){
+void selectBox(const sf::Vector2i origin, const sf::Vector2i curMousePos, sf::RenderWindow& window, std::forward_list<Peg>& pegs, std::unordered_set<SelectedPeg>& selectedPegs){
 	sf::RectangleShape selectShape;
 
 	selectShape.setFillColor({0, 0, 255, 127});
@@ -135,7 +136,7 @@ void resizeCursor(const int delta, CursorType& cursorType){
 	cursorType.peg.setSize(newSize);
 }
 
-MouseState getMouseState(const CursorType& cursorType, const InputState& input, std::forward_list<Peg>& pegs, std::unordered_set<Peg*>& selectedPegs){
+MouseState getMouseState(const CursorType& cursorType, const InputState& input, std::forward_list<Peg>& pegs, std::unordered_set<SelectedPeg>& selectedPegs){
 	if(!cursorType.isCursor) return MouseState::None;
 	
 	Peg* pegUnderCursor = getPegOnMouse(input, pegs);
@@ -153,7 +154,7 @@ void rotateCursor(){
 
 }
 
-void rotateOrScale(const MouseState mouseState, const InputState& input, CursorType& cursorType, std::unordered_set<Peg*>& selectedPegs){
+void rotateOrScale(const MouseState mouseState, const InputState& input, CursorType& cursorType, std::unordered_set<SelectedPeg>& selectedPegs){
 	if(input.mouseScrollDelta() != 0){
 		const bool ctrlPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::LControl);
 
@@ -172,7 +173,7 @@ void rotateOrScale(const MouseState mouseState, const InputState& input, CursorT
 	}
 }
 
-void handleMouseEvents(const MouseState mouseState, CursorType& cursorType, sf::RenderWindow& window, InputState& input, std::forward_list<Peg>& pegs, std::unordered_set<Peg*>& selectedPegs) {
+void handleMouseEvents(const MouseState mouseState, CursorType& cursorType, sf::RenderWindow& window, InputState& input, std::forward_list<Peg>& pegs, std::unordered_set<SelectedPeg>& selectedPegs) {
 	const bool mouseIsDown = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 	
 	rotateOrScale(mouseState, input, cursorType, selectedPegs);
@@ -202,7 +203,7 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 	CursorType cursorType;
 	MouseState mouseState = MouseState::None;
 	std::forward_list<Peg> pegs;
-	std::unordered_set<Peg*> selectedPegs;
+	std::unordered_set<SelectedPeg> selectedPegs;
 
 	buttons[ButtonType::cursorPeg].   setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Circle), false);});
 	buttons[ButtonType::cursorBrick]. setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Rect), false);});
