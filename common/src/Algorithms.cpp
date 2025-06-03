@@ -60,3 +60,9 @@ float getAngle(const float aX, const float aY, const float bX, const float bY){
 float getAngle(const sf::Vector2f a, const sf::Vector2f b){
 	return getAngle(a.x, a.y, b.x, b.y);
 }
+
+sf::Vector2f getPointFromOffsets(const sf::Vector2f origin, const float angle, const sf::Vector2f length) {
+	const float middleOffsetAngle = getAngle({ 0.f,0.f }, length);
+	const float middleDistance = getDistance({ 0.f,0.f }, length);
+	return getPoint(angle + middleOffsetAngle, middleDistance) + origin;
+}

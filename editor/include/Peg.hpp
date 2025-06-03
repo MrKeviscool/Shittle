@@ -20,6 +20,5 @@ public:
 
 private:
     PegShape m_pegShape;
-    alignas(Bigger<sf::CircleShape, sf::RectangleShape>::type) 
-        char m_shapeData[sizeof(Bigger<sf::CircleShape, sf::RectangleShape>::type)];
+    char m_shapeData[sizeof(Bigger<sf::CircleShape, sf::RectangleShape>::type)];
 };

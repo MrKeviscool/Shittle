@@ -4,12 +4,6 @@
 
 #include "Algorithms.hpp"
 
-sf::Vector2f getPointFromOffsets(const sf::Vector2f origin, const float angle, const sf::Vector2f length){
-	const float middleOffsetAngle = getAngle({ 0.f,0.f }, length);
-	const float middleDistance = getDistance({ 0.f,0.f }, length);
-	return getPoint(angle + middleOffsetAngle, middleDistance);
-}
-
 void rotateInPlace(Peg* peg, const int rotationSteps) {
 	rotateInPlace(peg->getShape(), peg->getSize(), rotationSteps);
 }

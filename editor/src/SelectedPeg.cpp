@@ -98,10 +98,6 @@ void SelectedPeg::setSelectedPos(const Peg* target, const sf::Vector2f selectSiz
 	}
 	else {
 		const sf::Vector2f pegSize = target->getSize();
-		const sf::Vector2f selectSize{
-			pegSize.x * rectSelectIncrease.x,
-			pegSize.y * rectSelectIncrease.y
-		};
 		const sf::Vector2f sizeDifference = selectSize - pegSize;
 		const sf::Vector2f setPos{
 			pegPos.x - (sizeDifference.x / 2.f),

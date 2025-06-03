@@ -11,7 +11,7 @@ bool isSelected(const std::unordered_set<SelectedPeg>& selectedPegs, Peg* peg) {
 	return selectedPegs.find(peg) != selectedPegs.end();
 }
 
-void togglePegSelect(const InputState& input, Peg* peg, std::unordered_set<SelectedPeg>& selectedPegs) {
+void togglePegSelect(Peg* peg, std::unordered_set<SelectedPeg>& selectedPegs) {
 	if (!peg) return;
 
 	if (selectedPegs.find(peg) == selectedPegs.end())
