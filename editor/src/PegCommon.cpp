@@ -26,38 +26,9 @@ void rotateInPlace(sf::Shape& peg, const sf::Vector2f size, const int rotationSt
 
 void resizeInPlace(Peg* peg, const int resizeSteps) {
 	resizeInPlace(peg->getShape(), peg->getShapeType(), resizeSteps);
-	//const sf::Vector2f originalSize = peg->getSize();
-	//sf::Shape& shape = peg->getShape();
-	//const float originalRotation = shape.getRotation();
-
-	//if (peg->getShapeType() == PegShape::Circle) {
-
-	//	const sf::Vector2f newSize = {
-	//		originalSize.x * std::pow(1.1f, static_cast<float>(resizeSteps)),
-	//		0
-	//	};
-
-	//	const float moveAmount = (originalSize.x - newSize.x) / 2;
-
-	//	peg->setSize(newSize);
-	//	shape.move(moveAmount, moveAmount);
-	//}
-	//else {
-	//	const sf::Vector2f newSize = {
-	//		originalSize.x * std::pow(1.1f, static_cast<float>(resizeSteps)),
-	//		originalSize.y * std::pow(1.1f, static_cast<float>(resizeSteps)),
-	//	};
-
-	//	const sf::Vector2f moveAmount = { (originalSize.x - newSize.x) / 2, (originalSize.y - newSize.y) / 2 };
-	//	peg->setSize(newSize);
-	//	shape.move(moveAmount);
-	//}
 }
 
 void resizeInPlace(sf::Shape& peg, const PegShape shapeType, const int resizeSteps) {
-
-	const float originalRotation = peg.getRotation();
-
 	if (shapeType == PegShape::Circle) {
 		sf::CircleShape& circle = reinterpret_cast<sf::CircleShape&>(peg);
 		const float originalSize = circle.getRadius() * 2.f;
