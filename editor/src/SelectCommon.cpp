@@ -1,7 +1,12 @@
 #include "SelectCommon.hpp"
 
+#include <cmath>
+
 #include "PegCommon.hpp"
 #include "SelectedPeg.hpp"
+
+const float rotationStepSize = 5.f;
+const float scalePercent = 1.1f;
 
 void deselectAll(std::unordered_set<SelectedPeg>& selectedPegs) {
 	selectedPegs.clear();
@@ -32,18 +37,20 @@ void moveSelected(const sf::Vector2i amountToMove, std::unordered_set<SelectedPe
 }
 
 void rotateSelected(const int delta, std::unordered_set<SelectedPeg>& selectedPegs){
+	const float scaledRotationAmount = rotationStepSize * static_cast<float>(delta);
 	for(const SelectedPeg& _selectedPeg : selectedPegs){
 		SelectedPeg& selectedPeg = const_cast<SelectedPeg&>(_selectedPeg);
-		rotateInPlace(selectedPeg.getPeg(), delta);
-		rotateInPlace(selectedPeg.getSelectShape(), _selectedPeg.getSelectSize(), delta);
+		rotateInPlace(selectedPeg.getPeg(), scaledRotationAmount);
+		rotateInPlace(selectedPeg.getSelectShape(), _selectedPeg.getSelectSize(), scaledRotationAmount);
 	}
 }
 
 void resizeSelected(const int delta, std::unordered_set<SelectedPeg>& selectedPegs) {
+	const float deltadScalePercent = std::pow(scalePercent, static_cast<float>(delta));
 	for (const SelectedPeg& cSelected : selectedPegs) {
 		SelectedPeg& selected = const_cast<SelectedPeg&>(cSelected);
-		resizeInPlace(selected.getPeg(), delta);
-		resizeInPlace(selected.getSelectShape(), selected.getPeg()->getShapeType(), delta);
+		scaleInPlace(selected.getPeg(), deltadScalePercent);
+		scaleInPlace(selected.getSelectShape(), selected.getPeg()->getShapeType(), deltadScalePercent);
 	}
 }
 
