@@ -18,13 +18,10 @@ void rotateInPlace(sf::Shape& peg, const sf::Vector2f size, const int rotationSt
 	const float rotation = rotationSteps * 5.f;
 	const sf::Vector2f pegSize = size;
 	const sf::Vector2f halfPegSize{ pegSize.x / 2.f, pegSize.y / 2.f };
-
-	const float curAngle = peg.getRotation();
-	const float middleDistance = getDistance({ 0.f,0.f }, halfPegSize);
-	const float middleOffsetAngle = getAngle({ 0.f,0.f }, halfPegSize);
-
-	const sf::Vector2f middle = getPoint(curAngle + middleOffsetAngle, middleDistance);
-	const sf::Vector2f moveAmount = middle - getPoint(curAngle + middleOffsetAngle + rotation, middleDistance);
+	
+	const sf::Vector2f middle = getPointFromOffsets({0,0}, peg.getRotation(), halfPegSize);
+	const sf::Vector2f rotatedMiddle = getPointFromOffsets({0,0}, peg.getRotation() + rotation, halfPegSize);
+	const sf::Vector2f moveAmount = middle - rotatedMiddle;
 
 	peg.move(moveAmount);
 	peg.rotate(rotation);
@@ -35,27 +32,29 @@ void resizeInPlace(Peg* peg, const int resizeSteps) {
 }
 
 void resizeInPlace(sf::Shape& peg, const PegShape shapeType, const int resizeSteps) {
+	const float resizeAmount = 1.1f;
 	if (shapeType == PegShape::Circle) {
 		sf::CircleShape& circle = reinterpret_cast<sf::CircleShape&>(peg);
-		const float originalSize = circle.getRadius();
-
-		const float newSize =
-			originalSize * std::pow(1.1f, static_cast<float>(resizeSteps));
-
-		const float moveAmount = (originalSize - newSize);
-
-		circle.setRadius(newSize);
-		circle.move(moveAmount, moveAmount);
+		const float originalSize = circle.getRadius() * 2.f;
+		const float newSize = originalSize * std::pow(resizeAmount, static_cast<float>(resizeSteps));
+		
+		const sf::Vector2f originalMiddlePos = getPointFromOffsets(circle.getPosition(), circle.getRotation(), {originalSize / 2.f, originalSize / 2.f});
+		const sf::Vector2f scaledMiddlePos = getPointFromOffsets(circle.getPosition(), circle.getRotation(), {newSize / 2.f, newSize / 2.f});
+		const sf::Vector2f moveAmount = originalMiddlePos - scaledMiddlePos;
+		circle.setRadius(newSize / 2.f);
+		circle.move(moveAmount);
 	}
 	else {
 		sf::RectangleShape& rect = reinterpret_cast<sf::RectangleShape&>(peg);
 		const sf::Vector2f originalSize = rect.getSize();
-		const sf::Vector2f newSize = {
-			originalSize.x * std::pow(1.1f, static_cast<float>(resizeSteps)),
-			originalSize.y * std::pow(1.1f, static_cast<float>(resizeSteps)),
+		const sf::Vector2f newSize {
+			originalSize.x * std::pow(resizeAmount, static_cast<float>(resizeSteps)),
+			originalSize.y * std::pow(resizeAmount, static_cast<float>(resizeSteps)),
 		};
 
-		const sf::Vector2f moveAmount = { (originalSize.x - newSize.x) / 2.f, (originalSize.y - newSize.y) / 2.f};
+		const sf::Vector2f originalMiddlePos = getPointFromOffsets(rect.getPosition(), rect.getRotation(), rect.getSize() / 2.f);
+		const sf::Vector2f scaledMiddlePos = getPointFromOffsets(rect.getPosition(), rect.getRotation(), newSize / 2.f);
+		const sf::Vector2f moveAmount = originalMiddlePos - scaledMiddlePos;
 		rect.setSize(newSize);
 		rect.move(moveAmount);
 	}
