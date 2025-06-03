@@ -35,8 +35,7 @@ void rotateSelected(const int delta, std::unordered_set<SelectedPeg>& selectedPe
 	for(const SelectedPeg& _selectedPeg : selectedPegs){
 		SelectedPeg& selectedPeg = const_cast<SelectedPeg&>(_selectedPeg);
 		rotateInPlace(selectedPeg.getPeg(), delta);
-		if(selectedPeg.getPeg()->getShapeType() == PegShape::Rect)
-			rotateInPlace(selectedPeg.getSelectShape(), _selectedPeg.getSelectSize(), delta);
+		rotateInPlace(selectedPeg.getSelectShape(), _selectedPeg.getSelectSize(), delta);
 	}
 }
 

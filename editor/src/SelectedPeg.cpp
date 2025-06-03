@@ -60,7 +60,7 @@ sf::Vector2f SelectedPeg::getSelectSize() const {
 		const sf::CircleShape* circle =
 			reinterpret_cast<const sf::CircleShape*>(shapeData);
 		const float rad = circle->getRadius();
-		return { rad, rad };
+		return { rad * 2, rad * 2 };
 	}
 	else {
 		const sf::RectangleShape* rect =

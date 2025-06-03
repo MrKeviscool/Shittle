@@ -4,6 +4,12 @@
 
 #include "Algorithms.hpp"
 
+sf::Vector2f getPointFromOffsets(const sf::Vector2f origin, const float angle, const sf::Vector2f length){
+	const float middleOffsetAngle = getAngle({ 0.f,0.f }, length);
+	const float middleDistance = getDistance({ 0.f,0.f }, length);
+	return getPoint(angle + middleOffsetAngle, middleDistance);
+}
+
 void rotateInPlace(Peg* peg, const int rotationSteps) {
 	rotateInPlace(peg->getShape(), peg->getSize(), rotationSteps);
 }
@@ -31,12 +37,12 @@ void resizeInPlace(Peg* peg, const int resizeSteps) {
 void resizeInPlace(sf::Shape& peg, const PegShape shapeType, const int resizeSteps) {
 	if (shapeType == PegShape::Circle) {
 		sf::CircleShape& circle = reinterpret_cast<sf::CircleShape&>(peg);
-		const float originalSize = circle.getRadius() * 2.f;
+		const float originalSize = circle.getRadius();
 
 		const float newSize =
 			originalSize * std::pow(1.1f, static_cast<float>(resizeSteps));
 
-		const float moveAmount = (originalSize - newSize) / 2;
+		const float moveAmount = (originalSize - newSize);
 
 		circle.setRadius(newSize);
 		circle.move(moveAmount, moveAmount);
@@ -49,7 +55,7 @@ void resizeInPlace(sf::Shape& peg, const PegShape shapeType, const int resizeSte
 			originalSize.y * std::pow(1.1f, static_cast<float>(resizeSteps)),
 		};
 
-		const sf::Vector2f moveAmount = { (originalSize.x - newSize.x) / 2, (originalSize.y - newSize.y) / 2 };
+		const sf::Vector2f moveAmount = { (originalSize.x - newSize.x) / 2.f, (originalSize.y - newSize.y) / 2.f};
 		rect.setSize(newSize);
 		rect.move(moveAmount);
 	}
