@@ -52,18 +52,18 @@ public:
 private:
     static bool m_initialised;
     static InputState m_InputState;
-    sf::RenderWindow* m_renderWindow;
+    sf::RenderWindow* m_renderWindow = nullptr;
 
     std::unordered_set<KeyInfo, hash> m_keyEvents;
     std::unordered_set<MouseInfo, hash> m_mouseEvents;
-    sf::Vector2i m_mousePos;
-    sf::Vector2i m_mouseDownOrigin;
-    sf::Vector2i m_mouseMoveAmount;
-    sf::Vector2u m_windowSize;
-    int m_mouseScrollDelta;
+    sf::Vector2i m_mousePos{ 0,0 };
+    sf::Vector2i m_mouseDownOrigin{ 0,0 };
+    sf::Vector2i m_mouseMoveAmount{ 0,0 };
+    sf::Vector2u m_windowSize{ 0,0 };
+    int m_mouseScrollDelta = 0;
     
-    bool m_resisedWindow;
-    bool m_shouldClose;
+    bool m_resisedWindow = false;
+    bool m_shouldClose = false;
 
     InputState() = default;
     InputState(const InputState&) = delete;

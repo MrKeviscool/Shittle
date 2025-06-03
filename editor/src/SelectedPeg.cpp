@@ -14,9 +14,10 @@ SelectedPeg::SelectedPeg(Peg* peg) : peg(peg), shapeData() {
 		new (shapeData) sf::RectangleShape(selectShapeSize);
 	}
 	setSelectedPos(peg, selectShapeSize);
-	
-
-	reinterpret_cast<sf::Shape*>(shapeData)->setFillColor(sf::Color::Yellow);
+	sf::Shape* shape =
+		reinterpret_cast<sf::Shape*>(shapeData);
+	shape->setFillColor(sf::Color::Yellow);
+	shape->setRotation(peg->getShape().getRotation());
 }
 
 SelectedPeg::~SelectedPeg() {
@@ -81,6 +82,7 @@ sf::Vector2f SelectedPeg::getSelectedSize(const Peg* target) const {
 	}
 }
 
+//TODO
 void SelectedPeg::setSelectedPos(const Peg* target, const sf::Vector2f selectSize){
 	const sf::Vector2f pegPos = target->getShape().getPosition();
 	if (shapeType == PegShape::Circle) {
