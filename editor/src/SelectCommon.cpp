@@ -61,3 +61,14 @@ Peg* getSelectedOnMouse(const InputState& input, std::unordered_set<SelectedPeg>
 	}
 	return nullptr;
 }
+
+void deleteSelected(std::forward_list<Peg>& pegs, std::unordered_set<SelectedPeg>& selectedPegs) {
+	pegs.remove_if(
+	[&selectedPegs](Peg& peg) -> bool 
+	{
+		const bool selected = isSelected(selectedPegs, &peg);
+		if(!selected) return false;
+		selectedPegs.erase(&peg);
+		return true;
+	});
+}

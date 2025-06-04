@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_set>
+#include <forward_list>
 
 #include "Peg.hpp"
 #include "InputState.hpp"
@@ -14,3 +15,4 @@ void moveSelected(const sf::Vector2i amountToMove, std::unordered_set<SelectedPe
 void rotateSelected(const int delta, std::unordered_set<SelectedPeg>& selectedPegs);
 void resizeSelected(const int delta, std::unordered_set<SelectedPeg>& selectedPegs);
 Peg* getSelectedOnMouse(const InputState& input, std::unordered_set<SelectedPeg>& selectedPegs);
+void deleteSelected(std::forward_list<Peg>& pegs, std::unordered_set<SelectedPeg>& selectedPegs);

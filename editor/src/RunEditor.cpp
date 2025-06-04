@@ -222,6 +222,10 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 			handleMouseEvents(mouseState, cursorType, window, input, pegs, selectedPegs);
 		}
 
+		if(input.keyEvents().find({sf::Keyboard::Backspace, InputState::ButtonState::pressed}) != input.keyEvents().end()){
+			deleteSelected(pegs, selectedPegs);
+		}
+
 		drawCursorType(window, buttonIsHovered, input.mousePos(), cursorType);
 		drawSelected(window, selectedPegs);
 
