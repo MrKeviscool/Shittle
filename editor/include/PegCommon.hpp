@@ -14,3 +14,9 @@ Peg* getPegAtPosition(const sf::Vector2i pos, std::forward_list<Peg>& pegs);
 Peg* getPegAtPosition(const sf::Vector2f pos, std::forward_list<Peg>&pegs);
 Peg* getPegOnMouse(const InputState& input, std::forward_list<Peg>& pegs);
 std::vector<Peg*> getPegsOnMouse(const InputState& input, std::forward_list<Peg>& pegs);
+
+sf::Vector2f getMiddlePosition(const Peg* peg);
+sf::Vector2f getMiddlePosition(const sf::Shape& shape, PegShape shapeType);
+
+void setMiddlePosition(Peg* peg, const sf::Vector2f newMiddlePos);
+void setMiddlePosition(sf::Shape& shape, const PegShape shapeType, const sf::Vector2f newMiddlePos);

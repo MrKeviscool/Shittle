@@ -30,7 +30,7 @@ private:
 	char shapeData[sizeof(Bigger<sf::CircleShape, sf::RectangleShape>::type)];
 	const float circSelectIncrease = 1.3f;
 	const sf::Vector2f rectSelectIncrease{ 1.3f, 1.3f };
-	void setSelectedPos(const Peg* target, const sf::Vector2f curSelectedSize);
+	void setSelectedPos(const Peg* target);
 	sf::Vector2f getSelectedSize(const Peg* target) const;
 	friend std::hash<SelectedPeg>;
 };

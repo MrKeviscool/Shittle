@@ -81,3 +81,38 @@ std::vector<Peg*> getPegsOnMouse(const InputState& input, std::forward_list<Peg>
 	}
 	return out;
 }
+
+sf::Vector2f getMiddlePosition(const Peg* peg){
+	return getMiddlePosition(
+		peg->getShape(),
+		peg->getShapeType()
+	);
+}
+
+sf::Vector2f getMiddlePosition(const sf::Shape& shape, const PegShape shapeType){
+	const float angle = shape.getRotation();
+	sf::Vector2f middlePositionOffset;
+	if(shapeType == PegShape::Circle){
+		const sf::CircleShape& circle =
+			reinterpret_cast<const sf::CircleShape&>(shape);
+		middlePositionOffset = {circle.getRadius(), circle.getRadius()};
+	}
+	else {
+		const sf::RectangleShape& rect = 
+			reinterpret_cast<const sf::RectangleShape&>(shape);
+			
+		middlePositionOffset = rect.getSize() / 2.f;
+	}
+	return getPointFromOffsets(shape.getPosition(), angle, middlePositionOffset);
+}
+
+void setMiddlePosition(Peg* peg, const sf::Vector2f newMiddlePos) {
+	setMiddlePosition(peg->getShape(), peg->getShapeType(), newMiddlePos);
+}
+
+void setMiddlePosition(sf::Shape& shape, const PegShape shapeType, const sf::Vector2f newMiddlePos){
+	const sf::Vector2f origin = shape.getPosition();
+	const sf::Vector2f middle = getMiddlePosition(shape, shapeType);
+	const sf::Vector2f middleOffset = middle - origin;
+	shape.setPosition(newMiddlePos - middleOffset);
+}

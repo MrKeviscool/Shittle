@@ -13,11 +13,14 @@ SelectedPeg::SelectedPeg(Peg* peg) : peg(peg), shapeData() {
 	else {
 		new (shapeData) sf::RectangleShape(selectShapeSize);
 	}
-	setSelectedPos(peg, selectShapeSize);
+
 	sf::Shape* shape =
 		reinterpret_cast<sf::Shape*>(shapeData);
+
 	shape->setFillColor(sf::Color::Yellow);
 	shape->setRotation(peg->getShape().getRotation());
+	
+	setSelectedPos(peg);
 }
 
 SelectedPeg::~SelectedPeg() {
@@ -61,7 +64,7 @@ sf::Vector2f SelectedPeg::getSelectSize() const {
 		const sf::CircleShape* circle =
 			reinterpret_cast<const sf::CircleShape*>(shapeData);
 		const float rad = circle->getRadius();
-		return { rad * 2, rad * 2 };
+		return { rad * 2.f, rad * 2.f };
 	}
 	else {
 		const sf::RectangleShape* rect =
@@ -82,32 +85,9 @@ sf::Vector2f SelectedPeg::getSelectedSize(const Peg* target) const {
 	}
 }
 
-//TODO
-void SelectedPeg::setSelectedPos(const Peg* target, const sf::Vector2f selectSize){
-	const sf::Vector2f pegPos = target->getShape().getPosition();
-	if (shapeType == PegShape::Circle) {
-		const float pegSize = target->getSize().x;
-		const float sizeDifference = selectSize.x - pegSize;
+void SelectedPeg::setSelectedPos(const Peg* target){
+	sf::Shape* shape = reinterpret_cast<sf::Shape*>(shapeData);
 
-		const sf::Vector2f setPos{
-			pegPos.x - (sizeDifference / 2.f),
-			pegPos.y - (sizeDifference / 2.f),
-		};
-
-		sf::CircleShape* circle =
-			reinterpret_cast<sf::CircleShape*>(shapeData);
-		circle->setPosition(setPos);
-	}
-	else {
-		const sf::Vector2f pegSize = target->getSize();
-		const sf::Vector2f sizeDifference = selectSize - pegSize;
-		const sf::Vector2f setPos{
-			pegPos.x - (sizeDifference.x / 2.f),
-			pegPos.y - (sizeDifference.y / 2.f),
-		};
-
-		sf::RectangleShape* rect =
-			reinterpret_cast<sf::RectangleShape*>(shapeData);
-		rect->setPosition(setPos);
-	}
+	const sf::Vector2f pegMiddle = getMiddlePosition(target);
+	setMiddlePosition(*shape, peg->getShapeType(), pegMiddle);
 }
