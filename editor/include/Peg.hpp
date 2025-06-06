@@ -4,6 +4,7 @@
 #include <SFML/Graphics/CircleShape.hpp>
 
 #include "Bigger.hpp"
+#include "PegShape.hpp"
 
 class Peg{
 public:

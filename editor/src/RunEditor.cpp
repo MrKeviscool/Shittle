@@ -3,7 +3,6 @@
 #include <SFML/Graphics.hpp>
 
 #include <unordered_map>
-#include <chrono>
 #include <forward_list>
 #include <unordered_set>
 #include <cmath>
@@ -197,11 +196,16 @@ static void handleMouseEvents(const MouseState mouseState, CursorType& cursorTyp
 	}
 }
 
+#include "SaveManager.hpp"
+
 void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& resources, std::unordered_map<ButtonType, Button>& buttons) {
 	CursorType cursorType;
 	MouseState mouseState = MouseState::None;
 	std::forward_list<Peg> pegs;
 	std::unordered_set<SelectedPeg> selectedPegs;
+
+	SaveManager saveManager;
+	saveManager.savePack("test.ignore");
 
 	buttons[ButtonType::cursorPeg].   setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Circle), false);});
 	buttons[ButtonType::cursorBrick]. setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Rect), false);});

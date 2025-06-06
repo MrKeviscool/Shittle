@@ -8,9 +8,3 @@ template <typename A, typename B>
 struct Bigger<A, B, true> {
     using type = A;
 };
-
-
-enum class PegShape {
-    Circle,
-    Rect,
-};

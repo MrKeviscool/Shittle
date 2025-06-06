@@ -1,6 +1,6 @@
 #pragma once
 
-enum class ButtonType : std::uint8_t {
+enum class ButtonType : uint8_t {
     cursorPeg,
     cursorBrick,
     cursorSelect,

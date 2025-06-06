@@ -14,3 +14,7 @@ void* ResourceManager::getResource(const std::string& path){
 void ResourceManager::unloadAll() {
     resources.clear();
 }
+
+void ResourceManager::unload(const std::string &path){
+    resources.erase(path);   
+}

@@ -20,6 +20,7 @@ add_executable(
     ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/ImageResource.cpp
     ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/Resource.cpp
     ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/ResourceFactory.cpp
+    ${CMAKE_SOURCE_DIR}/common/src/SaveManager.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/Peg.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/RunEditor.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/CursorType.cpp
@@ -28,7 +29,6 @@ add_executable(
     ${CMAKE_SOURCE_DIR}/editor/src/DrawCommon.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/SelectedPeg.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/CursorType.cpp
-
     ${CMAKE_SOURCE_DIR}/editor/src/main.cpp
 )
 
