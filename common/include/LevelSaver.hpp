@@ -8,11 +8,8 @@
 
 class LevelSaver {
 public:
-    void saveLevel(const Level& level);
-    void saveLevel(Level&& level);
-    void saveLevel(const Level& level, const word_t index);
-
-    void saveThumbnail(const int index, const std::string imagePath);
+    void saveLevel(const Level& level, const LevelThumbnail& thumbnail);
+    //void saveLevel(Level&& level, LevelThumbnail&& thumbnail);
 
     void writeToDisk(const std::string& filePath);
 

@@ -4,14 +4,14 @@
 #include <string>
 
 #include "PegInfo.hpp"
+#include "FileStreamCommon.hpp"
 
-struct Level {
-    std::vector<PegInfo> pegs;
-    std::vector<char> backgroundBytes;
+struct LevelThumbnail {
+    std::vector<byte_t> thumnailBytes;
     std::string name;
 };
 
-struct LevelThumbnail {
-    std::vector<char> thumnailBytes;
-    std::reference_wrapper<const Level> refferingLevel;
+struct Level {
+    std::vector<PegInfo> pegs;
+    std::vector<byte_t> backgroundBytes;
 };

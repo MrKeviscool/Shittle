@@ -2,18 +2,19 @@
 
 qword_t getLevelSize(const Level& level){
     return
-        sizeof(word_t) + 
-        level.pegs.size() * sizeof(PegInfo) +
-        sizeof(byte_t) +
-        level.name.size() +
-        sizeof(dword_t) +
-        level.backgroundBytes.size();
+        sizeof(word_t) + //size of peg array
+        level.pegs.size() * sizeof(PegInfo) + //array of pegs
+        sizeof(dword_t) * 2 + //name pos + image size
+        level.backgroundBytes.size(); //array of image bytes
+
 }
 
 qword_t getThumbSize(const LevelThumbnail& thumbnail){
-    return 
-        sizeof(dword_t) * 2 + //because of name pointer and img size
-        sizeof(thumbnail.thumnailBytes.size());
+    return
+        sizeof(byte_t) + //level name length
+        thumbnail.name.size() + //level name
+        sizeof(dword_t) + //size of thumb image
+        thumbnail.thumnailBytes.size();
 }
 
 bool fileExists(const std::string& path){
@@ -39,17 +40,8 @@ bool hasWriteAccess(const std::string& path){
     return false;
 }
 
-void LevelSaver::saveLevel(const Level& level){
+void LevelSaver::saveLevel(const Level& level, const LevelThumbnail& thumbnail) {
     levelsToSave.emplace_back(level);
-}
-
-void LevelSaver::saveLevel(Level&& level){
-    levelsToSave.emplace_back(level);
-}
-
-void LevelSaver::saveThumbnail(const int index, const std::string imagePath){
-    LevelThumbnail thumbnail{std::vector<char>{}, levelsToSave.at(index)};
-
     thumbnailsToSave.emplace_back(thumbnail);
 }
 
@@ -78,7 +70,7 @@ dword_t LevelSaver::writeLevelOffsets(const dword_t firstLevelPos){
     dword_t curLevelOffset = firstLevelPos;
     for(auto& lev : levelsToSave){
         file::write(file, curLevelOffset, BlockType::dword);
-        curLevelOffset += getLevelSize(lev);
+        curLevelOffset += static_cast<dword_t>(getLevelSize(lev));
     }
     return curLevelOffset;
 }
@@ -87,7 +79,7 @@ dword_t LevelSaver::writeThumbnailOffsets(const dword_t firstThumbnailPos){
     dword_t curThumbOffset = firstThumbnailPos;
     for(auto& thumb : thumbnailsToSave){
         file::write(file, curThumbOffset, BlockType::dword);
-        curThumbOffset += getThumbSize(thumb);
+        curThumbOffset += static_cast<dword_t>(getThumbSize(thumb));
     }
     return curThumbOffset;
 }

@@ -11,9 +11,9 @@ namespace fs{
         #ifdef FS_POSIX
         return !rename(oldPath.c_str(), newPath.c_str());
         #else
-        return MoveFile (
-            const_cast<char*>(oldPath.c_str()),
-            const_cast<char*>(newPath.c_str())
+        return MoveFileA (
+            oldPath.c_str(),
+            newPath.c_str()
         );
         #endif
     }
