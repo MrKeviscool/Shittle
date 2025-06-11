@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-enum class PegShape : size_t {
+enum class PegShape : unsigned char {
     Circle,
     Rect,
 };

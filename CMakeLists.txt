@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.0)
 
 set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_CXX_STANDARD 11)
+
 set(SFML_INCLUDE_DIR /usr/incude CACHE PATH "path to SFML include dir")
 set(SFML_LIB_DIR /usr/lib/x86_64-linux-gnu/ CACHE PATH "path to SFML lib dir")
 set(SFML_LIB_SUFFIX ".so" CACHE STRING "suffix for SFML libs")
@@ -20,7 +22,9 @@ add_executable(
     ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/ImageResource.cpp
     ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/Resource.cpp
     ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/ResourceFactory.cpp
-    ${CMAKE_SOURCE_DIR}/common/src/SaveManager.cpp
+    ${CMAKE_SOURCE_DIR}/common/src/FileStreamCommon.cpp
+    ${CMAKE_SOURCE_DIR}/common/src/FilesystemCommon.cpp
+    ${CMAKE_SOURCE_DIR}/common/src/LevelSaver.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/Peg.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/RunEditor.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/CursorType.cpp

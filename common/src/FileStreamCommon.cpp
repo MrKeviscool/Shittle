@@ -18,5 +18,6 @@ namespace file {
             out |= tmp;
             out <<= (i * 8);
         }
+        return out;
     }
 }

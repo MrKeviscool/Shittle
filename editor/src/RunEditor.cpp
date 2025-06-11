@@ -60,6 +60,7 @@ static void placePeg(const CursorType& cursorType, std::forward_list<Peg>& pegs)
 	pegs.emplace_front(cursorType.peg);
 }
 
+#include "LevelSaver.hpp"
 static void exitCheck(sf::RenderWindow& window, InputState& input, ResourceManager& resources) {
 	if(input.shouldClose()){
 		if(askToExit(window, input, resources)){
