@@ -7,8 +7,6 @@
 struct PegInfo {
     sf::Vector2f position;
     sf::Vector2f size;
-    float rotation;
-    PegShape shape;
-private:
-    char _padding[3];
+    float rotation = 0;
+    PegShape shape = PegShape::Circle;
 };

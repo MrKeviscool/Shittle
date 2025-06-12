@@ -43,6 +43,10 @@ bool hasWriteAccess(const std::string& path){
     return false;
 }
 
+static inline dword_t floatToDword(const float f) {
+    return *reinterpret_cast<const dword_t*>(&f);
+}
+
 std::vector<byteOffset_t> getLevelOffsets(const std::vector<Level>& levels, const byteOffset_t startOffset){
     byteOffset_t curOffset = startOffset;
     std::vector<byteOffset_t> out;
@@ -68,13 +72,13 @@ std::vector<byteOffset_t> getThumbnailOffsets(const std::vector<LevelThumbnail>&
 }
 
 void writePegInfo(std::fstream& file, const PegInfo& info){
-    file::write(file, info.position.x, static_cast<BlockType>(sizeof(info.position.x))); //position
-    file::write(file, info.position.y, static_cast<BlockType>(sizeof(info.position.y)));
+    file::write(file, floatToDword(info.position.x), static_cast<BlockType>(sizeof(info.position.x))); //position
+    file::write(file, floatToDword(info.position.y), static_cast<BlockType>(sizeof(info.position.y)));
 
-    file::write(file, info.size.x, static_cast<BlockType>(sizeof(info.size.x))); //size
-    file::write(file, info.size.y, static_cast<BlockType>(sizeof(info.size.y)));
+    file::write(file, floatToDword(info.size.x), static_cast<BlockType>(sizeof(info.size.x))); //size
+    file::write(file, floatToDword(info.size.y), static_cast<BlockType>(sizeof(info.size.y)));
 
-    file::write(file, info.rotation, static_cast<BlockType>(sizeof(info.rotation))); //rotation
+    file::write(file, floatToDword(info.rotation), static_cast<BlockType>(sizeof(info.rotation))); //rotation
 
     file::write(file, static_cast<byte_t>(info.shape), BlockType::byte);
 
@@ -95,11 +99,11 @@ void LevelSaver::writeToDisk(const std::string &filePath)
     file.open(path, std::ios::out);
     if(!file.is_open()) throw std::exception();
     
-    headerSize = sizeof(levelAmount_t) + levelsToSave.size() * sizeof(dword_t) * 2;
+    headerSize = sizeof(levelAmount_t) + static_cast<dword_t>(levelsToSave.size()) * sizeof(dword_t) * 2;
     writeLevelAmount();
 
     std::vector<byteOffset_t> thumbOffsets = getThumbnailOffsets(thumbnailsToSave, headerSize);
-    std::vector<byteOffset_t> levelOffsets = getLevelOffsets(levelsToSave, thumbOffsets.back() + getThumbSize(thumbnailsToSave.back()));
+    std::vector<byteOffset_t> levelOffsets = getLevelOffsets(levelsToSave, thumbOffsets.back() + static_cast<byteOffset_t>(getThumbSize(thumbnailsToSave.back())));
     
     writeOffsets(thumbOffsets);
     writeOffsets(levelOffsets);

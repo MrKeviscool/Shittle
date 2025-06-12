@@ -16,7 +16,7 @@ public:
 private:
     std::fstream file;
     std::string path;
-    qword_t headerSize = 0;
+    dword_t headerSize = 0;
     std::vector<Level> levelsToSave;
     std::vector<LevelThumbnail> thumbnailsToSave;
 
