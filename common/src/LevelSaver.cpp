@@ -127,7 +127,7 @@ void LevelSaver::writeThumbnails(){
     for(auto& thumb : thumbnailsToSave){
         file::write(file, thumb.name.size(), BlockType::byte); //write name size
         for(char letter : thumb.name) file::write(file, letter, BlockType::byte); //write name
-        file::write(file, thumb.thumbnailBytes.size(), BlockType::byte); //write image size
+        file::write(file, thumb.thumbnailBytes.size(), BlockType::dword); //write image size
         for(byte_t byte : thumb.thumbnailBytes) file::write(file, byte, BlockType::byte); //write image
     }
 }
