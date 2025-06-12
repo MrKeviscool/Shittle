@@ -203,6 +203,24 @@ void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& res
 	std::forward_list<Peg> pegs;
 	std::unordered_set<SelectedPeg> selectedPegs;
 
+	LevelSaver saver;
+	Level lev;
+	PegInfo peg;
+	peg.position = {10, 10};
+	peg.rotation = 15;
+	peg.size = {30, 30};
+	peg.shape = PegShape::Circle;
+	lev.pegs.emplace_back(std::move(peg));
+	lev.backgroundBytes = {};
+
+	LevelThumbnail thumb;
+	thumb.name = "hello";
+	thumb.thumbnailBytes = {};
+
+	saver.saveLevel(lev, thumb);
+	saver.writeToDisk("test.ignore.hex");
+
+
 	buttons[ButtonType::cursorPeg].   setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Circle), false);});
 	buttons[ButtonType::cursorBrick]. setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Rect), false);});
 	buttons[ButtonType::cursorSelect].setFunction([&cursorType](){cursorType.isCursor = true;});

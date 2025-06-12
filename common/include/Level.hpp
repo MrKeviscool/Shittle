@@ -7,7 +7,7 @@
 #include "FileStreamCommon.hpp"
 
 struct LevelThumbnail {
-    std::vector<byte_t> thumnailBytes;
+    std::vector<byte_t> thumbnailBytes;
     std::string name;
 };
 

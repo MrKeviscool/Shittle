@@ -22,11 +22,7 @@ private:
 
     void writeLevelAmount();
 
-    //returns the first avaliable offset after levels
-    dword_t writeLevelOffsets(const dword_t firstLevelPos);
-    
-    //returns the first avaliable offset after thumbnails
-    dword_t writeThumbnailOffsets(const dword_t firstThumbPos);
+    void writeOffsets(const std::vector<dword_t>& offsets);
 
     void writeLevels();
     void writeThumbnails();
