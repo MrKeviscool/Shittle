@@ -1,5 +1,3 @@
-#include "RunEditor.hpp"
-
 #include <SFML/Graphics.hpp>
 
 #include <unordered_map>
@@ -60,7 +58,6 @@ static void placePeg(const CursorType& cursorType, std::forward_list<Peg>& pegs)
 	pegs.emplace_front(cursorType.peg);
 }
 
-#include "LevelSaver.hpp"
 static void exitCheck(sf::RenderWindow& window, InputState& input, ResourceManager& resources) {
 	if(input.shouldClose()){
 		if(askToExit(window, input, resources)){
@@ -150,6 +147,7 @@ static bool shouldUpdateMouseState(const InputState& input){
 	return input.mouseEvents().find({sf::Mouse::Left, InputState::ButtonState::pressed}) != input.mouseEvents().end();
 }
 
+//TODO
 static void rotateCursor(){
 
 }
@@ -197,34 +195,36 @@ static void handleMouseEvents(const MouseState mouseState, CursorType& cursorTyp
 	}
 }
 
-void runEditor(sf::RenderWindow& window, InputState& input, ResourceManager& resources, std::unordered_map<ButtonType, Button>& buttons) {
-	CursorType cursorType;
-	MouseState mouseState = MouseState::None;
-	std::forward_list<Peg> pegs;
-	std::unordered_set<SelectedPeg> selectedPegs;
-
-	LevelSaver saver;
-	Level lev;
-	PegInfo peg;
-	peg.position = {10, 10};
-	peg.rotation = 15;
-	peg.size = {30, 30};
-	peg.shape = PegShape::Circle;
-	lev.pegs.emplace_back(std::move(peg));
-	lev.backgroundBytes = {};
-
-	LevelThumbnail thumb;
-	thumb.name = "hello";
-	thumb.thumbnailBytes = {};
-
-	saver.saveLevel(lev, thumb);
-	saver.writeToDisk("test.ignore.hex");
-
+static std::unordered_map<ButtonType, Button> initaliseButtons(ResourceManager& resources, CursorType& cursorType){
+    const sf::Font* textFont = static_cast<const sf::Font*>(resources.getResource("resources/robotto.ttf"));
+    std::unordered_map<ButtonType, Button> buttons = {
+        {ButtonType::cursorPeg, Button(sf::Vector2f{50, 50}, sf::Vector2f{0, 0}, static_cast<sf::Texture*>(resources.getResource("resources/pegButton.png")))},
+        {ButtonType::cursorBrick, Button(sf::Vector2f{50, 50}, sf::Vector2f{50, 0}, static_cast<sf::Texture*>(resources.getResource("resources/brickButton.png")))},
+        {ButtonType::cursorSelect, Button(sf::Vector2f{50, 50}, sf::Vector2f{100, 0}, static_cast<sf::Texture*>(resources.getResource("resources/jankyCursor.png")))},
+    };
+	buttons[ButtonType::cursorPeg].setText("peg", textFont, 15U, 0.0f);
+    buttons[ButtonType::cursorBrick].setText("brick", textFont, 15U, 0.0f);
+    buttons[ButtonType::cursorSelect].setText("select", textFont, 15U, 0.0f);
 
 	buttons[ButtonType::cursorPeg].   setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Circle), false);});
 	buttons[ButtonType::cursorBrick]. setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Rect), false);});
 	buttons[ButtonType::cursorSelect].setFunction([&cursorType](){cursorType.isCursor = true;});
 
+	return buttons;
+}
+
+void runEditor() {
+	sf::RenderWindow window(sf::VideoMode(1920, 1080), "Peg Edit", sf::Style::Default);
+    window.setFramerateLimit(60);
+    InputState::initalise(&window);
+    InputState& input = InputState::getRef();
+    ResourceManager resources;
+	CursorType cursorType;
+	MouseState mouseState = MouseState::None;
+	std::forward_list<Peg> pegs;
+	std::unordered_set<SelectedPeg> selectedPegs;
+	std::unordered_map<ButtonType, Button> buttons = initaliseButtons(resources, cursorType);
+	
 	while (window.isOpen()) {
 		input.pollEvents();
 
