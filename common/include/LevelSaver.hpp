@@ -9,7 +9,6 @@
 class LevelSaver {
 public:
     void saveLevel(const Level& level, const LevelThumbnail& thumbnail);
-    //void saveLevel(Level&& level, LevelThumbnail&& thumbnail);
 
     void writeToDisk(const std::string& filePath);
 
@@ -21,9 +20,11 @@ private:
     std::vector<LevelThumbnail> thumbnailsToSave;
 
     void writeLevelAmount();
-
-    void writeOffsets(const std::vector<dword_t>& offsets);
+    void writeLevelOffsets(const dword_t initalOffset);
 
     void writeLevels();
     void writeThumbnails();
+
+    void writePegInfo(const PegInfo& peg);
+    dword_t getTotalThumbnailsSize();
 };

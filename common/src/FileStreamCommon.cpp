@@ -1,6 +1,6 @@
 #include "FileStreamCommon.hpp"
 
-namespace file {
+namespace fileStream {
     void write(std::fstream& stream, const int64_t qword, const BlockType type) {
         const int8_t size = static_cast<int8_t>(type);
         for (int8_t i = 0; i < size; i++) {
@@ -19,5 +19,19 @@ namespace file {
             out <<= (i * 8);
         }
         return out;
+    }
+
+    bool hasWriteAccess(const std::string& path){
+        std::fstream file(path, std::ios::in | std::ios::out);
+        if(file.is_open()){
+            file.close();
+            return true;
+        }
+        file.open(path, std::ios::out);
+        if(file.is_open()){
+            file.close();
+            return true;
+        }
+        return false;
     }
 }

@@ -15,8 +15,14 @@ enum class BlockType : uint8_t {
     qword = sizeof(qword_t)
 };
 
-namespace file {
+inline constexpr dword_t floatToDword(const float f) {
+    return *reinterpret_cast<const dword_t*>(&f);
+}
+
+namespace fileStream {
     void write(std::fstream& stream, const int64_t qword, const BlockType type);
 
     qword_t read(std::fstream& stream, const BlockType type);
+
+    bool hasWriteAccess(const std::string& path);
 };
