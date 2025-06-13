@@ -15,7 +15,7 @@ enum class BlockType : uint8_t {
     qword = sizeof(qword_t)
 };
 
-inline constexpr dword_t floatToDword(const float f) {
+inline dword_t floatToDword(const float f) {
     return *reinterpret_cast<const dword_t*>(&f);
 }
 

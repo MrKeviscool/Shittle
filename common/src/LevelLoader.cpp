@@ -1,3 +1,5 @@
+//TODO
+#if 0
 #include <fstream>
 
 static bool fileExists(const std::string& path){
@@ -8,3 +10,4 @@ static bool fileExists(const std::string& path){
     }
     return false;
 }
+#endif
