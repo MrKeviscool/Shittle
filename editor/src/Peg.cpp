@@ -75,3 +75,13 @@ void Peg::setSize(const sf::Vector2f newSize) {
         reinterpret_cast<sf::RectangleShape*>(m_shapeData)->setSize(newSize);
     }
 }
+
+Peg::operator PegInfo() const {
+    auto& shape = getShape();
+    return {
+        shape.getPosition(),
+        getSize(),
+        shape.getRotation(),
+        m_pegShape
+    };
+}

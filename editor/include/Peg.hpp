@@ -5,6 +5,7 @@
 
 #include "Bigger.hpp"
 #include "PegShape.hpp"
+#include "PegInfo.hpp"
 
 class Peg{
 public:
@@ -18,6 +19,8 @@ public:
     
     sf::Vector2f getSize() const;
     void setSize(const sf::Vector2f size);
+
+    operator PegInfo() const;
 
 private:
     PegShape m_pegShape;
