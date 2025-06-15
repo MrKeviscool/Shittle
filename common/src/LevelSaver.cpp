@@ -1,7 +1,6 @@
 #include "LevelSaver.hpp"
 
 using levelAmount_t = byte_t;
-using byteOffset_t = dword_t;
 
 dword_t LevelSaver::getTotalThumbnailsSize(){
     byteOffset_t size = 0;
@@ -69,7 +68,7 @@ void LevelSaver::writeToDisk(const std::string &filePath)
     file.open(path, std::ios::out);
     if(!file.is_open()) throw std::exception();
     
-    headerSize = sizeof(levelAmount_t) + static_cast<byteOffset_t>(levelsToSave.size()) * sizeof(byteOffset_t); //size of level offset byte array + amount of levels byte
+    headerSize = sizeof(levelAmount_t) + static_cast<word_t>(levelsToSave.size()) * sizeof(byteOffset_t); //size of level offset byte array + amount of levels byte
 
     writeLevelAmount();
     writeLevelOffsets(headerSize + getTotalThumbnailsSize());
