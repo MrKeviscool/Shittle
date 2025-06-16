@@ -78,10 +78,10 @@ void Peg::setSize(const sf::Vector2f newSize) {
 
 Peg::operator PegInfo() const {
     auto& shape = getShape();
-    return {
-        shape.getPosition(),
-        getSize(),
-        shape.getRotation(),
-        m_pegShape
-    };
+    PegInfo info;
+    info.position = shape.getPosition();
+    info.size = getSize();
+    info.rotation = shape.getRotation();
+    info.shape = m_pegShape;
+    return info;
 }

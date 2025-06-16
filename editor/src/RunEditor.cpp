@@ -218,6 +218,25 @@ static std::unordered_map<ButtonType, Button> initaliseButtons(ResourceManager& 
     return buttons;
 }
 
+void save(const std::forward_list<Peg>& pegs){
+	LevelSaver saver;
+	Level lev;
+	LevelThumbnail thumb;	
+
+	for(auto& peg : pegs) lev.pegs.emplace_back(peg);
+	thumb.name = "test level";
+
+	saver.saveLevel(lev, thumb);
+	saver.writeToDisk("test.ignore.hex");
+
+}
+
+void reset(){
+
+}
+
+#include "FilePrompt.hpp"
+
 void runEditor() {
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "Peg Edit", sf::Style::Default);
     window.setFramerateLimit(60);

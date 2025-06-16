@@ -9,8 +9,26 @@ set(SFML_LIB_SUFFIX ".so" CACHE STRING "suffix for SFML libs")
 
 project(Shittle)
 
-include_directories(${CMAKE_SOURCE_DIR}/common/include ${CMAKE_SOURCE_DIR}/editor/include /usr/include/)
+include_directories(
+        ${CMAKE_SOURCE_DIR}/common/include
+        ${CMAKE_SOURCE_DIR}/editor/include
+        /usr/include
+        /usr/include/x86_64-linux-gnu/qt6
+        /usr/lib/x86_64-linux-gnu/glib-2.0/include
+        /usr/include/gtk-4.0
+        /usr/include/glib-2.0
+        /usr/include/cairo
+        /usr/include/pango-1.0
+        /usr/include/harfbuzz
+        /usr/include/gdk-pixbuf-2.0
+        /usr/include/graphene-1.0
+        /usr/lib/x86_64-linux-gnu/graphene-1.0/include
+    )
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GTK4 REQUIRED gtk4)
+include_directories(${GTK3_INCLUDE_DIRS})
+link_directories(${GTK3_LIBRARY_DIRS})
 
 add_executable(
     editor
@@ -24,7 +42,9 @@ add_executable(
     ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/ResourceFactory.cpp
     ${CMAKE_SOURCE_DIR}/common/src/FileStreamCommon.cpp
     ${CMAKE_SOURCE_DIR}/common/src/FilesystemCommon.cpp
+    ${CMAKE_SOURCE_DIR}/common/src/FilePrompt.cpp
     ${CMAKE_SOURCE_DIR}/common/src/LevelSaver.cpp
+    ${CMAKE_SOURCE_DIR}/common/src/TextFeild.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/Peg.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/RunEditor.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/CursorType.cpp
@@ -36,11 +56,16 @@ add_executable(
     ${CMAKE_SOURCE_DIR}/editor/src/main.cpp
 )
 
-target_compile_options(editor PUBLIC -Wall)
+target_compile_options(editor PUBLIC -Wall -DUSE_GTK)
+
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+
 
 target_link_libraries(
     editor 
     ${SFML_LIB_DIR}/libsfml-graphics${SFML_LIB_SUFFIX}
     ${SFML_LIB_DIR}/libsfml-window${SFML_LIB_SUFFIX}
     ${SFML_LIB_DIR}/libsfml-system${SFML_LIB_SUFFIX}
+    Qt6::Widgets
+    ${GTK4_LIBRARIES}
 )
