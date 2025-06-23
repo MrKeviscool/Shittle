@@ -28,6 +28,8 @@
 #include <Windows.h>
 #endif
 
+static bool isDirectory(const std::string& path);
+static std::vector<std::string> getFilesIn(const std::string& path);
 
 #ifdef FP_POSIX
 
@@ -53,7 +55,37 @@ static std::vector<std::string> getFilesIn(const std::string& path){
     return out;
 }
 #else //WINDOWS
-#error TODO
+static bool isDirectory(const std::string& path) {
+    HANDLE fdHandle = CreateFileA(path.c_str(), GENERIC_READ, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+    bool out;
+    if (fdHandle == INVALID_HANDLE_VALUE) {
+        out = false;
+    }
+    else {
+        out = true;
+    }
+    CloseHandle(fdHandle);
+    return out;
+}
+
+static std::vector<std::string> getFilesIn(const std::string& path) {
+#error does not currently work
+    std::vector<std::string> out;
+    SetCurrentDirectoryA(path.c_str());
+    WIN32_FIND_DATAA fileInfo;
+
+    HANDLE fdHandle = FindFirstFileA("*", &fileInfo);
+    if (!fdHandle) return {};
+
+    char pathBuff[MAX_PATH];
+
+    do {
+        GetFinalPathNameByHandleA(fdHandle, pathBuff, MAX_PATH - 1, FILE_NAME_OPENED | VOLUME_NAME_NONE);
+        out.push_back({ pathBuff });
+    } while (FindNextFileA(fdHandle, &fileInfo));
+    return out;
+}
+
 #endif
 
 static void sortFiles(std::vector<std::string>& files){
@@ -72,7 +104,7 @@ static void displayFiles(sf::RenderWindow& window, std::vector<std::string> file
 
     sf::Text text;
     text.setFont(font);
-    text.setCharacterSize(nameTextHeight);
+    text.setCharacterSize(static_cast<unsigned int>(nameTextHeight));
 
     text.setPosition(0, topOffset);
 
@@ -94,14 +126,14 @@ static void displayFiles(sf::RenderWindow& window, std::vector<std::string> file
 
 void askForFileDefered(std::function<void (const std::string &)> callback){
     sf::Vector2f originalSize{600.f, 600.f};
-    sf::RenderWindow window(sf::VideoMode(originalSize.x, originalSize.y), "Pick File");
+    sf::RenderWindow window(sf::VideoMode(static_cast<unsigned int>(originalSize.x), static_cast<unsigned int>(originalSize.y)), "Pick File");
     
 
 }
 
 std::string askForFileBlocking(){
     sf::Vector2f originalSize{600.f, 600.f};
-    sf::RenderWindow window(sf::VideoMode(originalSize.x, originalSize.y), "Pick File");
+    sf::RenderWindow window(sf::VideoMode(static_cast<unsigned int>(originalSize.x), static_cast<unsigned int>(originalSize.y)), "Pick File");
     InputState::initalise(&window);
     InputState& input = InputState::getRef();
     
