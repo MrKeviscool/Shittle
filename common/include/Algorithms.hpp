@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 #include <SFML/System/Vector2.hpp>
 
@@ -24,3 +25,6 @@ sf::Vector2f getPoint(const float angle, const float distance);
 float getAngle(const sf::Vector2f a, const sf::Vector2f b);
 float getAngle(const float aX, const float aY, const float bX, const float bY);
 sf::Vector2f getPointFromOffsets(const sf::Vector2f origin, const float angle, const sf::Vector2f length);
+
+std::vector<std::string> getSortedNames(const std::vector<std::string>& names);
+void sortNames(std::vector<std::string>& names);

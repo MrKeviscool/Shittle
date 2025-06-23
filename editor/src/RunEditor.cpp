@@ -1,10 +1,12 @@
 #include <SFML/Graphics.hpp>
 
+#include <SFML/Window/Window.hpp>
 #include <unordered_map>
 #include <forward_list>
 #include <unordered_set>
 #include <cmath>
 
+#include "FilePrompt.hpp"
 #include "InputState.hpp"
 #include "ResourceManager.hpp"
 #include "CursorType.hpp"
@@ -25,11 +27,11 @@ enum class MouseState : uint8_t {
 static bool askToExit(sf::RenderWindow& window, InputState& input, ResourceManager& resources) {
     const sf::Font* textFont = static_cast<sf::Font*>(resources.getResource("resources/robotto.ttf"));
 
-    Button yesButton({ 200, 100 }, { 1920 / 4, 1080 * 0.75f }, static_cast<sf::Texture*>(resources.getResource("resources/okButton.png")));
-    Button noButton({ 200, 100 }, { 1920 * 0.75f, 1080 * 0.75f }, static_cast<sf::Texture*>(resources.getResource("resources/cancelButton.png")));
+    Button yesButton({ 200, 100 }, { 1920.f / 4, 1080 * 0.75f }, static_cast<sf::Texture*>(resources.getResource("resources/okButton.png")));
+    Button noButton({ 200, 100 }, { 1920.f * 0.75f, 1080 * 0.75f }, static_cast<sf::Texture*>(resources.getResource("resources/cancelButton.png")));
 
     sf::Text exitText("exit editor?", *textFont, 60);
-    exitText.setPosition((static_cast<float>(1920 / 2) - exitText.getGlobalBounds().width / 2.f), static_cast<float>(1080 / 4));
+    exitText.setPosition((static_cast<float>(1920.f / 2) - exitText.getGlobalBounds().width / 2.f), static_cast<float>(1080.f / 4));
 
 
     yesButton.setText("exit", textFont, 20U);
@@ -235,19 +237,19 @@ void reset(){
 
 }
 
-#include "FilePrompt.hpp"
-
 void runEditor() {
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "Peg Edit", sf::Style::Default);
     window.setFramerateLimit(60);
-    InputState::initalise(&window);
-    InputState& input = InputState::getRef();
     ResourceManager resources;
     CursorType cursorType;
     MouseState mouseState = MouseState::None;
     std::forward_list<Peg> pegs;
     std::unordered_set<SelectedPeg> selectedPegs;
     std::unordered_map<ButtonType, Button> buttons = initaliseButtons(resources, cursorType);
+    askForFileBlocking();
+    
+    InputState::initalise(&window);
+    InputState& input = InputState::getRef();
 
     while (window.isOpen()) {
         input.pollEvents();

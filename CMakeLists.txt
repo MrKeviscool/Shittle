@@ -9,26 +9,28 @@ set(SFML_LIB_SUFFIX ".so" CACHE STRING "suffix for SFML libs")
 
 project(Shittle)
 
+
+find_package(PkgConfig REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+
+pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+pkg_check_modules(GLIB REQUIRED glib-2.0)
+pkg_check_modules(GRAPHENE REQUIRED graphene-1.0)
+
 include_directories(
         ${CMAKE_SOURCE_DIR}/common/include
         ${CMAKE_SOURCE_DIR}/editor/include
         /usr/include
         /usr/include/x86_64-linux-gnu/qt6
         /usr/lib/x86_64-linux-gnu/glib-2.0/include
-        /usr/include/gtk-4.0
-        /usr/include/glib-2.0
         /usr/include/cairo
         /usr/include/pango-1.0
         /usr/include/harfbuzz
         /usr/include/gdk-pixbuf-2.0
-        /usr/include/graphene-1.0
-        /usr/lib/x86_64-linux-gnu/graphene-1.0/include
+        ${GLIB_INCLUDE_DIRS}
+        ${GRAPHENE_INCLUDE_DIRS}
+        ${GTK3_INCLUDE_DIRS}
     )
-
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GTK4 REQUIRED gtk4)
-include_directories(${GTK3_INCLUDE_DIRS})
-link_directories(${GTK3_LIBRARY_DIRS})
 
 add_executable(
     editor
@@ -56,16 +58,14 @@ add_executable(
     ${CMAKE_SOURCE_DIR}/editor/src/main.cpp
 )
 
-target_compile_options(editor PUBLIC -Wall -DUSE_GTK)
-
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
-
-
 target_link_libraries(
     editor 
     ${SFML_LIB_DIR}/libsfml-graphics${SFML_LIB_SUFFIX}
     ${SFML_LIB_DIR}/libsfml-window${SFML_LIB_SUFFIX}
     ${SFML_LIB_DIR}/libsfml-system${SFML_LIB_SUFFIX}
     Qt6::Widgets
-    ${GTK4_LIBRARIES}
+    ${GTK3_LIBRARIES}
+    ${GRAPHENE_LIBRARIES}
 )
+
+target_compile_options(editor PUBLIC -Wall -DUSE_GTK)

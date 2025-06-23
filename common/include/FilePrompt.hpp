@@ -1,6 +1,6 @@
 #pragma once
-
 #include <string>
+#include <functional>
 
-std::string askForFile();
-std::string askWhereToSave();
+void askForFileDefered(std::function<void(const std::string&)> callback);
+std::string askForFileBlocking();
