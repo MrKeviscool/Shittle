@@ -16,6 +16,7 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets)
 pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
 pkg_check_modules(GLIB REQUIRED glib-2.0)
 pkg_check_modules(GRAPHENE REQUIRED graphene-1.0)
+pkg_check_modules(X11 REQUIRED x11)
 
 include_directories(
         ${CMAKE_SOURCE_DIR}/common/include
@@ -30,6 +31,7 @@ include_directories(
         ${GLIB_INCLUDE_DIRS}
         ${GRAPHENE_INCLUDE_DIRS}
         ${GTK3_INCLUDE_DIRS}
+        ${X11_INCLUDE_DIRS}
     )
 
 add_executable(
@@ -66,6 +68,7 @@ target_link_libraries(
     Qt6::Widgets
     ${GTK3_LIBRARIES}
     ${GRAPHENE_LIBRARIES}
+    ${X11_LIBRARIES}
 )
 
 target_compile_options(editor PUBLIC -Wall -DUSE_GTK)

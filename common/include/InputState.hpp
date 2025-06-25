@@ -37,6 +37,10 @@ public:
 
     const std::unordered_set<KeyInfo, hash>& keyEvents() const;
     const std::unordered_set<MouseInfo, hash>& mouseEvents() const;
+
+    bool keyEventsContains(const KeyInfo keyInfo) const;
+    bool mouseEventsContains(const MouseInfo mouseInfo) const;
+
     sf::Vector2u windowSize() const;
     sf::Vector2i mousePos() const;
     sf::Vector2i mouseDownOrigin() const;

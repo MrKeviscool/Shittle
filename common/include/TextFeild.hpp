@@ -1,16 +1,18 @@
 #pragma once
 
+#include "InputState.hpp"
 #include <string>
 
 #include <SFML/Graphics.hpp>
 
 class TextFeild {
 public:
+    TextFeild(InputState& input);
 
     void setSize(sf::Vector2f size);
     void setPosition(sf::Vector2f position);
     
-    void setFont(sf::Font* font);
+    void setFont(const sf::Font* font);
     
     void setBgColor(sf::Color color);
     void setOutlineColor(sf::Color color);
@@ -22,19 +24,22 @@ public:
 
     void setWaitForEnter(bool wait);
 
-    //returns true if text has been buffered
-    bool poll();
+    void poll();
 
     void display(sf::RenderWindow& window);
 
     const std::string& enteredText() const;
+    bool isFocused() const;
 
 private:
     sf::RectangleShape backgroundShape;
     sf::Text text;
-    sf::Font* font;
+    const sf::Font* font;
     std::string textBuffer;
+    InputState& input;
+
     bool showCursor = true;
     bool waitForEnter = true;
+    bool m_isFocused = false;
 
 };

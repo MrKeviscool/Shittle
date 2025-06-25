@@ -1,6 +1,7 @@
 #include "InputState.hpp"
 
 #include <cmath>
+#include <utility>
 
 bool InputState::m_initialised = false;
 InputState InputState::m_InputState;
@@ -104,6 +105,15 @@ const std::unordered_set<InputState::KeyInfo, InputState::hash>& InputState::key
 const std::unordered_set<InputState::MouseInfo, InputState::hash>& InputState::mouseEvents() const {
 	return m_mouseEvents;
 }
+
+bool InputState::keyEventsContains(const InputState::KeyInfo info) const {
+    return m_keyEvents.find(info) != m_keyEvents.end();
+}
+
+bool InputState::mouseEventsContains(const InputState::MouseInfo info) const {
+    return m_mouseEvents.find(info) != m_mouseEvents.end();
+}
+
 sf::Vector2u InputState::windowSize() const {
 	return m_windowSize;
 }
