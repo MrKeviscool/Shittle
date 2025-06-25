@@ -4,6 +4,7 @@
 #include <unordered_set>
 
 #include <SFML/Graphics.hpp>
+#include <vector>
 
 class InputState {
 public:
@@ -29,7 +30,6 @@ public:
         bool operator==(const MouseInfo& other) const noexcept;
     };
 
-    // template<typename T>
     struct hash {
         size_t operator()(const KeyInfo& toHash) const noexcept;
         size_t operator()(const MouseInfo& toHash) const noexcept;
@@ -37,6 +37,7 @@ public:
 
     const std::unordered_set<KeyInfo, hash>& keyEvents() const;
     const std::unordered_set<MouseInfo, hash>& mouseEvents() const;
+    const std::vector<char>& textEntered() const;
 
     bool keyEventsContains(const KeyInfo keyInfo) const;
     bool mouseEventsContains(const MouseInfo mouseInfo) const;
@@ -60,6 +61,7 @@ private:
 
     std::unordered_set<KeyInfo, hash> m_keyEvents;
     std::unordered_set<MouseInfo, hash> m_mouseEvents;
+    std::vector<char> m_textEntered;
     sf::Vector2i m_mousePos{ 0,0 };
     sf::Vector2i m_mouseDownOrigin{ 0,0 };
     sf::Vector2i m_mouseMoveAmount{ 0,0 };

@@ -1,8 +1,10 @@
 #include "TextFeild.hpp"
-#include "InputState.hpp"
+
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Mouse.hpp>
-#include <type_traits>
+
+#include "InputState.hpp"
+
 
 TextFeild::TextFeild(InputState& input) : input(input){
 
@@ -36,4 +38,10 @@ void TextFeild::poll(){
         else m_isFocused = false;
     }
     if(!m_isFocused) return;
+
+    for(auto& key : input.keyEvents()){ //loop keys and wait for enter
+        textBuffer.insert(textBuffer.cend(), input.textEntered().cbegin(), input.textEntered().cend());
+        if(key.key == sf::Keyboard::Enter) break;
+    }
+
 }
