@@ -1,18 +1,21 @@
 #pragma once
 
 #include "InputState.hpp"
+
 #include <string>
 
 #include <SFML/Graphics.hpp>
 
-class TextFeild {
+#include "MulColor.hpp"
+
+class TextField {
 public:
-    TextFeild(InputState& input);
+    TextField(InputState& input, const sf::Font& font);
 
     void setSize(sf::Vector2f size);
     void setPosition(sf::Vector2f position);
     
-    void setFont(const sf::Font* font);
+    void setFont(const sf::Font& font);
     
     void setBgColor(sf::Color color);
     void setOutlineColor(sf::Color color);
@@ -34,9 +37,11 @@ public:
 private:
     sf::RectangleShape backgroundShape;
     sf::Text text;
-    const sf::Font* font;
     std::string textBuffer;
     InputState& input;
+
+    float selectedDarkness = 0.7f;
+    MulColor bgColor {127, 127, 127};
 
     bool showCursor = true;
     bool waitForEnter = true;

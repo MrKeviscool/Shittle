@@ -12,7 +12,7 @@
 
 #include "InputState.hpp"
 #include "ResourceManager.hpp"
-#include "TextFeild.hpp"
+#include "TextField.hpp"
 
 #if defined(__linux__) || defined(macintosh) || defined(Macintosh) || defined(__APPLE__) && defined(__MACH__)
 #define FP_POSIX
@@ -31,16 +31,27 @@
 static bool isDirectory(const std::string& path);
 static std::vector<std::string> getFilesIn(const std::string& path);
 
-#ifdef FP_POSIX
-
-
 static bool isDirectory(const std::string& path){
+#ifdef FP_POSIX
     DIR* dir = opendir(path.c_str());
     bool out;
     if(errno == ENOTDIR) out = false;
     else out = true;
     closedir(dir);
     return out;
+#else
+    HANDLE fdHandle = CreateFileA(path.c_str(), GENERIC_READ, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+    bool o;
+    if (fdHandle == INVALID_HANDLE_VALUE) {
+        out = false;
+    }
+    else {
+        out = true;
+    }
+    CloseHandle(fdHandle);
+    return out;
+
+#endif
 }
 
 static bool isHidden(const std::string& path){
@@ -53,6 +64,7 @@ static bool isHidden(const std::string& path){
 }
 
 static std::vector<std::string> getFilesIn(const std::string& path){
+#ifdef FP_POSIX
     std::vector<std::string> out;
     DIR* dir = opendir(path.c_str());
     if(!dir) return {};
@@ -65,23 +77,8 @@ static std::vector<std::string> getFilesIn(const std::string& path){
 
     closedir(dir);
     return out;
-}
-#else //WINDOWS
-static bool isDirectory(const std::string& path) {
-    HANDLE fdHandle = CreateFileA(path.c_str(), GENERIC_READ, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-    bool o;
-    if (fdHandle == INVALID_HANDLE_VALUE) {
-        out = false;
-    }
-    else {
-        out = true;
-    }
-    CloseHandle(fdHandle);
-    return out;
-}
+#else
 
-static std::vector<std::string> getFilesIn(const std::string& path) {
-#error does not currently work
     std::vector<std::string> out;
     SetCurrentDirectoryA(path.c_str());
     WIN32_FIND_DATAA fileInfo;
@@ -96,9 +93,8 @@ static std::vector<std::string> getFilesIn(const std::string& path) {
         out.push_back({ pathBuff });
     } while (FindNextFileA(fdHandle, &fileInfo));
     return out;
-}
-
 #endif
+}
 
 static std::vector<std::string> sortNames(const std::vector<std::string>& names){
     std::vector<std::string> files;
@@ -154,18 +150,6 @@ static void displayFiles(sf::RenderWindow& window, std::vector<std::string> file
     }
 }
 
-//static void setWindowFloating(sf::RenderWindow& window){ //ok so this will not work unless i put it before the window constructor in a class deriving from sf::RenderWindow
-    //Window xWin = window.getSystemHandle();
-//
-    //Display* display = XOpenDisplay(NULL);
-//
-    //const Atom winType = XInternAtom(display, "_NET_WM_WINDOW_TYPE", false);
-    //const Atom wmTypeDialog = XInternAtom(display, "_NET_WM_WINDOW_TYPE_DOCK", false);
-    //XChangeProperty(display, xWin, winType, XA_ATOM, 32, PropModeReplace, reinterpret_cast<const unsigned char*>(&wmTypeDialog), 1);
-    //XFlush(display);
-    //XCloseDisplay(display);
-//}
-
 void askForFileDefered(std::function<void (const std::string &)> callback){
     sf::Vector2f originalSize{600.f, 600.f};
     sf::RenderWindow window(sf::VideoMode(static_cast<unsigned int>(originalSize.x), static_cast<unsigned int>(originalSize.y)), "Pick File");
@@ -184,13 +168,20 @@ std::string askForFileBlocking(){
     ResourceManager resources;
     sf::Font* textFont = static_cast<sf::Font*>(resources.getResource("resources/robotto.ttf"));
 
+    TextField tf(input, *textFont);
+    tf.setSize({600.f, 20.f});
+    tf.setPosition({0.f, 0.f});
+    tf.setBgColor({128, 128, 128});
+
     auto files = getFilesIn(".");
     files = sortNames(files);
 
     while(window.isOpen()){
         input.pollEvents();
+        tf.poll();
         window.clear();
         displayFiles(window, files, *textFont, 20.f, 20.f);
+        tf.display(window);
         window.display();
         const InputState::KeyInfo escSequence = {sf::Keyboard::Key::Escape, InputState::ButtonState::released};
         if(input.keyEvents().find(escSequence) != input.keyEvents().end()){

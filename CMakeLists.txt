@@ -48,7 +48,8 @@ add_executable(
     ${CMAKE_SOURCE_DIR}/common/src/FilesystemCommon.cpp
     ${CMAKE_SOURCE_DIR}/common/src/FilePrompt.cpp
     ${CMAKE_SOURCE_DIR}/common/src/LevelSaver.cpp
-    ${CMAKE_SOURCE_DIR}/common/src/TextFeild.cpp
+    ${CMAKE_SOURCE_DIR}/common/src/TextField.cpp
+    ${CMAKE_SOURCE_DIR}/common/src/MulColor.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/Peg.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/RunEditor.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/CursorType.cpp
