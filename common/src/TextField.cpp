@@ -1,5 +1,4 @@
 #include "TextField.hpp"
-#include "InputState.hpp"
 
 TextField::TextField(InputState& input, const sf::Font& font, const std::string& emptyFieldText, const bool keepText)
     : emptyText(emptyFieldText), input(input), keepText(keepText)
@@ -31,20 +30,14 @@ void TextField::setSize(const sf::Vector2f size){
     text.setCharacterSize(static_cast<const unsigned int>(size.y));
 }
 
-static bool rectContains(const sf::Vector2f start, const sf::Vector2f end, const sf::Vector2f point){
-    return (start.x > point.x && end.x < point.x &&
-            start.y > point.y && end.y < point.y);
-}
-
 void TextField::setEmptyText(const std::string& str){
     emptyText = str;
+    if(text.getString().isEmpty()) text.setString(emptyText);
 }
 
-enum class ClickPos : uint8_t {
-    DidntClick,
-    On,
-    Off,
-};
+void TextField::setSelectedBrightnessMult(const float multiplier){
+    selectedBrightnessMul = multiplier;
+}
 
 static bool mouseInBounds(const InputState& input, const sf::FloatRect& bounds){
     return bounds.contains({static_cast<float>(input.mousePos().x), static_cast<float>(input.mousePos().y)});
@@ -63,7 +56,7 @@ void TextField::updateFocus() {
 
 void TextField::setFocus(const bool focused){
     if(focused && !m_isFocused){
-        backgroundShape.setFillColor(bgColor * selectedDarkness);
+        backgroundShape.setFillColor(bgColor * selectedBrightnessMul);
         m_isFocused = true;
 
     } else if (!focused && m_isFocused){

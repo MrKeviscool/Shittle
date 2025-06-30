@@ -1,3 +1,4 @@
+#include <cstdlib>
 #define USE_XORG //TESTING
 
 #include "FilePrompt.hpp"
@@ -24,6 +25,7 @@
 
 #if defined(FP_POSIX)
 #include <dirent.h>
+#include <stdlib.h>
 #elif defined(FP_WINDOWS)
 #include <Windows.h>
 #endif
@@ -157,6 +159,15 @@ void askForFileDefered(std::function<void (const std::string &)> callback){
     
 }
 
+static std::string relToAbsPath(const std::string& rel){
+#ifdef FP_POSIX
+    char* absPathPtr = realpath(rel.c_str(), NULL);
+    std::string absPath(absPathPtr);
+    free(absPathPtr);
+    return absPath;
+#endif
+}
+
 std::string askForFileBlocking(){
     sf::Vector2f originalSize{600.f, 600.f};
     sf::RenderWindow window(sf::VideoMode(static_cast<unsigned int>(originalSize.x), static_cast<unsigned int>(originalSize.y)), "Pick File");
@@ -168,21 +179,35 @@ std::string askForFileBlocking(){
     ResourceManager resources;
     sf::Font* textFont = static_cast<sf::Font*>(resources.getResource("resources/robotto.ttf"));
 
-    TextField textField(input, *textFont, "Enter File Name:");
+    TextField pathField(input, *textFont, "");
+    TextField nameField(input, *textFont, "file name:");
 
-    textField.setSize({600.f, 20.f});
-    textField.setPosition({0.f, 0.f});
-    textField.setBgColor({128, 128, 128});
+    pathField.setSize({600.f, 20.f});
+    nameField.setSize({600.f, 20.f});
 
-    auto files = getFilesIn(".");
+    pathField.setPosition({0.f, 0.f});
+    nameField.setPosition({0.f, 600.f - 20.f});
+
+    pathField.setBgColor({128/2, 128/2, 128/2});
+    nameField.setBgColor({128/2, 128/2, 128/2});
+
+    pathField.setSelectedBrightnessMult(1.4f);
+    nameField.setSelectedBrightnessMult(1.4f);
+
+    std::string curPath = relToAbsPath(".");
+
+    std::vector<std::string> files = getFilesIn(curPath);
     files = sortNames(files);
 
     while(window.isOpen()){
         input.pollEvents();
-        textField.poll();
+        pathField.poll();
+        nameField.poll();
+        pathField.setEmptyText(curPath);
         window.clear();
         displayFiles(window, files, *textFont, 20.f, 20.f);
-        textField.display(window);
+        pathField.display(window);
+        nameField.display(window);
         window.display();
         const InputState::KeyInfo escSequence = {sf::Keyboard::Key::Escape, InputState::ButtonState::released};
         if(input.keyEvents().find(escSequence) != input.keyEvents().end()){
