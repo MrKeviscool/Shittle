@@ -10,7 +10,7 @@
 
 class TextField {
 public:
-    TextField(InputState& input, const sf::Font& font);
+    TextField(InputState& input, const sf::Font& font, const std::string& emptyFieldText = "", bool keepText = true);
 
     void setSize(sf::Vector2f size);
     void setPosition(sf::Vector2f position);
@@ -38,13 +38,18 @@ private:
     sf::RectangleShape backgroundShape;
     sf::Text text;
     std::string textBuffer;
+    std::string emptyText;
+    std::string m_enteredText;
     InputState& input;
 
-    float selectedDarkness = 0.7f;
-    MulColor bgColor {127, 127, 127};
+    const float selectedDarkness = 0.7f;
+    const MulColor bgColor {127, 127, 127};
 
     bool showCursor = true;
     bool waitForEnter = true;
     bool m_isFocused = false;
+    bool keepText = true;
 
+    void updateFocus();
+    void setFocus(bool focused);
 };

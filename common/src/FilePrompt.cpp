@@ -168,20 +168,21 @@ std::string askForFileBlocking(){
     ResourceManager resources;
     sf::Font* textFont = static_cast<sf::Font*>(resources.getResource("resources/robotto.ttf"));
 
-    TextField tf(input, *textFont);
-    tf.setSize({600.f, 20.f});
-    tf.setPosition({0.f, 0.f});
-    tf.setBgColor({128, 128, 128});
+    TextField textField(input, *textFont, "Enter File Name:");
+
+    textField.setSize({600.f, 20.f});
+    textField.setPosition({0.f, 0.f});
+    textField.setBgColor({128, 128, 128});
 
     auto files = getFilesIn(".");
     files = sortNames(files);
 
     while(window.isOpen()){
         input.pollEvents();
-        tf.poll();
+        textField.poll();
         window.clear();
         displayFiles(window, files, *textFont, 20.f, 20.f);
-        tf.display(window);
+        textField.display(window);
         window.display();
         const InputState::KeyInfo escSequence = {sf::Keyboard::Key::Escape, InputState::ButtonState::released};
         if(input.keyEvents().find(escSequence) != input.keyEvents().end()){
