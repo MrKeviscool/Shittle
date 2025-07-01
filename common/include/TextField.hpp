@@ -14,13 +14,14 @@ public:
     void setSize(sf::Vector2f size);
     void setPosition(sf::Vector2f position);
     void setFont(const sf::Font& font);
-    void setBgColor(sf::Color color);
-    void setOutlineColor(sf::Color color);
-    void setEmptyTextColor(sf::Color color);
+    void setBgColor(const sf::Color& color);
+    void setOutlineColor(const sf::Color& color);
+    void setEmptyTextColor(const sf::Color& color);
     void setEmptyText(const std::string& text);
     void setCursorVisible(bool);
     void setWaitForEnter(bool wait);
     void setSelectedBrightnessMult(float multiplier);
+    void setEnteredText(const std::string& text);
     void poll();
     void display(sf::RenderWindow& window);
     const std::string& enteredText() const;
@@ -35,7 +36,7 @@ private:
     InputState& input;
 
     float selectedBrightnessMul = 0.7f;
-    const MulColor bgColor {127, 127, 127};
+    MulColor bgColor {127, 127, 127};
 
     bool showCursor = true;
     bool waitForEnter = true;

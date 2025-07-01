@@ -1,4 +1,5 @@
 #include "TextField.hpp"
+#include <SFML/Graphics/Text.hpp>
 
 TextField::TextField(InputState& input, const sf::Font& font, const std::string& emptyFieldText, const bool keepText)
     : emptyText(emptyFieldText), input(input), keepText(keepText)
@@ -11,8 +12,9 @@ void TextField::setFont(const sf::Font& font){
     text.setFont(font);
 }
 
-void TextField::setBgColor(const sf::Color color){
+void TextField::setBgColor(const sf::Color& color){
     backgroundShape.setFillColor(color);
+    bgColor = color;
 }
 
 bool TextField::isFocused() const {
@@ -102,4 +104,9 @@ void TextField::display(sf::RenderWindow& window){
 
 const std::string& TextField::enteredText() const {
     return m_enteredText; 
+}
+
+void TextField::setEnteredText(const std::string &newText){
+    textBuffer = newText;
+    text.setString(textBuffer);
 }

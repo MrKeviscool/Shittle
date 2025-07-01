@@ -1,9 +1,8 @@
-#include <cstdlib>
-#define USE_XORG //TESTING
-
 #include "FilePrompt.hpp"
 
 #include <iostream>
+#include <iterator>
+#include <type_traits>
 #include <vector>
 #include <string>
 #include <cstring>
@@ -14,6 +13,7 @@
 #include "InputState.hpp"
 #include "ResourceManager.hpp"
 #include "TextField.hpp"
+#include "MulColor.hpp"
 
 #if defined(__linux__) || defined(macintosh) || defined(Macintosh) || defined(__APPLE__) && defined(__MACH__)
 #define FP_POSIX
@@ -119,20 +119,26 @@ static std::vector<std::string> sortNames(const std::vector<std::string>& names)
     return out;
 }
 
-static void displayFiles(sf::RenderWindow& window, std::vector<std::string> files, const sf::Font& font, float topOffset = 10.f, float nameTextHeight = 10.f, bool displayHidden = false){
+struct DisplaySettings {
+    float nameBlockSize = 10.f;
+    float topOffset = 10.f;
+    bool displayHidden = false;
+};
+
+static void displayFiles(sf::RenderWindow& window, std::vector<std::string> files, const sf::Font& font, const DisplaySettings& settings){
     bool bright = true;
 
     const sf::Color brightColor{127, 127, 127};
-    const sf::Color darkColor{static_cast<uint8_t>(127*0.7f), static_cast<uint8_t>(127*0.7f), static_cast<uint8_t>(127*0.7f)};
-    sf::RectangleShape bgRect({600, nameTextHeight});
+    const MulColor darkColor(brightColor, 0.7f);
+    sf::RectangleShape bgRect({600, settings.nameBlockSize});
     bgRect.setFillColor((bright? brightColor : darkColor));
-    bgRect.setPosition(0, topOffset);
+    bgRect.setPosition(0, settings.topOffset);
 
     sf::Text text;
     text.setFont(font);
-    text.setCharacterSize(static_cast<unsigned int>(nameTextHeight));
+    text.setCharacterSize(static_cast<unsigned int>(settings.nameBlockSize));
 
-    text.setPosition(0, topOffset);
+    text.setPosition(0, settings.topOffset);
     text.move(0, text.getCharacterSize() * -0.25f);
 
     auto changeBgColor = [&bgRect, &bright, &brightColor, &darkColor](){
@@ -141,15 +147,36 @@ static void displayFiles(sf::RenderWindow& window, std::vector<std::string> file
     };
 
     for(auto& file : files){
-        if(!displayHidden && isHidden(file)) continue;
+        if(!settings.displayHidden && isHidden(file)) continue;
         text.setString(file);
         window.draw(bgRect);
         window.draw(text);
 
-        bgRect.move(0, nameTextHeight);
-        text.move(0, nameTextHeight);
+        bgRect.move(0, settings.nameBlockSize);
+        text.move(0, settings.nameBlockSize);
         changeBgColor();
     }
+}
+
+static std::string getHoveredName(const InputState& input, const std::vector<std::string>& files, const DisplaySettings& displaySettings){
+    const sf::Vector2i mousePos = input.mousePos();
+    const unsigned int clickIndex = (mousePos.y - displaySettings.topOffset) / displaySettings.nameBlockSize;
+
+    if(clickIndex >= files.size() || mousePos.y < displaySettings.topOffset) return "";
+    
+    if(displaySettings.displayHidden) return files[clickIndex];
+
+    if(std::count_if(files.cbegin(), files.cend(), [](const std::string& fn){return !isHidden(fn);}) <= clickIndex) return ""; //hopefully can remove this and do checking in loop
+
+    auto nameIter = files.cbegin();
+    unsigned int visibleBlockIndex = 0;
+    do {
+        do nameIter++; while(isHidden(*nameIter) && nameIter != files.cend());
+        if(nameIter == files.cend()) return "";
+        visibleBlockIndex++;
+    } while(visibleBlockIndex <= clickIndex);
+
+    return *nameIter;
 }
 
 void askForFileDefered(std::function<void (const std::string &)> callback){
@@ -199,20 +226,31 @@ std::string askForFileBlocking(){
     std::vector<std::string> files = getFilesIn(curPath);
     files = sortNames(files);
 
+    pathField.setEnteredText(curPath);
+   
+    DisplaySettings displaySettings;
+    displaySettings.nameBlockSize = 20.f;
+    displaySettings.displayHidden = false;
+    displaySettings.topOffset = 20.f;
+
     while(window.isOpen()){
         input.pollEvents();
+        if(input.mouseEventsContains({sf::Mouse::Button::Left, InputState::ButtonState::pressed})){
+            std::string clickedName = getHoveredName(input, files, displaySettings);
+            if(!clickedName.empty())
+                nameField.setEnteredText(std::move(clickedName));
+        }
         pathField.poll();
         nameField.poll();
-        pathField.setEmptyText(curPath);
         window.clear();
-        displayFiles(window, files, *textFont, 20.f, 20.f);
+        displayFiles(window, files, *textFont, displaySettings);
         pathField.display(window);
         nameField.display(window);
         window.display();
         const InputState::KeyInfo escSequence = {sf::Keyboard::Key::Escape, InputState::ButtonState::released};
-        if(input.keyEvents().find(escSequence) != input.keyEvents().end()){
+        if(input.keyEventsContains(escSequence))
             window.close();
-        }
+        
     }
 
     return "";

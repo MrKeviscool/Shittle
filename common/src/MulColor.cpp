@@ -1,4 +1,5 @@
 #include "MulColor.hpp"
+#include <SFML/Graphics/Color.hpp>
 
 MulColor MulColor::operator*(const float f) const {
    return MulColor{
@@ -18,7 +19,25 @@ MulColor::MulColor(const unsigned char r, const unsigned char g, const unsigned 
 
 }
 
+MulColor::MulColor(const sf::Color& color){
+    r = color.r;
+    g = color.g;
+    b = color.b;
+}
+
+MulColor::MulColor(const sf::Color& color, const float mul){
+    r = color.r * mul;
+    g = color.g * mul;
+    b = color.b * mul;
+}
+
 MulColor::MulColor() : sf::Color(){
 
 }
 
+MulColor& MulColor::operator=(const sf::Color& col){
+    this->r = col.r;
+    this->g = col.g;
+    this->b = col.b;
+    return *this;
+}
