@@ -1,10 +1,12 @@
 #pragma once
 
+#include <SFML/Window/Event.hpp>
 #include <exception>
 #include <unordered_set>
 
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <chrono>
 
 class InputState {
 public:
@@ -50,6 +52,7 @@ public:
 
     bool resisedWindow() const;
     bool shouldClose() const;
+    bool doubleClicked() const;
 
     void reset();
     void pollEvents();
@@ -58,6 +61,10 @@ private:
     static bool m_initialised;
     static InputState m_InputState;
     sf::RenderWindow* m_renderWindow = nullptr;
+    std::chrono::steady_clock::time_point m_lastClickTime;
+
+    int m_doubleClickMs = 200;
+    bool m_doubleClicked = false;
 
     std::unordered_set<KeyInfo, hash> m_keyEvents;
     std::unordered_set<MouseInfo, hash> m_mouseEvents;
@@ -74,5 +81,7 @@ private:
     InputState() = default;
     InputState(const InputState&) = delete;
     InputState(InputState&&) = delete;
+
+    void m_doubleClickCheck(const sf::Event& event);
 
 };

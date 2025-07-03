@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <iterator>
-#include <type_traits>
 #include <vector>
 #include <string>
 #include <cstring>
@@ -126,12 +125,10 @@ struct DisplaySettings {
 };
 
 static void displayFiles(sf::RenderWindow& window, std::vector<std::string> files, const sf::Font& font, const DisplaySettings& settings){
-    bool bright = true;
-
     const sf::Color brightColor{127, 127, 127};
     const MulColor darkColor(brightColor, 0.7f);
     sf::RectangleShape bgRect({600, settings.nameBlockSize});
-    bgRect.setFillColor((bright? brightColor : darkColor));
+    bgRect.setFillColor(brightColor);
     bgRect.setPosition(0, settings.topOffset);
 
     sf::Text text;
@@ -140,8 +137,9 @@ static void displayFiles(sf::RenderWindow& window, std::vector<std::string> file
 
     text.setPosition(0, settings.topOffset);
     text.move(0, text.getCharacterSize() * -0.25f);
-
-    auto changeBgColor = [&bgRect, &bright, &brightColor, &darkColor](){
+    
+    bool bright = true;
+    auto changeBgColor = [&bright, &bgRect, &brightColor, &darkColor]() mutable {
         bright = !bright;
         bgRect.setFillColor((bright? brightColor : darkColor));
     };
@@ -195,6 +193,10 @@ static std::string relToAbsPath(const std::string& rel){
 #endif
 }
 
+static bool exitCheck(const InputState& input){
+    return input.keyEventsContains({sf::Keyboard::Escape, InputState::ButtonState::pressed});
+}
+
 std::string askForFileBlocking(){
     sf::Vector2f originalSize{600.f, 600.f};
     sf::RenderWindow window(sf::VideoMode(static_cast<unsigned int>(originalSize.x), static_cast<unsigned int>(originalSize.y)), "Pick File");
@@ -233,12 +235,17 @@ std::string askForFileBlocking(){
     displaySettings.displayHidden = false;
     displaySettings.topOffset = 20.f;
 
+
     while(window.isOpen()){
         input.pollEvents();
         if(input.mouseEventsContains({sf::Mouse::Button::Left, InputState::ButtonState::pressed})){
             std::string clickedName = getHoveredName(input, files, displaySettings);
-            if(!clickedName.empty())
+            if(!clickedName.empty()){ //did not click on file;
                 nameField.setEnteredText(std::move(clickedName));
+                if(input.doubleClicked()){
+
+                }
+            }
         }
         pathField.poll();
         nameField.poll();
@@ -247,8 +254,7 @@ std::string askForFileBlocking(){
         pathField.display(window);
         nameField.display(window);
         window.display();
-        const InputState::KeyInfo escSequence = {sf::Keyboard::Key::Escape, InputState::ButtonState::released};
-        if(input.keyEventsContains(escSequence))
+        if(exitCheck(input) || input.shouldClose())
             window.close();
         
     }
