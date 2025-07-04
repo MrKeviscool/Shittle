@@ -110,3 +110,17 @@ void TextField::setEnteredText(const std::string &newText){
     textBuffer = newText;
     text.setString(textBuffer);
 }
+
+void TextField::setClearOnSubmit(const bool clear){
+    clearOnSubmit = clear;
+}
+
+void TextField::submitEntered(){
+    if(clearOnSubmit){
+        std::swap(textBuffer, m_enteredText); //keeps textBuffer in a valid state, may juyst be able to std::move
+        textBuffer.clear();
+    }
+    else {
+        m_enteredText = textBuffer;
+    }
+}

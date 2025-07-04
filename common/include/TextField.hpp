@@ -22,6 +22,9 @@ public:
     void setWaitForEnter(bool wait);
     void setSelectedBrightnessMult(float multiplier);
     void setEnteredText(const std::string& text);
+    void setClearOnSubmit(bool clear);
+
+    void submitEntered();
     void poll();
     void display(sf::RenderWindow& window);
     const std::string& enteredText() const;
@@ -42,6 +45,7 @@ private:
     bool waitForEnter = true;
     bool m_isFocused = false;
     bool keepText = true;
+    bool clearOnSubmit = true;
 
     void updateFocus();
     void setFocus(bool focused);

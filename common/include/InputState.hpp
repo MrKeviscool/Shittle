@@ -53,6 +53,7 @@ public:
     bool resisedWindow() const;
     bool shouldClose() const;
     bool doubleClicked() const;
+    void setDoubleClickMs(int ms);
 
     void reset();
     void pollEvents();
@@ -63,7 +64,7 @@ private:
     sf::RenderWindow* m_renderWindow = nullptr;
     std::chrono::steady_clock::time_point m_lastClickTime;
 
-    int m_doubleClickMs = 200;
+    int m_doubleClickMs = 300;
     bool m_doubleClicked = false;
 
     std::unordered_set<KeyInfo, hash> m_keyEvents;

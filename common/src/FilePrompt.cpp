@@ -240,10 +240,11 @@ std::string askForFileBlocking(){
         input.pollEvents();
         if(input.mouseEventsContains({sf::Mouse::Button::Left, InputState::ButtonState::pressed})){
             std::string clickedName = getHoveredName(input, files, displaySettings);
-            if(!clickedName.empty()){ //did not click on file;
+            if(!clickedName.empty()){ //clicked on file
                 nameField.setEnteredText(std::move(clickedName));
                 if(input.doubleClicked()){
-
+                    nameField.submitEntered();
+                    return nameField.enteredText();
                 }
             }
         }

@@ -237,6 +237,7 @@ void reset(){
 
 }
 
+#include <iostream>
 void runEditor() {
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "Peg Edit", sf::Style::Default);
     window.setFramerateLimit(60);
@@ -246,7 +247,8 @@ void runEditor() {
     std::forward_list<Peg> pegs;
     std::unordered_set<SelectedPeg> selectedPegs;
     std::unordered_map<ButtonType, Button> buttons = initaliseButtons(resources, cursorType);
-    askForFileBlocking();
+    const auto fileName = askForFileBlocking();
+    std::cout << "received file: " << fileName << '\n';
     
     InputState::initalise(&window);
     InputState& input = InputState::getRef();

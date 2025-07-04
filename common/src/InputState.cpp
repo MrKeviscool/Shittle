@@ -111,6 +111,10 @@ void InputState::m_doubleClickCheck(const sf::Event& event){
     m_lastClickTime = now; 
 }
 
+void InputState::setDoubleClickMs(const int ms){
+    m_doubleClickMs = ms;
+}
+
 const std::unordered_set<InputState::KeyInfo, InputState::hash>& InputState::keyEvents() const {
     return m_keyEvents;
 }
