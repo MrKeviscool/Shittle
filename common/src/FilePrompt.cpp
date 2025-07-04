@@ -177,12 +177,6 @@ static std::string getHoveredName(const InputState& input, const std::vector<std
     return *nameIter;
 }
 
-void askForFileDefered(std::function<void (const std::string &)> callback){
-    sf::Vector2f originalSize{600.f, 600.f};
-    sf::RenderWindow window(sf::VideoMode(static_cast<unsigned int>(originalSize.x), static_cast<unsigned int>(originalSize.y)), "Pick File");
-    
-    
-}
 
 static std::string relToAbsPath(const std::string& rel){
 #ifdef FP_POSIX
@@ -196,8 +190,21 @@ static std::string relToAbsPath(const std::string& rel){
 static bool exitCheck(const InputState& input){
     return input.keyEventsContains({sf::Keyboard::Escape, InputState::ButtonState::pressed});
 }
+static std::string getClickedName(const InputState& input, const std::vector<std::string>& files, const DisplaySettings& displaySettings, TextField& nameField){
+    if(input.mouseEventsContains({sf::Mouse::Button::Left, InputState::ButtonState::pressed})){
+        std::string clickedName = getHoveredName(input, files, displaySettings);
+        if(!clickedName.empty()){ //clicked on file
+            nameField.setEnteredText(std::move(clickedName));
+            if(input.doubleClicked()){
+                nameField.submitEntered();
+                return nameField.enteredText();
+            }
+        }
+    }
+    return "";
+}
 
-std::string askForFileBlocking(){
+static std::string askForFile(){
     sf::Vector2f originalSize{600.f, 600.f};
     sf::RenderWindow window(sf::VideoMode(static_cast<unsigned int>(originalSize.x), static_cast<unsigned int>(originalSize.y)), "Pick File");
     window.setFramerateLimit(60);
@@ -238,16 +245,10 @@ std::string askForFileBlocking(){
 
     while(window.isOpen()){
         input.pollEvents();
-        if(input.mouseEventsContains({sf::Mouse::Button::Left, InputState::ButtonState::pressed})){
-            std::string clickedName = getHoveredName(input, files, displaySettings);
-            if(!clickedName.empty()){ //clicked on file
-                nameField.setEnteredText(std::move(clickedName));
-                if(input.doubleClicked()){
-                    nameField.submitEntered();
-                    return nameField.enteredText();
-                }
-            }
-        }
+
+        const std::string doubleClickedName = getClickedName(input, files, displaySettings, nameField);
+        if(!doubleClickedName.empty()) return doubleClickedName;
+
         pathField.poll();
         nameField.poll();
         window.clear();
@@ -259,6 +260,17 @@ std::string askForFileBlocking(){
             window.close();
         
     }
-
     return "";
+}
+
+std::future<std::string> askForFileDefered(){
+    std::packaged_task<std::string()> task(askForFile);
+    auto future = task.get_future();
+    std::thread thread(std::move(task));
+    thread.detach();
+    return future;
+}
+
+std::string askForFileBlocking(){
+    return askForFile();
 }

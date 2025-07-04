@@ -1,5 +1,4 @@
 #include "TextField.hpp"
-#include <SFML/Graphics/Text.hpp>
 
 TextField::TextField(InputState& input, const sf::Font& font, const std::string& emptyFieldText, const bool keepText)
     : emptyText(emptyFieldText), input(input), keepText(keepText)
