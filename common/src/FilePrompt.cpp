@@ -41,17 +41,8 @@ static bool isDirectory(const std::string& path){
     closedir(dir);
     return out;
 #else
-    HANDLE fdHandle = CreateFileA(path.c_str(), GENERIC_READ, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-    bool o;
-    if (fdHandle == INVALID_HANDLE_VALUE) {
-        out = false;
-    }
-    else {
-        out = true;
-    }
-    CloseHandle(fdHandle);
-    return out;
-
+    const DWORD fileAttr = GetFileAttributesA(path.c_str());
+    return fileAttr & FILE_ATTRIBUTE_DIRECTORY;
 #endif
 }
 
@@ -59,7 +50,8 @@ static bool isHidden(const std::string& path){
 #ifdef FP_POSIX
     return path[0] == '.';
 #else
-#warning TODO
+    const DWORD fileAttr = GetFileAttributesA(path.c_str());
+    return fileAttr & FILE_ATTRIBUTE_HIDDEN;
 #endif
 
 }
@@ -73,7 +65,7 @@ static std::vector<std::string> getFilesIn(const std::string& path){
     while(const dirent* file = readdir(dir)){
         std::string fileName = file->d_name;
         if(isDirectory(fileName)) fileName.push_back('/');
-        out.push_back(std::move(fileName));
+        out.emplace_back(std::move(fileName));
     }
 
     closedir(dir);
@@ -82,17 +74,15 @@ static std::vector<std::string> getFilesIn(const std::string& path){
 
     std::vector<std::string> out;
     SetCurrentDirectoryA(path.c_str());
+    
     WIN32_FIND_DATAA fileInfo;
-
-    HANDLE fdHandle = FindFirstFileA("*", &fileInfo);
-    if (!fdHandle) return {};
-
-    char pathBuff[MAX_PATH];
-
+    HANDLE fdHandle = FindFirstFileA(".\\*", &fileInfo);
+    if (fdHandle == INVALID_HANDLE_VALUE) return {};
     do {
-        GetFinalPathNameByHandleA(fdHandle, pathBuff, MAX_PATH - 1, FILE_NAME_OPENED | VOLUME_NAME_NONE);
-        out.push_back({ pathBuff });
+        out.emplace_back(fileInfo.cFileName);
+        if(isDirectory(out.back())) out.back().push_back('/');
     } while (FindNextFileA(fdHandle, &fileInfo));
+    FindClose(fdHandle);
     return out;
 #endif
 }
@@ -168,11 +158,11 @@ static std::string getHoveredName(const InputState& input, const std::vector<std
 
     auto nameIter = files.cbegin();
     unsigned int visibleBlockIndex = 0;
-    do {
+    while(visibleBlockIndex < clickIndex) {
         do nameIter++; while(isHidden(*nameIter) && nameIter != files.cend());
         if(nameIter == files.cend()) return "";
         visibleBlockIndex++;
-    } while(visibleBlockIndex <= clickIndex);
+    } 
 
     return *nameIter;
 }
@@ -185,6 +175,7 @@ static std::string relToAbsPath(const std::string& rel){
     free(absPathPtr);
     return absPath;
 #endif
+    return rel;
 }
 
 static bool exitCheck(const InputState& input){

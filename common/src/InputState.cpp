@@ -2,7 +2,6 @@
 
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Mouse.hpp>
-#include <bits/chrono.h>
 #include <cmath>
 #include <utility>
 #include <chrono>
@@ -66,38 +65,38 @@ void InputState::pollEvents(){
 
     while (m_renderWindow->pollEvent(event)) {
         switch (event.type) {
-            case sf::Event::Closed:
-                m_shouldClose = true;
-		break;
+        case sf::Event::Closed:
+            m_shouldClose = true;
+		    break;
 	    case sf::Event::KeyPressed:
-		m_keyEvents.insert({event.key.code, InputState::ButtonState::pressed});
-		break;
+		    m_keyEvents.insert({event.key.code, InputState::ButtonState::pressed});
+		    break;
 	    case sf::Event::KeyReleased:
-		m_keyEvents.insert({event.key.code, InputState::ButtonState::released});
-		break;
-            case sf::Event::MouseMoved:
-		m_mousePos = {event.mouseMove.x, event.mouseMove.y};
-		break;
+		    m_keyEvents.insert({event.key.code, InputState::ButtonState::released});
+		    break;
+        case sf::Event::MouseMoved:
+		    m_mousePos = {event.mouseMove.x, event.mouseMove.y};
+		    break;
 	    case sf::Event::MouseButtonPressed:
-		m_mouseEvents.insert({ event.mouseButton.button, InputState::ButtonState::pressed });
-		m_mouseDownOrigin = m_mousePos;
-                m_doubleClickCheck(event);
-                break;
+		    m_mouseEvents.insert({ event.mouseButton.button, InputState::ButtonState::pressed });
+		    m_mouseDownOrigin = m_mousePos;
+            m_doubleClickCheck(event);
+            break;
 	    case sf::Event::MouseButtonReleased:
-                m_mouseEvents.insert({ event.mouseButton.button, InputState::ButtonState::released });
-		break;
-            case sf::Event::TextEntered:
-                m_textEntered.push_back(static_cast<char>(event.text.unicode));
+            m_mouseEvents.insert({ event.mouseButton.button, InputState::ButtonState::released });
+		    break;
+        case sf::Event::TextEntered:
+            m_textEntered.push_back(static_cast<char>(event.text.unicode));
 	    case sf::Event::Resized:
-		m_resisedWindow = true;
-		m_windowSize = m_renderWindow->getSize();
-		break;
+		    m_resisedWindow = true;
+		    m_windowSize = m_renderWindow->getSize();
+		    break;
 	    case sf::Event::MouseWheelScrolled:
-		m_mouseScrollDelta += static_cast<int>(std::roundf(event.mouseWheelScroll.delta));
-		break;
+		    m_mouseScrollDelta += static_cast<int>(std::roundf(event.mouseWheelScroll.delta));
+		    break;
 	    default:
 	        continue;
-	}
+	    }
 
     }
     m_mouseMoveAmount = m_mousePos - oldMousePos;
