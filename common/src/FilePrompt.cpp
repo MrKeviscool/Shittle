@@ -25,6 +25,7 @@
 #if defined(FP_POSIX)
 #include <dirent.h>
 #include <stdlib.h>
+#include <unistd.h>
 #elif defined(FP_WINDOWS)
 #include <Windows.h>
 #endif
@@ -202,7 +203,7 @@ static std::string getClickedName(const InputState& input, const std::vector<std
 
 static void changeDirectory(const std::string& dir) {
 #ifdef FP_POSIX
-#error TODO
+    chdir(dir.c_str());
 #else // FP_POSIX
     SetCurrentDirectoryA(dir.c_str());
 #endif
@@ -284,3 +285,5 @@ std::future<std::string> askForFileDefered(){
 std::string askForFileBlocking(){
     return askForFile();
 }
+
+/*bug with clicking the correct entry across windows and linux*/
