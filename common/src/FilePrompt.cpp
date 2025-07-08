@@ -51,7 +51,7 @@ static bool isDirectory(const std::string& path){
 
 static bool isHidden(const std::string& path){
 #ifdef FP_POSIX
-    return path[0] == '.';
+    return path[0] == '.' && path != "../";
 #else
     const DWORD fileAttr = GetFileAttributesA(path.c_str());
     return fileAttr & FILE_ATTRIBUTE_HIDDEN;
@@ -161,6 +161,7 @@ static std::string getHoveredName(const InputState& input, const std::vector<std
 
     auto nameIter = files.cbegin();
     unsigned int visibleBlockIndex = 0;
+    while(isHidden(*nameIter) && nameIter != files.cend()) nameIter++;
     while(visibleBlockIndex < clickIndex) {
         do nameIter++; while(isHidden(*nameIter) && nameIter != files.cend());
         if(nameIter == files.cend()) return "";
@@ -256,6 +257,7 @@ static std::string askForFile(){
             changeDirectory(doubleClickedName);
             pathField.setEnteredText(relToAbsPath("."));
             files = getFilesIn(".");
+            files = sortNames(files);
             continue;
         }
 
@@ -285,5 +287,3 @@ std::future<std::string> askForFileDefered(){
 std::string askForFileBlocking(){
     return askForFile();
 }
-
-/*bug with clicking the correct entry across windows and linux*/
