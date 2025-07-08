@@ -29,8 +29,10 @@
 #include <Windows.h>
 #endif
 
-static bool isDirectory(const std::string& path);
-static std::vector<std::string> getFilesIn(const std::string& path);
+enum class OpenMode {
+    files,
+    directories
+};
 
 static bool isDirectory(const std::string& path){
 #ifdef FP_POSIX
@@ -148,7 +150,7 @@ static void displayFiles(sf::RenderWindow& window, std::vector<std::string> file
 
 static std::string getHoveredName(const InputState& input, const std::vector<std::string>& files, const DisplaySettings& displaySettings){
     const sf::Vector2i mousePos = input.mousePos();
-    const unsigned int clickIndex = (mousePos.y - displaySettings.topOffset) / displaySettings.nameBlockSize;
+    const unsigned int clickIndex = (mousePos.y - static_cast<unsigned int>(displaySettings.topOffset)) / static_cast<unsigned int>(displaySettings.nameBlockSize);
 
     if(clickIndex >= files.size() || mousePos.y < displaySettings.topOffset) return "";
     
@@ -174,8 +176,11 @@ static std::string relToAbsPath(const std::string& rel){
     std::string absPath(absPathPtr);
     free(absPathPtr);
     return absPath;
+#else
+    char strBuffer[MAX_PATH + 1];
+    GetFullPathNameA(rel.c_str(), MAX_PATH, strBuffer, NULL);
+    return strBuffer;
 #endif
-    return rel;
 }
 
 static bool exitCheck(const InputState& input){
@@ -195,10 +200,20 @@ static std::string getClickedName(const InputState& input, const std::vector<std
     return "";
 }
 
+static void changeDirectory(const std::string& dir) {
+#ifdef FP_POSIX
+#error TODO
+#else // FP_POSIX
+    SetCurrentDirectoryA(dir.c_str());
+#endif
+}
+
 static std::string askForFile(){
     sf::Vector2f originalSize{600.f, 600.f};
     sf::RenderWindow window(sf::VideoMode(static_cast<unsigned int>(originalSize.x), static_cast<unsigned int>(originalSize.y)), "Pick File");
     window.setFramerateLimit(60);
+
+    std::string originalPath = relToAbsPath(".");
 
     InputState::initalise(&window);
     InputState& input = InputState::getRef();
@@ -221,12 +236,10 @@ static std::string askForFile(){
     pathField.setSelectedBrightnessMult(1.4f);
     nameField.setSelectedBrightnessMult(1.4f);
 
-    std::string curPath = relToAbsPath(".");
-
-    std::vector<std::string> files = getFilesIn(curPath);
+    std::vector<std::string> files = getFilesIn(".");
     files = sortNames(files);
 
-    pathField.setEnteredText(curPath);
+    pathField.setEnteredText(relToAbsPath("."));
    
     DisplaySettings displaySettings;
     displaySettings.nameBlockSize = 20.f;
@@ -238,7 +251,12 @@ static std::string askForFile(){
         input.pollEvents();
 
         const std::string doubleClickedName = getClickedName(input, files, displaySettings, nameField);
-        if(!doubleClickedName.empty()) return doubleClickedName;
+        if (!doubleClickedName.empty() && isDirectory(doubleClickedName)) {
+            changeDirectory(doubleClickedName);
+            pathField.setEnteredText(relToAbsPath("."));
+            files = getFilesIn(".");
+            continue;
+        }
 
         pathField.poll();
         nameField.poll();
@@ -251,6 +269,7 @@ static std::string askForFile(){
             window.close();
         
     }
+    changeDirectory(originalPath);
     return "";
 }
 
