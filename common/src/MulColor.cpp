@@ -26,9 +26,9 @@ MulColor::MulColor(const sf::Color& color){
 }
 
 MulColor::MulColor(const sf::Color& color, const float mul){
-    r = color.r * mul;
-    g = color.g * mul;
-    b = color.b * mul;
+    r = static_cast<unsigned char>(color.r * mul);
+    g = static_cast<unsigned char>(color.g * mul);
+    b = static_cast<unsigned char>(color.b * mul);
 }
 
 MulColor::MulColor() : sf::Color(){
