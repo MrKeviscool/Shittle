@@ -221,22 +221,22 @@ static std::unordered_map<ButtonType, Button> initaliseButtons(ResourceManager& 
 }
 
 void save(const std::forward_list<Peg>& pegs){
-	LevelSaver saver;
-	Level lev;
-	LevelThumbnail thumb;	
+    LevelSaver saver;
+    Level lev;
+    LevelThumbnail thumb;	
 
-	for(auto& peg : pegs) lev.pegs.emplace_back(peg);
-	thumb.name = "test level";
+    lev.pegs.reserve(std::distance(pegs.cbegin(), pegs.cend()));
+    for(auto& peg : pegs) lev.pegs.emplace_back(peg);
+    thumb.name = "test level";
 
-	saver.saveLevel(lev, thumb);
-	saver.writeToDisk("test.ignore.hex");
+    saver.saveLevel(lev, thumb);
+    saver.writeToDisk("test.ignore.hex");
 
 }
 
 void reset(){
 
 }
-
 #include <iostream>
 void runEditor() {
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "Peg Edit", sf::Style::Default);
@@ -249,7 +249,7 @@ void runEditor() {
     std::unordered_map<ButtonType, Button> buttons = initaliseButtons(resources, cursorType);
     const auto fileName = askForFileBlocking();
     std::cout << "received file: " << fileName << '\n';
-    
+
     InputState::initalise(&window);
     InputState& input = InputState::getRef();
 
