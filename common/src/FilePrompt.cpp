@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <iterator>
+#include <sys/types.h>
 #include <vector>
 #include <string>
 #include <cstring>
@@ -30,9 +31,20 @@
 #include <Windows.h>
 #endif
 
-enum class OpenMode {
+enum class OpenMode : u_int8_t{
     files,
     directories
+};
+
+struct DisplaySettings {
+    float nameBlockSize = 10.f;
+    float topOffset = 10.f;
+    bool displayHidden = false;
+};
+
+struct DirData {
+    std::string path;
+    std::vector<std::string> fdNames;
 };
 
 static bool isDirectory(const std::string& path){
@@ -59,15 +71,16 @@ static bool isHidden(const std::string& path){
 
 }
 
-static std::vector<std::string> getFilesIn(const std::string& path){
+static std::vector<std::string> getNames(const OpenMode openMode, const DisplaySettings& displaySettings){
 #ifdef FP_POSIX
     std::vector<std::string> out;
-    DIR* dir = opendir(path.c_str());
+    DIR* dir = opendir(".");
     if(!dir) return {};
     
     while(const dirent* file = readdir(dir)){
         std::string fileName = file->d_name;
         if(isDirectory(fileName)) fileName.push_back('/');
+        if(!displaySettings.displayHidden && isHidden(fileName)) continue;
         out.emplace_back(std::move(fileName));
     }
 
@@ -76,7 +89,7 @@ static std::vector<std::string> getFilesIn(const std::string& path){
 #else
 
     std::vector<std::string> out;
-    SetCurrentDirectoryA(path.c_str());
+    SetCurrentDirectoryA(".");
     
     WIN32_FIND_DATAA fileInfo;
     HANDLE fdHandle = FindFirstFileA(".\\*", &fileInfo);
@@ -88,6 +101,7 @@ static std::vector<std::string> getFilesIn(const std::string& path){
     FindClose(fdHandle);
     return out;
 #endif
+
 }
 
 static std::vector<std::string> sortNames(const std::vector<std::string>& names){
@@ -111,11 +125,38 @@ static std::vector<std::string> sortNames(const std::vector<std::string>& names)
     return out;
 }
 
-struct DisplaySettings {
-    float nameBlockSize = 10.f;
-    float topOffset = 10.f;
-    bool displayHidden = false;
-};
+static std::string getPath(){
+#ifdef FP_POSIX
+    char* absPathPtr = realpath(".", NULL);
+    std::string absPath(absPathPtr);
+    free(absPathPtr);
+    return absPath;
+#else
+    char strBuffer[MAX_PATH + 1];
+    GetFullPathNameA(".", MAX_PATH, strBuffer, NULL);
+    return strBuffer;
+#endif
+}
+
+
+
+static void setWorkingDirectory(const std::string& dir) {
+#ifdef FP_POSIX
+    chdir(dir.c_str());
+#else // FP_POSIX
+    SetCurrentDirectoryA(dir.c_str());
+#endif
+}
+
+static DirData changeDir(const std::string& name, const OpenMode openMode, const DisplaySettings& displaySettings){
+    DirData dirData;
+    setWorkingDirectory(name);
+    dirData.path = getPath();
+    dirData.fdNames = getNames(openMode, displaySettings);
+    dirData.fdNames = sortNames(dirData.fdNames);
+    return dirData;
+}
+
 
 static void displayFiles(sf::RenderWindow& window, std::vector<std::string> files, const sf::Font& font, const DisplaySettings& settings){
     const sf::Color brightColor{127, 127, 127};
@@ -138,7 +179,6 @@ static void displayFiles(sf::RenderWindow& window, std::vector<std::string> file
     };
 
     for(auto& file : files){
-        if(!settings.displayHidden && isHidden(file)) continue;
         text.setString(file);
         window.draw(bgRect);
         window.draw(text);
@@ -155,42 +195,16 @@ static std::string getHoveredName(const InputState& input, const std::vector<std
 
     if(clickIndex >= files.size() || mousePos.y < displaySettings.topOffset) return "";
     
-    if(displaySettings.displayHidden) return files[clickIndex];
-
-    if(std::count_if(files.cbegin(), files.cend(), [](const std::string& fn){return !isHidden(fn);}) <= clickIndex) return ""; //hopefully can remove this and do checking in loop
-
-    auto nameIter = files.cbegin();
-    unsigned int visibleBlockIndex = 0;
-    while(isHidden(*nameIter) && nameIter != files.cend()) nameIter++;
-    while(visibleBlockIndex < clickIndex) {
-        do nameIter++; while(isHidden(*nameIter) && nameIter != files.cend());
-        if(nameIter == files.cend()) return "";
-        visibleBlockIndex++;
-    } 
-
-    return *nameIter;
-}
-
-
-static std::string relToAbsPath(const std::string& rel){
-#ifdef FP_POSIX
-    char* absPathPtr = realpath(rel.c_str(), NULL);
-    std::string absPath(absPathPtr);
-    free(absPathPtr);
-    return absPath;
-#else
-    char strBuffer[MAX_PATH + 1];
-    GetFullPathNameA(rel.c_str(), MAX_PATH, strBuffer, NULL);
-    return strBuffer;
-#endif
+    return files[clickIndex];
 }
 
 static bool exitCheck(const InputState& input){
     return input.keyEventsContains({sf::Keyboard::Escape, InputState::ButtonState::pressed});
 }
-static std::string getClickedName(const InputState& input, const std::vector<std::string>& files, const DisplaySettings& displaySettings, TextField& nameField){
+
+static std::string getClickedName(const InputState& input, const std::vector<std::string>& names, const DisplaySettings& displaySettings, TextField& nameField){
     if(input.mouseEventsContains({sf::Mouse::Button::Left, InputState::ButtonState::pressed})){
-        std::string clickedName = getHoveredName(input, files, displaySettings);
+        std::string clickedName = getHoveredName(input, names, displaySettings);
         if(!clickedName.empty()){ //clicked on file
             nameField.setEnteredText(std::move(clickedName));
             if(input.doubleClicked()){
@@ -202,20 +216,12 @@ static std::string getClickedName(const InputState& input, const std::vector<std
     return "";
 }
 
-static void changeDirectory(const std::string& dir) {
-#ifdef FP_POSIX
-    chdir(dir.c_str());
-#else // FP_POSIX
-    SetCurrentDirectoryA(dir.c_str());
-#endif
-}
-
 static std::string askForFile(){
     sf::Vector2f originalSize{600.f, 600.f};
     sf::RenderWindow window(sf::VideoMode(static_cast<unsigned int>(originalSize.x), static_cast<unsigned int>(originalSize.y)), "Pick File");
     window.setFramerateLimit(60);
 
-    std::string originalPath = relToAbsPath(".");
+    const std::string originalPath = getPath();
 
     InputState::initalise(&window);
     InputState& input = InputState::getRef();
@@ -238,33 +244,30 @@ static std::string askForFile(){
     pathField.setSelectedBrightnessMult(1.4f);
     nameField.setSelectedBrightnessMult(1.4f);
 
-    std::vector<std::string> files = getFilesIn(".");
-    files = sortNames(files);
+    OpenMode openMode = OpenMode::files;
 
-    pathField.setEnteredText(relToAbsPath("."));
-   
     DisplaySettings displaySettings;
     displaySettings.nameBlockSize = 20.f;
     displaySettings.displayHidden = false;
     displaySettings.topOffset = 20.f;
 
+    DirData dirData = changeDir(".", openMode, displaySettings);
 
+    pathField.setEnteredText(dirData.path);
+   
     while(window.isOpen()){
         input.pollEvents();
 
-        const std::string doubleClickedName = getClickedName(input, files, displaySettings, nameField);
+        const std::string doubleClickedName = getClickedName(input, dirData.fdNames, displaySettings, nameField);
         if (!doubleClickedName.empty() && isDirectory(doubleClickedName)) {
-            changeDirectory(doubleClickedName);
-            pathField.setEnteredText(relToAbsPath("."));
-            files = getFilesIn(".");
-            files = sortNames(files);
+            dirData = changeDir(doubleClickedName, openMode, displaySettings);
             continue;
         }
 
         pathField.poll();
         nameField.poll();
         window.clear();
-        displayFiles(window, files, *textFont, displaySettings);
+        displayFiles(window, dirData.fdNames, *textFont, displaySettings);
         pathField.display(window);
         nameField.display(window);
         window.display();
@@ -272,7 +275,7 @@ static std::string askForFile(){
             window.close();
         
     }
-    changeDirectory(originalPath);
+    setWorkingDirectory(originalPath);
     return "";
 }
 
