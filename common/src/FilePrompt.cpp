@@ -31,7 +31,7 @@
 #include <Windows.h>
 #endif
 
-enum class OpenMode : u_int8_t{
+enum class OpenMode : uint8_t{
     files,
     directories
 };
@@ -65,6 +65,7 @@ static bool isHidden(const std::string& path){
 #ifdef FP_POSIX
     return path[0] == '.' && path != "../";
 #else
+    if (path == "./") return true;
     const DWORD fileAttr = GetFileAttributesA(path.c_str());
     return fileAttr & FILE_ATTRIBUTE_HIDDEN;
 #endif
@@ -95,8 +96,10 @@ static std::vector<std::string> getNames(const OpenMode openMode, const DisplayS
     HANDLE fdHandle = FindFirstFileA(".\\*", &fileInfo);
     if (fdHandle == INVALID_HANDLE_VALUE) return {};
     do {
-        out.emplace_back(fileInfo.cFileName);
-        if(isDirectory(out.back())) out.back().push_back('/');
+        std::string fileName(fileInfo.cFileName);
+        if(isDirectory(fileName)) fileName.push_back('/');
+        if (!displaySettings.displayHidden && isHidden(fileName)) continue;
+        out.emplace_back(std::move(fileName));
     } while (FindNextFileA(fdHandle, &fileInfo));
     FindClose(fdHandle);
     return out;
