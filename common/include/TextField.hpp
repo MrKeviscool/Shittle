@@ -9,7 +9,7 @@
 
 class TextField {
 public:
-    TextField(InputState& input, const sf::Font& font, const std::string& emptyFieldText = "", bool keepText = true);
+    TextField(InputState& input, const sf::Font& font, const std::string& emptyFieldText = "", bool clearOnSubmit = false);
 
     void setSize(sf::Vector2f size);
     void setPosition(sf::Vector2f position);
@@ -44,7 +44,6 @@ private:
     bool showCursor = true;
     bool waitForEnter = true;
     bool m_isFocused = false;
-    bool keepText = true;
     bool clearOnSubmit = true;
 
     void updateFocus();

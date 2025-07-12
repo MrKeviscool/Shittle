@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <iterator>
-#include <sys/types.h>
 #include <vector>
 #include <string>
 #include <cstring>
@@ -62,6 +61,7 @@ static bool isDirectory(const std::string& path){
 }
 
 static bool isHidden(const std::string& path){
+
 #ifdef FP_POSIX
     return path[0] == '.' && path != "../";
 #else
@@ -160,7 +160,6 @@ static DirData changeDir(const std::string& name, const OpenMode openMode, const
     return dirData;
 }
 
-
 static void displayFiles(sf::RenderWindow& window, std::vector<std::string> files, const sf::Font& font, const DisplaySettings& settings){
     const sf::Color brightColor{127, 127, 127};
     const MulColor darkColor(brightColor, 0.7f);
@@ -205,18 +204,21 @@ static bool exitCheck(const InputState& input){
     return input.keyEventsContains({sf::Keyboard::Escape, InputState::ButtonState::pressed});
 }
 
-static std::string getClickedName(const InputState& input, const std::vector<std::string>& names, const DisplaySettings& displaySettings, TextField& nameField){
+static std::string getClickedName(const InputState& input, const std::vector<std::string>& names, const DisplaySettings& displaySettings){
     if(input.mouseEventsContains({sf::Mouse::Button::Left, InputState::ButtonState::pressed})){
-        std::string clickedName = getHoveredName(input, names, displaySettings);
-        if(!clickedName.empty()){ //clicked on file
-            nameField.setEnteredText(std::move(clickedName));
-            if(input.doubleClicked()){
-                nameField.submitEntered();
-                return nameField.enteredText();
-            }
-        }
+        return getHoveredName(input, names, displaySettings);
     }
     return "";
+}
+
+static bool madeChoice(const InputState& input, const TextField& pathField, const TextField& nameField) {
+    const bool inField = pathField.isFocused() || nameField.isFocused();
+    if (inField) return false;
+
+    const bool clickedEnter = input.keyEventsContains({ sf::Keyboard::Key::Enter, InputState::ButtonState::pressed });
+    const bool doubleClicked = input.doubleClicked();
+
+    return clickedEnter || doubleClicked;
 }
 
 static std::string askForFile(){
@@ -261,10 +263,23 @@ static std::string askForFile(){
     while(window.isOpen()){
         input.pollEvents();
 
-        const std::string doubleClickedName = getClickedName(input, dirData.fdNames, displaySettings, nameField);
-        if (!doubleClickedName.empty() && isDirectory(doubleClickedName)) {
-            dirData = changeDir(doubleClickedName, openMode, displaySettings);
-            continue;
+        const std::string highligtedName = getClickedName(input, dirData.fdNames, displaySettings);
+        if (!highligtedName.empty()) {
+            nameField.setEnteredText(highligtedName);
+        }
+
+        if (madeChoice(input, pathField, nameField)){
+            const std::string chosenName = nameField.enteredText();
+            const bool isDir = isDirectory(chosenName);
+            if (openMode == OpenMode::files) {
+                if (!isDir) {
+                    return chosenName;
+                }
+                changeDir(chosenName, openMode, displaySettings);
+            }
+            else if(isDir){
+                return chosenName;
+            }
         }
 
         pathField.poll();

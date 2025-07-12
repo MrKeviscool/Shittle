@@ -1,7 +1,7 @@
 #include "TextField.hpp"
 
-TextField::TextField(InputState& input, const sf::Font& font, const std::string& emptyFieldText, const bool keepText)
-    : emptyText(emptyFieldText), input(input), keepText(keepText)
+TextField::TextField(InputState& input, const sf::Font& font, const std::string& emptyFieldText, const bool clearOnSubmit)
+    : emptyText(emptyFieldText), input(input), clearOnSubmit(clearOnSubmit)
 {
     text.setFont(font);
     text.setString(emptyText);
@@ -73,11 +73,7 @@ void TextField::poll(){
 
     if(input.keyEventsContains({sf::Keyboard::Key::Enter, InputState::ButtonState::pressed})){
         setFocus(false);
-        if(keepText) m_enteredText = textBuffer;
-        else {
-            std::swap(m_enteredText, textBuffer); //keeps textBuffer in a valid state
-            textBuffer.clear();
-        }
+        submitEntered();
     }
 
     if(input.textEntered().empty()) return;
