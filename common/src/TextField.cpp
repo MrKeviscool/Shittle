@@ -103,7 +103,9 @@ const std::string& TextField::enteredText() const {
 
 void TextField::setEnteredText(const std::string &newText){
     textBuffer = newText;
-    text.setString(textBuffer);
+    if(textBuffer.empty())
+        text.setString(emptyText);
+    else text.setString(textBuffer);
 }
 
 void TextField::setClearOnSubmit(const bool clear){
@@ -118,4 +120,9 @@ void TextField::submitEntered(){
     else {
         m_enteredText = textBuffer;
     }
+}
+
+void TextField::writeEmptyTextIfEmpty() {
+    if(textBuffer.empty())
+        text.setString(emptyText);
 }

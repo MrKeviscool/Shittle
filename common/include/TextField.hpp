@@ -44,8 +44,9 @@ private:
     bool showCursor = true;
     bool waitForEnter = true;
     bool m_isFocused = false;
-    bool clearOnSubmit = true;
+    bool clearOnSubmit = false;
 
     void updateFocus();
     void setFocus(bool focused);
+    void writeEmptyTextIfEmpty();
 };
