@@ -6,17 +6,30 @@ set(CMAKE_CXX_STANDARD 11)
 set(SFML_INCLUDE_DIR /usr/incude CACHE PATH "path to SFML include dir")
 set(SFML_LIB_DIR /usr/lib/x86_64-linux-gnu/ CACHE PATH "path to SFML lib dir")
 set(SFML_LIB_SUFFIX ".so" CACHE STRING "suffix for SFML libs")
+set(USE_GTK ON CACHE BOOL "use GTK file prompt or custom one")
+
+if(${USE_GTK})
+    set(fpCompUnit "GtkFilePrompt.cpp")
+    find_package(PkgConfig)
+    pkg_check_modules(gtk3 REQUIRED gtk+-3.0)
+else()
+    set(fpCompUnit "FilePrompt.cpp")
+endif()
 
 project(Shittle)
 
 include_directories(
-        ${CMAKE_SOURCE_DIR}/common/include
-        ${CMAKE_SOURCE_DIR}/editor/include
-        /usr/include
+    ${CMAKE_SOURCE_DIR}/common/include
+    ${CMAKE_SOURCE_DIR}/editor/include
+    /usr/include
+    ${gtk3_INCLUDE_DIRS}
 )
+
+message(STATUS "using ${fpCompUnit} as file prompt")
 
 add_executable(
     editor
+    ${CMAKE_SOURCE_DIR}/common/src/${fpCompUnit}
     ${CMAKE_SOURCE_DIR}/common/src/Button.cpp
     ${CMAKE_SOURCE_DIR}/common/src/InputState.cpp
     ${CMAKE_SOURCE_DIR}/common/src/ResourceManager.cpp
@@ -27,7 +40,6 @@ add_executable(
     ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/ResourceFactory.cpp
     ${CMAKE_SOURCE_DIR}/common/src/FileStreamCommon.cpp
     ${CMAKE_SOURCE_DIR}/common/src/FilesystemCommon.cpp
-    ${CMAKE_SOURCE_DIR}/common/src/FilePrompt.cpp
     ${CMAKE_SOURCE_DIR}/common/src/LevelSaver.cpp
     ${CMAKE_SOURCE_DIR}/common/src/TextField.cpp
     ${CMAKE_SOURCE_DIR}/common/src/MulColor.cpp
@@ -47,6 +59,7 @@ target_link_libraries(
     ${SFML_LIB_DIR}/libsfml-graphics${SFML_LIB_SUFFIX}
     ${SFML_LIB_DIR}/libsfml-window${SFML_LIB_SUFFIX}
     ${SFML_LIB_DIR}/libsfml-system${SFML_LIB_SUFFIX}
+    ${gtk3_LIBRARIES}
 )
 
 target_compile_options(editor PUBLIC -Wall)
