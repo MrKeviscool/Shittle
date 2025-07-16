@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 
+#include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
 #include <unordered_map>
 #include <forward_list>
@@ -17,6 +18,7 @@
 #include "SelectedPeg.hpp"
 #include "LevelSaver.hpp"
 #include "LevelLoader.hpp"
+#include "Scaler.hpp"
 
 enum class MouseState : uint8_t {
     None,
@@ -234,21 +236,21 @@ void save(const std::forward_list<Peg>& pegs){
 
 }
 
-void reset(){
-
-}
-#include <iostream>
 void runEditor() {
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Peg Edit", sf::Style::Default);
+    const sf::Vector2u desiredResolution(1920, 1080);
+
+    sf::RenderWindow window(sf::VideoMode(desiredResolution.x, desiredResolution.y), "Peg Edit", sf::Style::Default);
     window.setFramerateLimit(60);
+    const sf::Vector2u baseResolution = window.getSize();
+
     ResourceManager resources;
     CursorType cursorType;
     MouseState mouseState = MouseState::None;
+    Scaler scaler(baseResolution, window.getSize());
+
     std::forward_list<Peg> pegs;
     std::unordered_set<SelectedPeg> selectedPegs;
     std::unordered_map<ButtonType, Button> buttons = initaliseButtons(resources, cursorType);
-    const auto fileName = askForFileBlocking();
-    std::cout << "received file: " << fileName << '\n';
 
     InputState::initalise(&window);
     InputState& input = InputState::getRef();
@@ -256,8 +258,11 @@ void runEditor() {
     while (window.isOpen()) {
         input.pollEvents();
 
-        exitCheck(window, input, resources);
+        if(input.resisedWindow()){
+            scaler.setNewWindowSize(input.windowSize());
+        }
 
+        exitCheck(window, input, resources);
         const bool buttonIsHovered = pollButtons(buttons);
 
         if(shouldUpdateMouseState(input)){
@@ -272,12 +277,10 @@ void runEditor() {
             deleteSelected(pegs, selectedPegs);
         }
 
-        drawCursorType(window, buttonIsHovered, input.mousePos(), cursorType);
-        drawSelected(window, selectedPegs);
-
-        drawPegs(window, pegs);
-
-        drawButtons(window, buttons);
+        drawCursorType(window, scaler, buttonIsHovered, input.mousePos(), cursorType);
+        drawSelected(window, scaler, selectedPegs);
+        drawPegs(window, scaler, pegs);
+        drawButtons(window, scaler, buttons);
 
         window.display();
         window.clear();

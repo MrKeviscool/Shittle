@@ -6,7 +6,6 @@
 
 static void createPickerCallback(GtkApplication* app, gpointer data){
     auto outName = *reinterpret_cast<std::reference_wrapper<std::string>*>(data);
-
     GtkWindow* window = reinterpret_cast<GtkWindow*>(gtk_application_window_new(app));
 
     const GtkFileChooserAction fcAction = GTK_FILE_CHOOSER_ACTION_OPEN;
