@@ -26,7 +26,7 @@ enum class MouseState : uint8_t {
     Dragging,
 };
 
-static bool askToExit(sf::RenderWindow& window, InputState& input, ResourceManager& resources) {
+static bool askToExit(sf::RenderWindow& window, InputState& input, ResourceManager& resources, Scaler& scaler) {
     const sf::Font* textFont = static_cast<sf::Font*>(resources.getResource("resources/robotto.ttf"));
 
     Button yesButton({ 200, 100 }, { 1920.f / 4, 1080 * 0.75f }, static_cast<sf::Texture*>(resources.getResource("resources/okButton.png")));
@@ -52,8 +52,8 @@ static bool askToExit(sf::RenderWindow& window, InputState& input, ResourceManag
             }
         }
         window.clear();
-        yesButton.draw(window);
-        noButton.draw(window);
+        yesButton.draw(window, scaler);
+        noButton.draw(window, scaler);
         window.draw(exitText);
         window.display();
     }
@@ -64,9 +64,9 @@ static void placePeg(const CursorType& cursorType, std::forward_list<Peg>& pegs)
     pegs.emplace_front(cursorType.peg);
 }
 
-static void exitCheck(sf::RenderWindow& window, InputState& input, ResourceManager& resources) {
+static void exitCheck(sf::RenderWindow& window, InputState& input, ResourceManager& resources, Scaler& scaler) {
     if(input.shouldClose()){
-        if(askToExit(window, input, resources)){
+        if(askToExit(window, input, resources, scaler)){
             window.close();
         }
         return;
@@ -75,7 +75,7 @@ static void exitCheck(sf::RenderWindow& window, InputState& input, ResourceManag
         if (keyEvnt.key == sf::Keyboard::Escape
             && keyEvnt.buttonState == InputState::ButtonState::released)
         {
-            if(askToExit(window, input, resources)){
+            if(askToExit(window, input, resources, scaler)){
                 window.close();
             }
             return;
@@ -262,7 +262,7 @@ void runEditor() {
             scaler.setNewWindowSize(input.windowSize());
         }
 
-        exitCheck(window, input, resources);
+        exitCheck(window, input, resources, scaler);
         const bool buttonIsHovered = pollButtons(buttons);
 
         if(shouldUpdateMouseState(input)){

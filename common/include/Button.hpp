@@ -4,7 +4,10 @@
 
 #include <functional>
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+
+#include "Scaler.hpp"
+
 
 class Button {
 public:
@@ -23,7 +26,7 @@ public:
 
     bool poll();
     
-    void draw(sf::RenderWindow& target) const;
+    void draw(sf::RenderWindow& target, const Scaler& scaler);
 
     bool isHovering() const;
 

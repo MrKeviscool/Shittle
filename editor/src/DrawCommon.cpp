@@ -1,13 +1,11 @@
 #include "DrawCommon.hpp"
+#include "Button.hpp"
 #include "SelectedPeg.hpp"
 #include <SFML/Graphics/RectangleShape.hpp>
 
-void drawButtons(sf::RenderWindow& window, const Scaler& scaler, const std::unordered_map<ButtonType, Button>& buttons) {
-    for (auto& butt : buttons){
-        sf::RectangleShape scaledShape = butt.second.getShape();
-        scaler.apply(scaledShape);
-        butt.second.draw(window);
-    }
+void drawButtons(sf::RenderWindow& window, const Scaler& scaler, std::unordered_map<ButtonType, Button>& buttons) {
+    for (auto& butt : buttons)
+        butt.second.draw(window, scaler);
 }
 
 void drawCursorType(sf::RenderWindow& window, const Scaler& scaler, bool isButtonHovered, sf::Vector2i mousePos, CursorType& cursorType) {
