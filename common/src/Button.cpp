@@ -1,7 +1,6 @@
 #include "Button.hpp"
 
 #include "ResourceManager.hpp"
-#include "Scaler.hpp"
 
 Button::Button(const sf::Vector2f size) : m_shape(size)
 {
@@ -79,10 +78,7 @@ const sf::RectangleShape& Button::getShape() const {
     return m_shape;
 }
 
-void Button::draw(sf::RenderWindow& target, const Scaler& scaler) {
-    scaler.apply(m_shape);
-    scaler.apply(m_text);
-
+void Button::draw(sf::RenderWindow& target) const {
     target.draw(m_shape);
     target.draw(m_text);
 }

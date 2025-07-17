@@ -1,6 +1,5 @@
 #include <SFML/Graphics.hpp>
 
-#include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
 #include <unordered_map>
 #include <forward_list>
@@ -18,7 +17,6 @@
 #include "SelectedPeg.hpp"
 #include "LevelSaver.hpp"
 #include "LevelLoader.hpp"
-#include "Scaler.hpp"
 
 enum class MouseState : uint8_t {
     None,
@@ -26,7 +24,7 @@ enum class MouseState : uint8_t {
     Dragging,
 };
 
-static bool askToExit(sf::RenderWindow& window, InputState& input, ResourceManager& resources, Scaler& scaler) {
+static bool askToExit(sf::RenderWindow& window, InputState& input, ResourceManager& resources) {
     const sf::Font* textFont = static_cast<sf::Font*>(resources.getResource("resources/robotto.ttf"));
 
     Button yesButton({ 200, 100 }, { 1920.f / 4, 1080 * 0.75f }, static_cast<sf::Texture*>(resources.getResource("resources/okButton.png")));
@@ -52,8 +50,8 @@ static bool askToExit(sf::RenderWindow& window, InputState& input, ResourceManag
             }
         }
         window.clear();
-        yesButton.draw(window, scaler);
-        noButton.draw(window, scaler);
+        yesButton.draw(window);
+        noButton.draw(window);
         window.draw(exitText);
         window.display();
     }
@@ -64,9 +62,9 @@ static void placePeg(const CursorType& cursorType, std::forward_list<Peg>& pegs)
     pegs.emplace_front(cursorType.peg);
 }
 
-static void exitCheck(sf::RenderWindow& window, InputState& input, ResourceManager& resources, Scaler& scaler) {
+static void exitCheck(sf::RenderWindow& window, InputState& input, ResourceManager& resources) {
     if(input.shouldClose()){
-        if(askToExit(window, input, resources, scaler)){
+        if(askToExit(window, input, resources)){
             window.close();
         }
         return;
@@ -75,7 +73,7 @@ static void exitCheck(sf::RenderWindow& window, InputState& input, ResourceManag
         if (keyEvnt.key == sf::Keyboard::Escape
             && keyEvnt.buttonState == InputState::ButtonState::released)
         {
-            if(askToExit(window, input, resources, scaler)){
+            if(askToExit(window, input, resources)){
                 window.close();
             }
             return;
@@ -236,18 +234,16 @@ void save(const std::forward_list<Peg>& pegs){
 
 }
 
+void reset(){
+
+}
+
 void runEditor() {
-    const sf::Vector2u desiredResolution(1920, 1080);
-
-    sf::RenderWindow window(sf::VideoMode(desiredResolution.x, desiredResolution.y), "Peg Edit", sf::Style::Default);
+    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Peg Edit", sf::Style::Default);
     window.setFramerateLimit(60);
-    const sf::Vector2u baseResolution = window.getSize();
-
     ResourceManager resources;
     CursorType cursorType;
     MouseState mouseState = MouseState::None;
-    Scaler scaler(baseResolution, window.getSize());
-
     std::forward_list<Peg> pegs;
     std::unordered_set<SelectedPeg> selectedPegs;
     std::unordered_map<ButtonType, Button> buttons = initaliseButtons(resources, cursorType);
@@ -258,11 +254,8 @@ void runEditor() {
     while (window.isOpen()) {
         input.pollEvents();
 
-        if(input.resisedWindow()){
-            scaler.setNewWindowSize(input.windowSize());
-        }
+        exitCheck(window, input, resources);
 
-        exitCheck(window, input, resources, scaler);
         const bool buttonIsHovered = pollButtons(buttons);
 
         if(shouldUpdateMouseState(input)){
@@ -277,10 +270,12 @@ void runEditor() {
             deleteSelected(pegs, selectedPegs);
         }
 
-        drawCursorType(window, scaler, buttonIsHovered, input.mousePos(), cursorType);
-        drawSelected(window, scaler, selectedPegs);
-        drawPegs(window, scaler, pegs);
-        drawButtons(window, scaler, buttons);
+        drawCursorType(window, buttonIsHovered, input.mousePos(), cursorType);
+        drawSelected(window, selectedPegs);
+
+        drawPegs(window, pegs);
+
+        drawButtons(window, buttons);
 
         window.display();
         window.clear();

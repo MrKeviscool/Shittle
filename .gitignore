@@ -10,3 +10,5 @@ Debug
 *.ignore*
 \.*
 compile_commands.json
+bin/
+share/
