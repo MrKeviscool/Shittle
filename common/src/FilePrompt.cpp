@@ -112,7 +112,10 @@ static std::vector<std::string> getNames(const OpenType openMode, const DisplayS
     if (fdHandle == INVALID_HANDLE_VALUE) return {};
     do {
         std::string fileName(fileInfo.cFileName);
-        if(isDirectory(fileName)) fileName.push_back('/');
+        if (isDirectory(fileName)) {
+            if (openMode == OpenType::directories) fileName.push_back('/');
+            else continue;
+        }
         if (!displaySettings.displayHidden && isHidden(fileName)) continue;
         out.emplace_back(std::move(fileName));
     } while (FindNextFileA(fdHandle, &fileInfo));
@@ -285,11 +288,11 @@ static std::string askForFile(){
     pathField.setSelectedBrightnessMult(1.4f);
     nameField.setSelectedBrightnessMult(1.4f);
 
-    OpenType openMode = OpenType::files;
+    OpenType openMode = OpenType::directories;
 
     DisplaySettings displaySettings;
     displaySettings.nameBlockSize = 20.f;
-displaySettings.displayHidden = false;
+    displaySettings.displayHidden = false;
     displaySettings.topOffset = 20.f;
 
     DirData dirData = changeDir(".", openMode, displaySettings);
