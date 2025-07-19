@@ -17,6 +17,7 @@
 #include "SelectedPeg.hpp"
 #include "LevelSaver.hpp"
 #include "LevelLoader.hpp"
+#include "ScreenRatioScaler.hpp"
 
 enum class MouseState : uint8_t {
     None,
@@ -239,11 +240,15 @@ void reset(){
 }
 
 void runEditor() {
+    const sf::Vector2u desiredWindowSize{ 1920u, 1080u };
     sf::RenderWindow window(sf::VideoMode(1920, 1080), "Peg Edit", sf::Style::Default);
     window.setFramerateLimit(60);
     ResourceManager resources;
     CursorType cursorType;
     MouseState mouseState = MouseState::None;
+    ScreenRatioScaler scaler(desiredWindowSize);
+    scaler.ajustViewSize(window);
+
     std::forward_list<Peg> pegs;
     std::unordered_set<SelectedPeg> selectedPegs;
     std::unordered_map<ButtonType, Button> buttons = initaliseButtons(resources, cursorType);
@@ -253,6 +258,11 @@ void runEditor() {
 
     while (window.isOpen()) {
         input.pollEvents();
+        if (input.resisedWindow()) {
+            scaler.ajustViewSize(window);
+            input.setMouseOffset(scaler.getPixelOffset(window));
+            continue;
+        }
 
         exitCheck(window, input, resources);
 

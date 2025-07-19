@@ -54,6 +54,8 @@ public:
     bool shouldClose() const;
     bool doubleClicked() const;
     void setDoubleClickMs(int ms);
+    void setMouseOffset(const sf::Vector2f offset);
+    void setMouseOffset(const sf::Vector2i offset);
 
     void reset();
     void pollEvents();
@@ -74,6 +76,7 @@ private:
     sf::Vector2i m_mouseDownOrigin{ 0,0 };
     sf::Vector2i m_mouseMoveAmount{ 0,0 };
     sf::Vector2u m_windowSize{ 0,0 };
+    sf::Vector2i m_mouseOffset{ 0,0 };
     int m_mouseScrollDelta = 0;
     
     bool m_resisedWindow = false;

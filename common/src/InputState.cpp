@@ -75,7 +75,10 @@ void InputState::pollEvents(){
 		    m_keyEvents.insert({event.key.code, InputState::ButtonState::released});
 		    break;
         case sf::Event::MouseMoved:
-		    m_mousePos = {event.mouseMove.x, event.mouseMove.y};
+		    m_mousePos = {
+                event.mouseMove.x + m_mouseOffset.x,
+                event.mouseMove.y + m_mouseOffset.y
+            };
 		    break;
 	    case sf::Event::MouseButtonPressed:
 		    m_mouseEvents.insert({ event.mouseButton.button, InputState::ButtonState::pressed });
@@ -112,6 +115,14 @@ void InputState::m_doubleClickCheck(const sf::Event& event){
 
 void InputState::setDoubleClickMs(const int ms){
     m_doubleClickMs = ms;
+}
+
+void InputState::setMouseOffset(const sf::Vector2f offset){
+    m_mouseOffset = { static_cast<int>(offset.x), static_cast<int>(offset.y) };
+}
+
+void InputState::setMouseOffset(const sf::Vector2i offset) {
+    m_mouseOffset = offset;
 }
 
 const std::unordered_set<InputState::KeyInfo, InputState::hash>& InputState::keyEvents() const {

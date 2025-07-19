@@ -6,6 +6,8 @@
 
 class ScreenRatioScaler {
 public:
+    
+    ScreenRatioScaler() = delete;
 
     ScreenRatioScaler(const float desiredRatio) : desiredRatio(desiredRatio) {
     }

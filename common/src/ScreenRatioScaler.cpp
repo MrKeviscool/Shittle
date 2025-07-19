@@ -25,11 +25,12 @@ sf::Vector2f ScreenRatioScaler::getPixelOffset(const sf::RenderWindow& window) c
 
     if (windowRatio == desiredRatio) return { 0.f, 0.f };
     if (windowRatio > desiredRatio) {
-        const float viewWidth = desiredRatio * windowSize.y;
+        const float viewWidth = static_cast<float>(windowSize.y) * desiredRatio;
         const float barSize = viewWidth - static_cast<float>(windowSize.x);
         return { barSize / 2.f, 0.f };
     }
-    const float viewHeight = window.getSize().x / desiredRatio;
-    const float barSize = viewHeight - static_cast<float>(windowSize.y);
+    //todo, does not scale vertically yet.
+    const float viewHeight = static_cast<float>(windowSize.x) / desiredRatio;
+    const float barSize = viewHeight + static_cast<float>(windowSize.y);
     return { 0.f, barSize / 2.f };
 }
