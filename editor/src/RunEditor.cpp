@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 
+#include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
 #include <unordered_map>
 #include <forward_list>
@@ -18,6 +19,7 @@
 #include "LevelSaver.hpp"
 #include "LevelLoader.hpp"
 #include "ScreenRatioScaler.hpp"
+#include "FilePrompt.hpp"
 
 enum class MouseState : uint8_t {
     None,
@@ -239,15 +241,15 @@ void reset(){
 
 }
 
+#include <iostream>
 void runEditor() {
-    const sf::Vector2u desiredWindowSize{ 1920u, 1080u };
-    sf::RenderWindow window(sf::VideoMode(1920, 1080), "Peg Edit", sf::Style::Default);
+    const sf::Vector2f unitSize {1920.f, 1080.f};
+    const sf::Vector2u defaultWindowSize{1920u, 1080u};
+    sf::RenderWindow window(sf::VideoMode(defaultWindowSize.x, defaultWindowSize.y), "Peg Edit", sf::Style::Default);
     window.setFramerateLimit(60);
     ResourceManager resources;
     CursorType cursorType;
     MouseState mouseState = MouseState::None;
-    ScreenRatioScaler scaler(desiredWindowSize);
-    scaler.ajustViewSize(window);
 
     std::forward_list<Peg> pegs;
     std::unordered_set<SelectedPeg> selectedPegs;
@@ -256,11 +258,16 @@ void runEditor() {
     InputState::initalise(&window);
     InputState& input = InputState::getRef();
 
+
+    // input.setMouseOffset(scaler.getPixelOffset(window));
+
     while (window.isOpen()) {
         input.pollEvents();
         if (input.resisedWindow()) {
-            scaler.ajustViewSize(window);
-            input.setMouseOffset(scaler.getPixelOffset(window));
+            // scaler.ajustViewSize(window);
+            // const auto offset = scaler.getPixelOffset(window);
+            // std::cout << "pixel offset x: " << offset.x << ", y: " << offset.y << '\n';
+            // input.setMouseOffset(offset);
             continue;
         }
 

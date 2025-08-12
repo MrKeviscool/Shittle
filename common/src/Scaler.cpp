@@ -1,4 +1,5 @@
 #include "Scaler.hpp"
+#include <SFML/System/Vector2.hpp>
 
 template <typename T>
 struct ConstexprVec2 {
@@ -34,4 +35,11 @@ void Scaler::setNewWindowSize(const sf::Vector2u newWindowSize){
 
 void Scaler::apply(sf::Transformable& transformable) const {
     transformable.setScale(scaleFactor);
+}
+
+sf::Vector2i Scaler::scalePixelPos(const sf::Vector2i pos) const {
+    return {
+        static_cast<const int>(pos.x * scaleFactor.x),
+        static_cast<const int>(pos.y * scaleFactor.y)
+    };
 }

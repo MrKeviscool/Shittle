@@ -1,33 +1,21 @@
 #pragma once
 
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <type_traits>
 
 #include <SFML/Graphics/RenderWindow.hpp>
 
 class ScreenRatioScaler {
 public:
-    
     ScreenRatioScaler() = delete;
-
-    ScreenRatioScaler(const float desiredRatio) : desiredRatio(desiredRatio) {
-    }
-
-    template<typename T>
-    ScreenRatioScaler(const T screenSize) : desiredRatio(ScreenRatioScaler::pixelsToRatio(screenSize)) {
-    }
-
-    void ajustViewSize(sf::RenderWindow& window) const;
-    sf::Vector2f getPixelOffset(const sf::RenderWindow& window) const;
+    ScreenRatioScaler(const sf::Vector2u baseScreenSize);
+    void ajustViewSize(sf::RenderWindow& window);
 
 private:
-    float desiredRatio;
-    template<typename T>
-    static inline float pixelsToRatio(const T pixels) {
-        return static_cast<float>(pixels.x) / static_cast<float>(pixels.y);
-    }
-    template<typename T>
-    static inline float pixelsToRatio(const T x, const T y) {
-        return static_cast<float>(x) / static_cast<float>(y);
-    }
-};
+    sf::Vector2u baseScreenSize;
+    float baseRatio;
+    sf::Vector2i pixelOffset{ 0, 0};
 
+    constexpr static float getRatio(const float x, const float y);
+};

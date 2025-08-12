@@ -1,36 +1,40 @@
 #include "ScreenRatioScaler.hpp"
+#include <SFML/System/Vector2.hpp>
 
-void ScreenRatioScaler::ajustViewSize(sf::RenderWindow& window) const {
-    const float currentRatio = ScreenRatioScaler::pixelsToRatio(window.getSize());
-    if (currentRatio == desiredRatio) return;
+ScreenRatioScaler::ScreenRatioScaler(const sf::Vector2u baseScreenSize) : baseScreenSize(baseScreenSize) {
+    baseRatio = getRatio(baseScreenSize.x, baseScreenSize.y);
+}
 
-    sf::FloatRect viewportSize;
-    if (currentRatio > desiredRatio) {
-        const float newWidth = desiredRatio / currentRatio;
-        viewportSize = { (1.f - newWidth) / 2.f, 0.f, newWidth, 1.f };
+void ScreenRatioScaler::ajustViewSize(sf::RenderWindow& window){
+    const sf::Vector2u currentSize = window.getSize();
+    const float currentRatio = getRatio(currentSize.x, currentSize.y);
+
+    sf::FloatRect newViewportSize;
+    if(currentRatio == baseRatio) return;
+
+    if(currentRatio > baseRatio){
+        const float newWidth = baseRatio / currentRatio;
+        newViewportSize = { (1.f - newWidth) / 2.f, 0.f, newWidth, 1.f };
     }
     else {
-        const float newHeight = currentRatio / desiredRatio;
-        viewportSize = { 0.f, (1.f - newHeight) / 2.f, 1.f, newHeight };
+        const float newHeight = currentRatio / baseRatio;
+        newViewportSize = { 0.f, (1.f  - newHeight) / 2.f, 1.f, newHeight };
     }
 
+    pixelOffset = {
+        static_cast<int>(baseScreenSize.x - (baseScreenSize.x * newViewportSize.width)),
+        static_cast<int>(baseScreenSize.y - (baseScreenSize.y * newViewportSize.height))
+    };
+
     sf::View view = window.getView();
-    view.setViewport(viewportSize);
+    view.setViewport(newViewportSize);
     window.setView(view);
 }
 
-sf::Vector2f ScreenRatioScaler::getPixelOffset(const sf::RenderWindow& window) const {
-    const float windowRatio = ScreenRatioScaler::pixelsToRatio(window.getSize());
-    const sf::Vector2u windowSize = window.getSize();
+sf::Vector2u baseScreenSize;
+float baseRatio;
+sf::Vector2i pixelOffset{ 0, 0};
 
-    if (windowRatio == desiredRatio) return { 0.f, 0.f };
-    if (windowRatio > desiredRatio) {
-        const float viewWidth = static_cast<float>(windowSize.y) * desiredRatio;
-        const float barSize = viewWidth - static_cast<float>(windowSize.x);
-        return { barSize / 2.f, 0.f };
-    }
-    //todo, does not scale vertically yet.
-    const float viewHeight = static_cast<float>(windowSize.x) / desiredRatio;
-    const float barSize = viewHeight + static_cast<float>(windowSize.y);
-    return { 0.f, barSize / 2.f };
+constexpr float ScreenRatioScaler::getRatio(const float x, const float y) {
+        return x/y;
 }

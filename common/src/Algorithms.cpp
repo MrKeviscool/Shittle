@@ -47,10 +47,10 @@ float getDistance(const sf::Vector2f a, const sf::Vector2f b){
 }
 
 sf::Vector2f getPoint(const float angle, const float length){
-	return {
-		std::cos((angle - 90) * DEG_TO_RAD) * length,
-		std::sin((angle - 90) * DEG_TO_RAD) * length,
-	};
+    return {
+        std::cos((angle - 90) * DEG_TO_RAD) * length,
+        std::sin((angle - 90) * DEG_TO_RAD) * length,
+    };
 }
 
 float getAngle(const float aX, const float aY, const float bX, const float bY){

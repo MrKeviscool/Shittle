@@ -10,6 +10,7 @@ public:
 
     void setNewWindowSize(sf::Vector2u);
     void apply(sf::Transformable& transformable) const;
+    sf::Vector2i scalePixelPos(sf::Vector2i pos) const;
 
 private:
     sf::Vector2f scaleFactor;
