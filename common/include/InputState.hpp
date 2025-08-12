@@ -1,5 +1,6 @@
 #pragma once
 
+#include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 #include <exception>
 #include <unordered_set>
@@ -54,8 +55,8 @@ public:
     bool shouldClose() const;
     bool doubleClicked() const;
     void setDoubleClickMs(int ms);
-    void setMouseOffset(const sf::Vector2f offset);
-    void setMouseOffset(const sf::Vector2i offset);
+    void setBaseMouseOffset(const sf::Vector2f);
+    void setMouseScale(const sf::Vector2f);
 
     void reset();
     void pollEvents();
@@ -76,7 +77,8 @@ private:
     sf::Vector2i m_mouseDownOrigin{ 0,0 };
     sf::Vector2i m_mouseMoveAmount{ 0,0 };
     sf::Vector2u m_windowSize{ 0,0 };
-    sf::Vector2i m_mouseOffset{ 0,0 };
+    sf::Vector2f m_mousePixelOffset{ 0,0 };
+    sf::Vector2f m_mousePixelScale{ 1,1 };
     int m_mouseScrollDelta = 0;
     
     bool m_resisedWindow = false;

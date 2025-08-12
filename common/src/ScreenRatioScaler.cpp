@@ -1,40 +1,49 @@
 #include "ScreenRatioScaler.hpp"
 #include <SFML/System/Vector2.hpp>
 
-ScreenRatioScaler::ScreenRatioScaler(const sf::Vector2u baseScreenSize) : baseScreenSize(baseScreenSize) {
-    baseRatio = getRatio(baseScreenSize.x, baseScreenSize.y);
+ScreenRatioScaler::ScreenRatioScaler(const sf::Vector2u baseWindowSize) : baseWindowSize(baseWindowSize), curWindowSize(baseWindowSize) {
+    baseRatio = getRatio(baseWindowSize.x, baseWindowSize.y);
 }
 
 void ScreenRatioScaler::ajustViewSize(sf::RenderWindow& window){
-    const sf::Vector2u currentSize = window.getSize();
-    const float currentRatio = getRatio(currentSize.x, currentSize.y);
+    curWindowSize = window.getSize();
+    const float currentRatio = getRatio(curWindowSize.x, curWindowSize.y);
 
-    sf::FloatRect newViewportSize;
     if(currentRatio == baseRatio) return;
 
     if(currentRatio > baseRatio){
         const float newWidth = baseRatio / currentRatio;
-        newViewportSize = { (1.f - newWidth) / 2.f, 0.f, newWidth, 1.f };
+        viewportSize = { newWidth, 1.f};
     }
     else {
         const float newHeight = currentRatio / baseRatio;
-        newViewportSize = { 0.f, (1.f  - newHeight) / 2.f, 1.f, newHeight };
+        viewportSize = { 1.f, newHeight};
     }
 
-    pixelOffset = {
-        static_cast<int>(baseScreenSize.x - (baseScreenSize.x * newViewportSize.width)),
-        static_cast<int>(baseScreenSize.y - (baseScreenSize.y * newViewportSize.height))
-    };
-
     sf::View view = window.getView();
-    view.setViewport(newViewportSize);
+    view.setViewport({(1.f - viewportSize.x) / 2.f, (1.f - viewportSize.y) / 2.f, viewportSize.x, viewportSize.y});
     window.setView(view);
 }
 
-sf::Vector2u baseScreenSize;
-float baseRatio;
-sf::Vector2i pixelOffset{ 0, 0};
+/*make scaling work based on the letter/pill boxed window (subtract viewportSize) to get proper scaling*/
+sf::Vector2f ScreenRatioScaler::getPixelScale() const {
+    const sf::Vector2f viewSize{curWindowSize.x * viewportSize.x, curWindowSize.y * viewportSize.y};
+    return {
+        static_cast<float>(baseWindowSize.x) / viewSize.x,
+        static_cast<float>(baseWindowSize.y) / viewSize.y,
+    };
+}
+
+sf::Vector2f ScreenRatioScaler::getPixelBaseOffset() const {
+    const sf::Vector2f viewSize{curWindowSize.x * viewportSize.x, curWindowSize.y * viewportSize.y};
+    const sf::Vector2f difference{curWindowSize.x - viewSize.x, curWindowSize.y - viewSize.y};
+    return {difference.x / 2.f, difference.y / 2.f};
+}
 
 constexpr float ScreenRatioScaler::getRatio(const float x, const float y) {
-        return x/y;
+    return x/y;
+}
+
+constexpr float ScreenRatioScaler::getRatio(const unsigned int x, const unsigned int y) {
+    return static_cast<float>(x) / static_cast<float>(y);
 }

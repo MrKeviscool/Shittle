@@ -76,9 +76,9 @@ void InputState::pollEvents(){
 		    break;
         case sf::Event::MouseMoved:
 		    m_mousePos = {
-                event.mouseMove.x + m_mouseOffset.x,
-                event.mouseMove.y + m_mouseOffset.y
-            };
+                       static_cast<int>(std::roundf((static_cast<float>(event.mouseMove.x) - m_mousePixelOffset.x) * m_mousePixelScale.x)),
+                       static_cast<int>(std::roundf((static_cast<float>(event.mouseMove.y) - m_mousePixelOffset.y) * m_mousePixelScale.y)),
+                    };
 		    break;
 	    case sf::Event::MouseButtonPressed:
 		    m_mouseEvents.insert({ event.mouseButton.button, InputState::ButtonState::pressed });
@@ -100,7 +100,6 @@ void InputState::pollEvents(){
 	    default:
 	        continue;
 	    }
-
     }
     m_mouseMoveAmount = m_mousePos - oldMousePos;
 }
@@ -117,12 +116,11 @@ void InputState::setDoubleClickMs(const int ms){
     m_doubleClickMs = ms;
 }
 
-void InputState::setMouseOffset(const sf::Vector2f offset){
-    m_mouseOffset = { static_cast<int>(offset.x), static_cast<int>(offset.y) };
+void InputState::setBaseMouseOffset(const sf::Vector2f offset){
+    m_mousePixelOffset = offset;
 }
-
-void InputState::setMouseOffset(const sf::Vector2i offset) {
-    m_mouseOffset = offset;
+void InputState::setMouseScale(const sf::Vector2f scale){
+    m_mousePixelScale = scale;
 }
 
 const std::unordered_set<InputState::KeyInfo, InputState::hash>& InputState::keyEvents() const {

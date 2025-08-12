@@ -9,13 +9,17 @@
 class ScreenRatioScaler {
 public:
     ScreenRatioScaler() = delete;
-    ScreenRatioScaler(const sf::Vector2u baseScreenSize);
+    ScreenRatioScaler(const sf::Vector2u baseWindowSize);
     void ajustViewSize(sf::RenderWindow& window);
-
+    sf::Vector2f getPixelScale() const;
+    sf::Vector2f getPixelBaseOffset() const;
+    
 private:
-    sf::Vector2u baseScreenSize;
+    sf::Vector2u baseWindowSize;
+    sf::Vector2u curWindowSize;
+    sf::Vector2f viewportSize{1.f, 1.f};
     float baseRatio;
-    sf::Vector2i pixelOffset{ 0, 0};
 
     constexpr static float getRatio(const float x, const float y);
+    constexpr static float getRatio(const unsigned int x, const unsigned int y);
 };

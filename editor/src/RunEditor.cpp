@@ -2,6 +2,7 @@
 
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
+#include <type_traits>
 #include <unordered_map>
 #include <forward_list>
 #include <unordered_set>
@@ -243,12 +244,12 @@ void reset(){
 
 #include <iostream>
 void runEditor() {
-    const sf::Vector2f unitSize {1920.f, 1080.f};
     const sf::Vector2u defaultWindowSize{1920u, 1080u};
     sf::RenderWindow window(sf::VideoMode(defaultWindowSize.x, defaultWindowSize.y), "Peg Edit", sf::Style::Default);
     window.setFramerateLimit(60);
     ResourceManager resources;
     CursorType cursorType;
+    ScreenRatioScaler scaler(defaultWindowSize);
     MouseState mouseState = MouseState::None;
 
     std::forward_list<Peg> pegs;
@@ -264,10 +265,9 @@ void runEditor() {
     while (window.isOpen()) {
         input.pollEvents();
         if (input.resisedWindow()) {
-            // scaler.ajustViewSize(window);
-            // const auto offset = scaler.getPixelOffset(window);
-            // std::cout << "pixel offset x: " << offset.x << ", y: " << offset.y << '\n';
-            // input.setMouseOffset(offset);
+            scaler.ajustViewSize(window);
+            input.setMouseScale(scaler.getPixelScale());
+            input.setBaseMouseOffset(scaler.getPixelBaseOffset());
             continue;
         }
 
