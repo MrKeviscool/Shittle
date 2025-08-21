@@ -12,3 +12,4 @@ Debug
 compile_commands.json
 bin/
 share/
+result

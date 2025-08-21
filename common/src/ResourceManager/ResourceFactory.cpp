@@ -1,9 +1,10 @@
+#include <cstdint>
+#include <stdexcept>
+
 #include "ResourceManger/ResourceFactory.hpp"
 
 #include "ResourceManger/ImageResource.hpp"
 #include "ResourceManger/FontResource.hpp"
-
-#include <stdexcept>
 
 //could use a string view here
 std::string getFileTypeStr(const std::string& path){
@@ -11,7 +12,7 @@ std::string getFileTypeStr(const std::string& path){
     std::uint8_t extentionSize = 0;
 
     for (auto iter = path.crbegin(); iter != path.crend(); iter++)
-        if (*iter != '.')
+    if (*iter != '.')
             extentionSize++;
     else
         break;
@@ -21,7 +22,7 @@ std::string getFileTypeStr(const std::string& path){
 
     for (std::uint8_t i = static_cast<uint8_t>(path.size()) - extentionSize; i < path.size(); i++)
         fileTypeBuff.push_back(path[i]);
-    
+
 
     return fileTypeBuff;
 }

@@ -1,7 +1,10 @@
 #pragma once
 
 #include <fstream>
-#include <cstddef>
+#include <cstdint>
+#include <cstring>
+
+#include "Bigger.hpp"
 
 using byte_t = uint8_t;
 using word_t = uint16_t;
@@ -18,18 +21,22 @@ enum class BlockType : uint8_t {
 };
 
 inline dword_t floatToDword(const float f) {
-    return *reinterpret_cast<const dword_t*>(&f);
+    dword_t d = 0;
+    std::memcpy(&d, &f, sizeof(Smaller<typeof(d), typeof(f)>::type));
+    return d;
 }
 
 inline float dwordtoFloat(const dword_t d) {
-    return *reinterpret_cast<const float*>(&d);
+    float f = 0.f;
+    std::memcpy(&f, &d, sizeof(Smaller<typeof(d), typeof(f)>::type));
+    return f;
 }
 
 namespace fileStream {
     void write(std::fstream& stream, const int64_t qword, const BlockType type);
     bool hasWriteAccess(const std::string& path);
 
-    template<typename T, typename std::enable_if<std::is_integral<T>::value, void>* = nullptr> 
+    template<typename T, typename std::enable_if<std::is_integral<T>::value, void>::type* = nullptr> 
     void write(std::fstream& stream, const T data) {
         const byte_t size = sizeof(T);
         for (byte_t i = 0; i < size; i++) {
@@ -38,7 +45,7 @@ namespace fileStream {
         }
     }
 
-    template<typename T, typename std::enable_if<std::is_integral<T>::value, void>* = nullptr> 
+    template<typename T, typename std::enable_if<std::is_integral<T>::value, void>::type* = nullptr> 
     T read(std::fstream& stream) {
         const byte_t size = sizeof(T);
         T out = 0;
