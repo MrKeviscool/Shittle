@@ -259,9 +259,6 @@ void runEditor() {
     InputState::initalise(&window);
     InputState& input = InputState::getRef();
 
-
-    // input.setMouseOffset(scaler.getPixelOffset(window));
-
     while (window.isOpen()) {
         input.pollEvents();
         if (input.resisedWindow()) {

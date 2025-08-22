@@ -3,9 +3,6 @@ cmake_minimum_required(VERSION 3.1.0)
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_STANDARD 11)
 
-# set(SFML_INCLUDE_DIR /usr/incude CACHE PATH "path to SFML include dir")
-# set(SFML_LIB_DIR /usr/lib/x86_64-linux-gnu/ CACHE PATH "path to SFML lib dir")
-# set(SFML_LIB_SUFFIX ".so" CACHE STRING "suffix for SFML libs")
 set(USE_GTK ON CACHE BOOL "use GTK file prompt or custom one")
 
 find_package(PkgConfig)
@@ -61,9 +58,6 @@ add_executable(
 
 target_link_libraries(
     editor 
-    # ${SFML_LIB_DIR}/libsfml-graphics${SFML_LIB_SUFFIX}
-    # ${SFML_LIB_DIR}/libsfml-window${SFML_LIB_SUFFIX}
-    # ${SFML_LIB_DIR}/libsfml-system${SFML_LIB_SUFFIX}
     ${SFML_LIBRARIES}
     ${gtk3_LIBRARIES}
 )
