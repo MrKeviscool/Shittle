@@ -92,8 +92,8 @@ sf::Vector2f readVec2f(std::fstream& file) {
     };
 }
 
-std::vector<PegInfo> LevelLoader::getLevelPegs() {
-    std::vector<PegInfo> pegs;
+std::vector<SerializedPeg> LevelLoader::getLevelPegs() {
+    std::vector<SerializedPeg> pegs;
     pegs.resize(fileStream::read<word_t>(file));
 
     for (auto& peg : pegs) {

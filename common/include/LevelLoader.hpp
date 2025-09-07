@@ -27,6 +27,6 @@ private:
 	std::string getThumbName();
 	std::vector<byte_t> getThumbImage();
 
-	std::vector<PegInfo> getLevelPegs();
+	std::vector<SerializedPeg> getLevelPegs();
 	std::vector<byte_t> getLevelImage();
 };

@@ -25,6 +25,6 @@ private:
     void writeLevels();
     void writeThumbnails();
 
-    void writePegInfo(const PegInfo& peg);
+    void writePegInfo(const SerializedPeg& peg);
     dword_t getTotalThumbnailsSize();
 };

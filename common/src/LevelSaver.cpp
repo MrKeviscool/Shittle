@@ -10,7 +10,7 @@ dword_t LevelSaver::getTotalThumbnailsSize(){
     return size;
 }
 
-void LevelSaver::writePegInfo(const PegInfo& info){
+void LevelSaver::writePegInfo(const SerializedPeg& info){
     fileStream::write(file, floatToDword(info.position.x), static_cast<BlockType>(sizeof(info.position.x))); //position
     fileStream::write(file, floatToDword(info.position.y), static_cast<BlockType>(sizeof(info.position.y)));
 

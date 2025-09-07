@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 
-#include "PegInfo.hpp"
+#include "SerializedData.hpp"
 #include "FileStreamCommon.hpp"
 
 struct LevelThumbnail {
@@ -12,7 +12,7 @@ struct LevelThumbnail {
 };
 
 struct Level {
-    std::vector<PegInfo> pegs;
+    std::vector<SerializedPeg> pegs;
     std::vector<byte_t> backgroundBytes;
 };
 
@@ -20,7 +20,7 @@ struct Level {
 inline dword_t getLevelSize(const Level& level){
     return static_cast<dword_t>(
         sizeof(word_t) + //size of peg array
-        level.pegs.size() * sizeof(PegInfo) + //array of pegs
+        level.pegs.size() * sizeof(SerializedPeg) + //array of pegs
         sizeof(dword_t) * 2 + //name pos + image size
         level.backgroundBytes.size()); //array of image bytes
 

@@ -76,9 +76,9 @@ void Peg::setSize(const sf::Vector2f newSize) {
     }
 }
 
-Peg::operator PegInfo() const {
+Peg::operator SerializedPeg() const {
     auto& shape = getShape();
-    PegInfo info;
+    SerializedPeg info;
     info.position = shape.getPosition();
     info.size = getSize();
     info.rotation = shape.getRotation();
