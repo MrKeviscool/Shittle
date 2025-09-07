@@ -5,9 +5,9 @@ template <typename T>
 struct ConstexprVec2 {
     T x,y;
     
-    constexpr ConstexprVec2<T>() = default;
-    constexpr ConstexprVec2<T>(const T x, const T y) : x(x), y(y){};
-    constexpr ConstexprVec2<T>(const sf::Vector2<T> v) : x(v.x), y(v.y){};
+    constexpr ConstexprVec2() = default;
+    constexpr ConstexprVec2(const T x, const T y) : x(x), y(y){};
+    constexpr ConstexprVec2(const sf::Vector2<T> v) : x(v.x), y(v.y){};
 
     operator sf::Vector2<T>() const {
         return {x, y};

@@ -11,7 +11,6 @@ public:
     void saveLevel(const Level& level, const LevelThumbnail& thumbnail);
 
     void writeToDisk(const std::string& filePath);
-
 private:
     std::fstream file;
     std::string path;
