@@ -265,7 +265,7 @@ void runEditor() {
     while (window.isOpen()) {
         input.pollEvents();
         if (input.resisedWindow()) {
-            scaler.ajustViewSize(window);
+            scaler.adjustViewSize(window);
             input.setMouseScale(scaler.getPixelScale());
             input.setBaseMouseOffset(scaler.getPixelBaseOffset());
             continue;

@@ -10,7 +10,7 @@ class ScreenRatioScaler {
 public:
     ScreenRatioScaler() = delete;
     ScreenRatioScaler(const sf::Vector2u baseWindowSize);
-    void ajustViewSize(sf::RenderWindow& window);
+    void adjustViewSize(sf::RenderWindow& window);
     sf::Vector2f getPixelScale() const;
     sf::Vector2f getPixelBaseOffset() const;
     

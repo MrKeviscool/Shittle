@@ -5,7 +5,7 @@ ScreenRatioScaler::ScreenRatioScaler(const sf::Vector2u baseWindowSize) : baseWi
     baseRatio = getRatio(baseWindowSize.x, baseWindowSize.y);
 }
 
-void ScreenRatioScaler::ajustViewSize(sf::RenderWindow& window){
+void ScreenRatioScaler::adjustViewSize(sf::RenderWindow& window){
     curWindowSize = window.getSize();
     const float currentRatio = getRatio(curWindowSize.x, curWindowSize.y);
 
@@ -25,7 +25,6 @@ void ScreenRatioScaler::ajustViewSize(sf::RenderWindow& window){
     window.setView(view);
 }
 
-/*make scaling work based on the letter/pill boxed window (subtract viewportSize) to get proper scaling*/
 sf::Vector2f ScreenRatioScaler::getPixelScale() const {
     const sf::Vector2f viewSize{curWindowSize.x * viewportSize.x, curWindowSize.y * viewportSize.y};
     return {
