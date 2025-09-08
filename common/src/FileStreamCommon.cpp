@@ -1,10 +1,10 @@
 #include "FileStreamCommon.hpp"
 
 namespace fileStream {
-    void write(std::fstream& stream, const int64_t qword, const BlockType type) {
+    void write(std::fstream& stream, const qword_t data, const BlockType type) {
         const int8_t size = static_cast<int8_t>(type);
         for (int8_t i = 0; i < size; i++) {
-            const char toPut = (qword >> (((size - 1) - i) * 8)) & 0xFF;
+            const char toPut = (data >> (((size - 1) - i) * 8)) & 0xFF;
             stream.put(toPut);
         }
     }

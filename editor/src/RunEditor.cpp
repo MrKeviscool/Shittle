@@ -20,7 +20,6 @@
 #include "LevelSaver.hpp"
 #include "LevelLoader.hpp"
 #include "ScreenRatioScaler.hpp"
-#include "FilePrompt.hpp"
 
 enum class MouseState : uint8_t {
     None,
@@ -225,16 +224,16 @@ static std::unordered_map<ButtonType, Button> initaliseButtons(ResourceManager& 
 }
 
 void save(const std::forward_list<Peg>& pegs){
-    LevelSaver saver;
-    Level lev;
-    LevelThumbnail thumb;	
+    //LevelSaver saver;
+    //Level lev;
+    //LevelThumbnail thumb;	
 
-    lev.pegs.reserve(std::distance(pegs.cbegin(), pegs.cend()));
-    for(auto& peg : pegs) lev.pegs.emplace_back(peg);
-    thumb.name = "test level";
+    //lev.pegs.reserve(std::distance(pegs.cbegin(), pegs.cend()));
+    //for(auto& peg : pegs) lev.pegs.emplace_back(peg);
+    //thumb.name = "test level";
 
-    saver.saveLevel(lev, thumb);
-    saver.writeToDisk("test.ignore.hex");
+    //saver.saveLevel(lev, thumb);
+    //saver.writeToDisk("test.ignore.hex");
 
 }
 

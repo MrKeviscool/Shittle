@@ -22,23 +22,23 @@ enum class BlockType : uint8_t {
 
 inline dword_t floatToDword(const float f) {
     dword_t d = 0;
-    std::memcpy(&d, &f, sizeof(Smaller<typeof(d), typeof(f)>::type));
+    std::memcpy(&d, &f, sizeof(Smaller<decltype(d), decltype(f)>::type));
     return d;
 }
 
 inline float dwordtoFloat(const dword_t d) {
     float f = 0.f;
-    std::memcpy(&f, &d, sizeof(Smaller<typeof(d), typeof(f)>::type));
+    std::memcpy(&f, &d, sizeof(Smaller<decltype(d), decltype(f)>::type));
     return f;
 }
 
 namespace fileStream {
-    void write(std::fstream& stream, const int64_t qword, const BlockType type);
+    void write(std::fstream& stream, const qword_t size, const BlockType type);
     bool hasWriteAccess(const std::string& path);
 
     template<typename T, typename std::enable_if<std::is_integral<T>::value, void>::type* = nullptr> 
     void write(std::fstream& stream, const T data) {
-        const byte_t size = sizeof(T);
+        constexpr const byte_t size = sizeof(T);
         for (byte_t i = 0; i < size; i++) {
             const char toPut = (data >> (((size - 1) - i) * 8)) & 0xFF;
             stream.put(toPut);

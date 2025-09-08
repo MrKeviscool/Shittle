@@ -16,6 +16,7 @@ struct SerializedPeg {
 
 struct SerializedLevel {
     std::vector<SerializedPeg> pegs;
-    std::vector<sf::Image> backgrounds;
-    std::vector<sf::Image> thumbnails;
+    std::string name;
+    sf::Image background;
+    sf::Image thumbnail;
 };
