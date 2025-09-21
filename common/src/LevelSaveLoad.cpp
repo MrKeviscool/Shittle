@@ -4,6 +4,13 @@
 
 #include "FileStreamCommon.hpp"
 
+//stored as little endian with a being the significant 
+static inline qword_t floatPairToQword(const float a, const float b) {
+	qword_t intergralA = floatToDword(a);
+	dword_t intergralB = floatToDword(b);
+	return (static_cast<qword_t>(intergralA) << sizeof(float)) & intergralB;
+}
+
 static dword_t getBytesInImage(const sf::Image& image) {
 	const qword_t bytesInImg = static_cast<qword_t>(image.getSize().x) * image.getSize().y * sizeof(sf::Color);
 	if (bytesInImg > std::numeric_limits<dword_t>::max())
@@ -73,8 +80,21 @@ static void writeThumbnails(std::fstream& file, const std::vector<SerializedLeve
 	}
 }
 
+static void writePeg (std::fstream& file, const SerializedPeg& peg) {
+	fileStream::write<qword_t>(file, floatPairToQword(peg.position.x, peg.position.y));
+	fileStream::write<qword_t>(file, floatPairToQword(peg.size.x, peg.size.y));
+	fileStream::write<dword_t>(file, floatToDword(peg.rotation));
+	fileStream::write<byte_t>(file, static_cast<unsigned char>(peg.shape));
+};
+
+//TODO, write image
 static void writeLevels(std::fstream& file, const std::vector<SerializedLevel>& levels) {
-	
+	constexpr const size_t pegSize = sizeof(SerializedPeg);
+	for (const auto& lev : levels) {
+		fileStream::write<word_t>(file, lev.pegs.size()); //write amount of pegs
+		for (const auto& peg : lev.pegs) //write pegs
+			writePeg(file, peg);
+	}
 }
 
 bool saveLevel(const std::string& path, const std::vector<SerializedLevel>& levels) {
