@@ -5,4 +5,5 @@ enum class ButtonType : uint8_t {
     cursorBrick,
     cursorSelect,
     save,
+    loadImage,
 };

@@ -11,7 +11,7 @@ static inline qword_t floatPairToQword(const float a, const float b) {
 	return (static_cast<qword_t>(intergralA) << sizeof(float)) & intergralB;
 }
 
-static dword_t getBytesInImage(const sf::Image& image) {
+static dword_t getAmountOfBytesInImage(const sf::Image& image) {
 	const qword_t bytesInImg = static_cast<qword_t>(image.getSize().x) * image.getSize().y * sizeof(sf::Color);
 	if (bytesInImg > std::numeric_limits<dword_t>::max())
 		throw std::runtime_error("error, image is too large\n");
@@ -19,14 +19,14 @@ static dword_t getBytesInImage(const sf::Image& image) {
 }
 
 inline static dword_t getThumbSize(const SerializedLevel& lev) {
-	const dword_t bytesInImg = getBytesInImage(lev.thumbnail);
+	const dword_t bytesInImg = getAmountOfBytesInImage(lev.thumbnail);
 	const dword_t sizeSpecifiers = sizeof(byte_t) + sizeof(dword_t);
 	return lev.name.length() + bytesInImg + sizeSpecifiers;
 }
 
 static dword_t getLevelSize(const SerializedLevel& lev) {
 	const dword_t pegBytes = static_cast<dword_t>(lev.pegs.size() * sizeof(*lev.pegs.data()));
-	const dword_t bytesInImage = getBytesInImage(lev.background);
+	const dword_t bytesInImage = getAmountOfBytesInImage(lev.background);
 	const dword_t sizeSpecifiers = sizeof(word_t) + sizeof(dword_t);
 	return pegBytes + bytesInImage + sizeSpecifiers;
 }
@@ -64,19 +64,25 @@ static dword_t writeLevelOffsets(std::fstream& file, const std::vector<Serialize
 	return curOffset;
 }
 
+static void writeImage(std::fstream& file, const sf::Image& image) {
+	const dword_t amountOfBytesInImg = getAmountOfBytesInImage(image);
+	const sf::Uint8* imgBytes = image.getPixelsPtr();
+
+	fileStream::write<dword_t>(file, amountOfBytesInImg);
+	for (dword_t imgByteIndex = 0; imgByteIndex < amountOfBytesInImg; imgByteIndex++)
+		fileStream::write<byte_t>(file, static_cast<byte_t>(imgBytes[imgByteIndex]));
+}
+
 static void writeThumbnails(std::fstream& file, const std::vector<SerializedLevel>& levels) {
 	for (const auto& lev : levels) {
 
-		const dword_t amountOfBytesInImg = getBytesInImage(lev.thumbnail);
+		const dword_t amountOfBytesInImg = getAmountOfBytesInImage(lev.thumbnail);
 
 		fileStream::write<byte_t>(file, static_cast<byte_t>(lev.name.size()));
 		for (const auto let : lev.name)
 			fileStream::write<decltype(let)>(file, let);
 
-		const sf::Uint8* imgBytes = lev.background.getPixelsPtr();
-		fileStream::write<dword_t>(file, amountOfBytesInImg);
-		for (dword_t imgByteIndex = 0; imgByteIndex < amountOfBytesInImg; imgByteIndex++)
-			fileStream::write<byte_t>(file, static_cast<byte_t>(imgBytes[imgByteIndex]));
+		writeImage(file, lev.thumbnail);
 	}
 }
 
@@ -94,6 +100,7 @@ static void writeLevels(std::fstream& file, const std::vector<SerializedLevel>& 
 		fileStream::write<word_t>(file, lev.pegs.size()); //write amount of pegs
 		for (const auto& peg : lev.pegs) //write pegs
 			writePeg(file, peg);
+		writeImage(file, lev.background);
 	}
 }
 

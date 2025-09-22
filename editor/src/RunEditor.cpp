@@ -209,12 +209,14 @@ static std::unordered_map<ButtonType, Button> initaliseButtons(ResourceManager& 
         {ButtonType::cursorBrick, Button(sf::Vector2f{50, 50}, sf::Vector2f{50, 0}, static_cast<sf::Texture*>(resources.getResource("resources/brickButton.png")))},
         {ButtonType::cursorSelect, Button(sf::Vector2f{50, 50}, sf::Vector2f{100, 0}, static_cast<sf::Texture*>(resources.getResource("resources/jankyCursor.png")))},
         {ButtonType::save, Button(sf::Vector2f{50, 50}, sf::Vector2f{1920 - 60, 0}, static_cast<sf::Texture*>(resources.getResource("resources/floppyIcon.png")))},
+        {ButtonType::loadImage, Button({50.f, 50.f}, {1920.f - (60.f * 2.f + 15.f), 0.f}, static_cast<sf::Texture*>(resources.getResource("resources/loadImage.png")))}
     };
 
     buttons[ButtonType::cursorPeg].setText("peg", textFont, 15U, 0.0f);
     buttons[ButtonType::cursorBrick].setText("brick", textFont, 15U, 0.0f);
     buttons[ButtonType::cursorSelect].setText("select", textFont, 15U, 0.0f);
     buttons[ButtonType::save].setText("save", textFont, 25U, 0.0f);
+    buttons[ButtonType::loadImage].setText("load image", textFont, 18U, 5.f);
 
     buttons[ButtonType::cursorPeg].   setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Circle), false);});
     buttons[ButtonType::cursorBrick]. setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Rect), false);});
@@ -241,7 +243,6 @@ void reset(){
 
 }
 
-#include <iostream>
 void runEditor() {
     const sf::Vector2u defaultWindowSize{1920u, 1080u};
     sf::RenderWindow window(sf::VideoMode(defaultWindowSize.x, defaultWindowSize.y), "Peg Edit", sf::Style::Default);
