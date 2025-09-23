@@ -24,5 +24,5 @@ public:
 
 private:
     PegShape m_pegShape;
-    char m_shapeData[sizeof(Bigger<sf::CircleShape, sf::RectangleShape>::type)];
+    uint8_t m_shapeData[sizeof(Bigger<sf::CircleShape, sf::RectangleShape>::type)];
 };

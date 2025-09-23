@@ -6,5 +6,5 @@
 
 #include "SerializedData.hpp"
 
-bool saveLevel(const std::string& path, const std::vector<SerializedLevel>& levels);
-std::pair<std::vector<SerializedLevel>, bool> loadLevels(const std::string& path);
+bool saveLevel(const std::string& path, const std::vector<SerializedLevelWrite>& levels);
+std::pair<std::vector<SerializedLevelRead>, bool> loadLevels(const std::string& path);

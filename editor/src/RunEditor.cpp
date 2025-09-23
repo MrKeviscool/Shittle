@@ -1,12 +1,12 @@
-#include <SFML/Graphics.hpp>
-
-#include <SFML/System/Vector2.hpp>
-#include <SFML/Window/Window.hpp>
 #include <type_traits>
 #include <unordered_map>
 #include <forward_list>
 #include <unordered_set>
 #include <cmath>
+
+#include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Window.hpp>
 
 #include "FilePrompt.hpp"
 #include "InputState.hpp"
@@ -17,8 +17,6 @@
 #include "PegCommon.hpp"
 #include "DrawCommon.hpp"
 #include "SelectedPeg.hpp"
-#include "LevelSaver.hpp"
-#include "LevelLoader.hpp"
 #include "ScreenRatioScaler.hpp"
 
 enum class MouseState : uint8_t {
@@ -223,24 +221,6 @@ static std::unordered_map<ButtonType, Button> initaliseButtons(ResourceManager& 
     buttons[ButtonType::cursorSelect].setFunction([&cursorType](){cursorType.isCursor = true;});
 
     return buttons;
-}
-
-void save(const std::forward_list<Peg>& pegs){
-    //LevelSaver saver;
-    //Level lev;
-    //LevelThumbnail thumb;	
-
-    //lev.pegs.reserve(std::distance(pegs.cbegin(), pegs.cend()));
-    //for(auto& peg : pegs) lev.pegs.emplace_back(peg);
-    //thumb.name = "test level";
-
-    //saver.saveLevel(lev, thumb);
-    //saver.writeToDisk("test.ignore.hex");
-
-}
-
-void reset(){
-
 }
 
 void runEditor() {
