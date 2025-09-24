@@ -97,7 +97,7 @@ static void writeLevels(std::fstream& file, const std::vector<SerializedLevelWri
 	}
 }
 
-bool saveLevel(const std::string& path, const std::vector<SerializedLevelWrite>& levels) {
+bool saveSerializedLevels(const std::string& path, const std::vector<SerializedLevelWrite>& levels) {
 	std::fstream file(path, std::ios_base::out);
 
 	if (!file.is_open())
@@ -116,6 +116,6 @@ bool saveLevel(const std::string& path, const std::vector<SerializedLevelWrite>&
 	return true;
 }
 
-std::pair<std::vector<SerializedLevelRead>, bool> loadLevels(const std::string& path) {
+std::pair<std::vector<SerializedLevelRead>, bool> loadSerializedLevels(const std::string& path) {
 	return {};
 }
