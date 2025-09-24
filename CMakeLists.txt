@@ -40,11 +40,11 @@ add_executable(
     ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/ResourceFactory.cpp
     ${CMAKE_SOURCE_DIR}/common/src/FileStreamCommon.cpp
     ${CMAKE_SOURCE_DIR}/common/src/FilesystemCommon.cpp
-    ${CMAKE_SOURCE_DIR}/common/src/LevelSaver.cpp
     ${CMAKE_SOURCE_DIR}/common/src/TextField.cpp
     ${CMAKE_SOURCE_DIR}/common/src/MulColor.cpp
     ${CMAKE_SOURCE_DIR}/common/src/Scaler.cpp
     ${CMAKE_SOURCE_DIR}/common/src/ScreenRatioScaler.cpp
+	${CMAKE_SOURCE_DIR}/common/src/LevelSaveLoad.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/Peg.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/RunEditor.cpp
     ${CMAKE_SOURCE_DIR}/editor/src/CursorType.cpp

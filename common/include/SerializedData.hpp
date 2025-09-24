@@ -30,17 +30,12 @@ struct SerializedLevelWrite {
 
 };
 
+struct SerializedThumbnailRead {
+	std::string name;
+	sf::Image thumbnail;
+};
+
 struct SerializedLevelRead {
 	std::vector<SerializedPeg> pegs;
-	std::string name;
 	sf::Image background;
-	sf::Image thumbnail;
-
-	SerializedLevelRead(
-		std::vector<SerializedPeg> pegs,
-		std::string name,
-		sf::Image background,
-		sf::Image thumbnail
-	) : pegs(pegs), name(name), background(background), thumbnail(thumbnail){}
-
 };

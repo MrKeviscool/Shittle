@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 
