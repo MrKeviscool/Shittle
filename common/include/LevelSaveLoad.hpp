@@ -8,13 +8,20 @@
 #include "SerializedData.hpp"
 #include "FileStreamCommon.hpp"
 
-//bool saveSerializedLevels(const std::string& path, const std::vector<SerializedLevelWrite>& levels);
+inline qword_t floatPairToQword(const float a, const float b);
+dword_t getAmountOfBytesInImage(const sf::Image& image);
+dword_t getThumbSize(const SerializedLevelWrite& lev);
+dword_t getLevelSize(const SerializedLevelWrite& lev);
+void writeImage(std::fstream& file, const sf::Image& image);
+void writePeg (std::fstream& file, const SerializedPeg& peg);
+std::pair<std::vector<SerializedLevelRead>, bool> loadSerializedLevels(const std::string& path);
 
 template <typename Iter,
 	typename std::enable_if<
-		std::is_base_of<std::forward_iterator_tag, typename std::iterator_traits<Iter>::iterator_category>::value,
-		void
-	>::type* = nullptr
+		std::is_base_of<std::forward_iterator_tag, typename std::iterator_traits<Iter>::iterator_category>::value
+		&& std::is_same<SerializedLevelWrite, typename std::iterator_traits<Iter>::value_type>::value,
+		int
+	>::type = 0
 >
 bool saveSerializedLevels(const std::string& path, const Iter levelStartIter, const Iter levelEndIter);
 std::pair<std::vector<SerializedLevelRead>, bool> loadSerializedLevels(const std::string& path);
@@ -58,7 +65,7 @@ namespace SaveLoadDetail {
 
 			fileStream::write<byte_t>(file, static_cast<byte_t>(lev->name.size()));
 			for (const auto let : lev->name)
-				fileStream::write<decltype(let)>(file, let);
+				fileStream::write<decltype(let)> (file, let);
 
 			writeImage(file, lev->thumbnail);
 		}
@@ -76,7 +83,13 @@ namespace SaveLoadDetail {
 	}
 };
 
-template <typename Iter>
+template <typename Iter,
+	typename std::enable_if<
+		std::is_base_of<std::forward_iterator_tag, typename std::iterator_traits<Iter>::iterator_category>::value
+		&& std::is_same<SerializedLevelWrite, typename std::iterator_traits<Iter>::value_type>::value,
+		int
+	>::type
+>
 bool saveSerializedLevels(const std::string& path, const Iter startIter, const Iter endIter) {
 	std::fstream file(path, std::ios_base::out);
 

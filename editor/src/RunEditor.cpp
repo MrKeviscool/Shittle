@@ -3,6 +3,7 @@
 #include <forward_list>
 #include <unordered_set>
 #include <cmath>
+#include <list>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -20,6 +21,7 @@
 #include "ScreenRatioScaler.hpp"
 #include "Level.hpp"
 #include "TextField.hpp"
+#include "LevelSaveLoad.hpp"
 
 enum class MouseState : uint8_t {
     None,
