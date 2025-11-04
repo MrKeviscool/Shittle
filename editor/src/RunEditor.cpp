@@ -18,12 +18,24 @@
 #include "DrawCommon.hpp"
 #include "SelectedPeg.hpp"
 #include "ScreenRatioScaler.hpp"
+#include "Level.hpp"
+#include "TextField.hpp"
 
 enum class MouseState : uint8_t {
     None,
     Selecting,
     Dragging,
 };
+
+static void saveLevel(
+    sf::RenderWindow& window,
+    InputState& input,
+    ResourceManager& resources,
+    std::forward_list<Peg>& pegs,
+    std::unordered_set<SelectedPeg>& selectedPegs,
+    sf::Texture& bgImage,
+    std::list<Level>& levels
+);
 
 static bool askToExit(sf::RenderWindow& window, InputState& input, ResourceManager& resources) {
     const sf::Font* textFont = static_cast<sf::Font*>(resources.getResource("resources/robotto.ttf"));
@@ -223,22 +235,59 @@ static std::unordered_map<ButtonType, Button> initaliseButtons(ResourceManager& 
     return buttons;
 }
 
+static void saveLevel(
+    sf::RenderWindow& window,
+	InputState& input,
+    ResourceManager& resources,
+	std::forward_list<Peg>& pegs,
+	std::unordered_set<SelectedPeg>& selectedPegs,
+	sf::Texture& bgImage,
+	std::list<Level>& levels
+) {
+    //display list of levels
+    //ask for new level name (make sure its has not already been submitted)
+    //add to list
+    //clear pegs, bgImage and selected pegs
+
+    sf::Font& textFont = *static_cast<sf::Font*>(resources.getResource("resources/robotto.ttf"));
+    TextField nameField(input, textFont, "enter level name: ");
+    nameField.setPosition({ 1920.f / 2.f, 1080.f / 2.f });
+
+    for (;;) {
+        window.clear();
+        nameField.display(window);
+
+        input.pollEvents();
+
+        nameField.poll();
+
+        window.display();
+    }
+}
+
 void runEditor() {
     const sf::Vector2u defaultWindowSize{1920u, 1080u};
     sf::RenderWindow window(sf::VideoMode(defaultWindowSize.x, defaultWindowSize.y), "Peg Edit", sf::Style::Default);
-    window.setFramerateLimit(60);
+
     ResourceManager resources;
     CursorType cursorType;
     ScreenRatioScaler scaler(defaultWindowSize);
     MouseState mouseState = MouseState::None;
 
-    std::forward_list<Peg> pegs;
-    std::unordered_set<SelectedPeg> selectedPegs;
     std::unordered_map<ButtonType, Button> buttons = initaliseButtons(resources, cursorType);
 
     InputState::initalise(&window);
     InputState& input = InputState::getRef();
 
+    std::forward_list<Peg> pegs;
+    std::unordered_set<SelectedPeg> selectedPegs;
+    sf::Texture bgTex;
+
+    std::list<Level> levels;
+
+    buttons[ButtonType::save].setFunction([&window, &pegs, &selectedPegs, &bgTex, &levels, &input, &resources]() {saveLevel(window, input, resources, pegs, selectedPegs, bgTex, levels); });
+
+    window.setFramerateLimit(60);
     while (window.isOpen()) {
         input.pollEvents();
         if (input.resisedWindow()) {
