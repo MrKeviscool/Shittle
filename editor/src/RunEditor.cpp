@@ -251,20 +251,21 @@ static void saveLevel(
     //add to list
     //clear pegs, bgImage and selected pegs
 
-    saveSerializedLevels("./test.peggggg", levels.begin(), levels.end());
-
     sf::Font& textFont = *static_cast<sf::Font*>(resources.getResource("resources/robotto.ttf"));
     TextField nameField(input, textFont, "enter level name: ");
-    nameField.setPosition({ 1920.f / 2.f, 1080.f / 2.f });
+
+    const sf::Vector2f textBoxSize{ 800.f, 50.f };
+
+    nameField.setPosition({ (1920.f / 2.f) - textBoxSize.x / 2, 1080.f / 8.f });
+    nameField.setBgColor(sf::Color{ 255, 255, 255, 128 / 2 });
+    nameField.setSize(textBoxSize);
 
     for (;;) {
-        window.clear();
-        nameField.display(window);
-
         input.pollEvents();
 
         nameField.poll();
-
+        window.clear();
+        nameField.display(window);
         window.display();
     }
 }

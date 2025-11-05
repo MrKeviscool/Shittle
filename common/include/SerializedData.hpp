@@ -11,8 +11,8 @@
 struct SerializedPeg {
 	sf::Vector2f position;
 	sf::Vector2f size;
-	float rotation;
-	PegShape shape;
+	float rotation = 0;
+	PegShape shape = PegShape::Circle;
 };
 
 template <typename PegIter>//,
