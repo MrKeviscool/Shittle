@@ -251,7 +251,7 @@ static void saveLevel(
     //add to list
     //clear pegs, bgImage and selected pegs
 
-    saveSerializedLevels<std::list<Level>::iterator, LevelPegGetter> ("./test.peggggg", levels.begin(), levels.end());
+    saveSerializedLevels<std::decay<decltype(levels)>::type::iterator, LevelPegGetter>("./test.peggggg", levels.begin(), levels.end());
 
     sf::Font& textFont = *static_cast<sf::Font*>(resources.getResource("resources/robotto.ttf"));
     TextField nameField(input, textFont, "enter level name: ");
