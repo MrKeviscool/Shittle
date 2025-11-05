@@ -17,6 +17,8 @@ public:
 	sf::Image background;
 	LevelThumbnail& thumbnail;
 
+	using PegIterator_t = decltype(pegs)::iterator;
+
 	inline operator SerializedLevelWrite<decltype(pegs)::iterator>();
 	Level(
 		std::forward_list<Peg> pegs,
@@ -25,12 +27,6 @@ public:
 	) : pegs(pegs),
 		background(background),
 		thumbnail(thumbnail){}
-};
-
-struct LevelPegGetter {
-	static decltype(Level::pegs)& operator()(Level& lev) {
-		return lev.pegs;
-	}
 };
 
 Level::operator SerializedLevelWrite<decltype(Level::pegs)::iterator>() {
