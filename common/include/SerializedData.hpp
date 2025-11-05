@@ -15,18 +15,23 @@ struct SerializedPeg {
 	PegShape shape;
 };
 
+template <typename PegIter>//,
+	//typename std::enable_if<
+	//	std::is_base_of<std::forward_iterator_tag, typename std::iterator_traits<PegIter>::iterator_category>::value,
+	//	//&& std::is_convertible<typename std::iterator_traits<PegIter>::value_type, SerializedPeg>::value,
+	//int>::type = 0>
 struct SerializedLevelWrite {
-	std::vector<SerializedPeg> pegs;
+	PegIter pegsBeginIter, pegsEndIter;
 	const std::string& name;
 	const sf::Image& background;
 	const sf::Image& thumbnail;
 
 	SerializedLevelWrite(
-		const std::vector<SerializedPeg>& pegs,
+		PegIter pegsBeginIter, PegIter pegsEndIter,
 		const std::string& name,
 		const sf::Image& background,
 		const sf::Image& thumbnail
-	) : pegs(pegs), name(name), background(background), thumbnail(thumbnail) {}
+	) : pegsBeginIter(pegsBeginIter), pegsEndIter(pegsEndIter), name(name), background(background), thumbnail(thumbnail) { }
 
 };
 

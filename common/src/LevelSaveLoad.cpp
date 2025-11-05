@@ -14,19 +14,6 @@ dword_t getAmountOfBytesInImage(const sf::Image& image) {
 	return static_cast<dword_t>(bytesInImg);
 }
 
-dword_t getThumbSize(const SerializedLevelWrite& lev) {
-	const dword_t bytesInImg = getAmountOfBytesInImage(lev.thumbnail);
-	const dword_t sizeSpecifiers = sizeof(byte_t) + sizeof(dword_t);
-	return lev.name.length() + bytesInImg + sizeSpecifiers;
-}
-
-dword_t getLevelSize(const SerializedLevelWrite& lev) {
-	const dword_t pegBytes = static_cast<dword_t>(lev.pegs.size() * sizeof(*lev.pegs.data()));
-	const dword_t bytesInImage = getAmountOfBytesInImage(lev.background);
-	const dword_t sizeSpecifiers = sizeof(word_t) + sizeof(dword_t);
-	return pegBytes + bytesInImage + sizeSpecifiers;
-}
-
 void writeImage(std::fstream& file, const sf::Image& image) {
 	const dword_t amountOfBytesInImg = getAmountOfBytesInImage(image);
 	const sf::Uint8* imgBytes = image.getPixelsPtr();

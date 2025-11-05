@@ -16,12 +16,23 @@ public:
 	std::forward_list<Peg> pegs;
 	sf::Image background;
 	LevelThumbnail& thumbnail;
-	operator SerializedLevelWrite();
+
+	inline operator SerializedLevelWrite<decltype(pegs)::iterator>();
 	Level(
 		std::forward_list<Peg> pegs,
 		sf::Image background,
-		LevelThumbnail& thumbnail) : pegs(pegs),
+		LevelThumbnail& thumbnail
+	) : pegs(pegs),
 		background(background),
 		thumbnail(thumbnail){}
 };
 
+struct LevelPegGetter {
+	static decltype(Level::pegs)& operator()(Level& lev) {
+		return lev.pegs;
+	}
+};
+
+Level::operator SerializedLevelWrite<decltype(Level::pegs)::iterator>() {
+	return SerializedLevelWrite<decltype(pegs)::iterator>(pegs.begin(), pegs.end(), thumbnail.name, background, thumbnail.image);
+}
