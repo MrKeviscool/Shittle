@@ -227,8 +227,8 @@ static std::unordered_map<ButtonType, Button> initaliseButtons(ResourceManager& 
     buttons[ButtonType::cursorPeg].setText("peg", textFont, 15U, 0.0f);
     buttons[ButtonType::cursorBrick].setText("brick", textFont, 15U, 0.0f);
     buttons[ButtonType::cursorSelect].setText("select", textFont, 15U, 0.0f);
-    buttons[ButtonType::save].setText("save", textFont, 25U, 0.0f);
-    buttons[ButtonType::loadImage].setText("load image", textFont, 18U, 5.f);
+    buttons[ButtonType::save].setText("save", textFont, 15U, 0.0f);
+    buttons[ButtonType::loadImage].setText("load image", textFont, 15U, 0.f);
 
     buttons[ButtonType::cursorPeg].   setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Circle), false);});
     buttons[ButtonType::cursorBrick]. setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Rect), false);});
@@ -253,19 +253,25 @@ static void saveLevel(
 
     sf::Font& textFont = *static_cast<sf::Font*>(resources.getResource("resources/robotto.ttf"));
     TextField nameField(input, textFont, "enter level name: ");
-
     const sf::Vector2f textBoxSize{ 800.f, 50.f };
-
     nameField.setPosition({ (1920.f / 2.f) - textBoxSize.x / 2, 1080.f / 8.f });
     nameField.setBgColor(sf::Color{ 255, 255, 255, 128 / 2 });
     nameField.setSize(textBoxSize);
+
+    Button browseThumbnailsButton({ 300.f, 100.f }, { 1920.f / 2.f - (300.f/2.f), 1080.f / 2.f });
+    browseThumbnailsButton.setTextInsideButton(true);
+    browseThumbnailsButton.setText("set level thumbnail", &textFont, 18U);
+    browseThumbnailsButton.setColor({ 128, 128, 128 });
+    browseThumbnailsButton.setTextColor({ 0, 0, 0 });
 
     for (;;) {
         input.pollEvents();
 
         nameField.poll();
+        browseThumbnailsButton.poll();
         window.clear();
         nameField.display(window);
+        browseThumbnailsButton.draw(window);
         window.display();
     }
 }
