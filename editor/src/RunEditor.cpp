@@ -253,26 +253,47 @@ static void saveLevel(
 
     sf::Font& textFont = *static_cast<sf::Font*>(resources.getResource("resources/robotto.ttf"));
     TextField nameField(input, textFont, "enter level name: ");
+    sf::Image thumbnail;
+
+    sf::Texture thumbnailGpu;
+    sf::Sprite displayThumbnail;
+
+    bool loadedImage = false;
+
+    auto loadImageButtonFunc = [&resources, &thumbnail, &loadedImage, &thumbnailGpu, &displayThumbnail]() {
+        thumbnail.loadFromFile(askForFileBlocking()); //turn this into a resourceManager allocation
+		thumbnailGpu.loadFromImage(thumbnail);
+		displayThumbnail.setTexture(thumbnailGpu);
+		displayThumbnail.setScale({ 0.5f, 0.5f });
+		displayThumbnail.setPosition({ 1920 / 2.f, 1080 / 2.f });
+        loadedImage = true; 
+    };
+
     const sf::Vector2f textBoxSize{ 800.f, 50.f };
     nameField.setPosition({ (1920.f / 2.f) - textBoxSize.x / 2, 1080.f / 8.f });
     nameField.setBgColor(sf::Color{ 255, 255, 255, 128 / 2 });
     nameField.setSize(textBoxSize);
 
-    Button browseThumbnailsButton({ 300.f, 100.f }, { 1920.f / 2.f - (300.f/2.f), 1080.f / 2.f });
+    Button browseThumbnailsButton({ 300.f, 100.f }, { 1920.f / 2.f - (300.f/2.f), 1080.f / 1.3f });
     browseThumbnailsButton.setTextInsideButton(true);
     browseThumbnailsButton.setText("set level thumbnail", &textFont, 18U);
     browseThumbnailsButton.setColor({ 128, 128, 128 });
     browseThumbnailsButton.setTextColor({ 0, 0, 0 });
+    browseThumbnailsButton.setFunction(loadImageButtonFunc);
+
 
     for (;;) {
         input.pollEvents();
 
         nameField.poll();
         browseThumbnailsButton.poll();
-        window.clear();
         nameField.display(window);
         browseThumbnailsButton.draw(window);
+        if(loadedImage)
+			window.draw(displayThumbnail);
+
         window.display();
+        window.clear();
     }
 }
 
