@@ -10,6 +10,8 @@ class ResourceManager {
 public:
     void* getResource(const std::string& path);
 
+    void createVirtualResource(void* resource, const std::string& path);
+
     void unloadAll();
     void unload(const std::string& path);
 

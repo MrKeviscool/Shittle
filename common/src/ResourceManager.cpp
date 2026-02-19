@@ -8,7 +8,12 @@ void* ResourceManager::getResource(const std::string& path){
     }
     
     return resources[path].get()->getResource();
+}
 
+void ResourceManager::createVirtualResource(void* resource, const std::string& path){
+    if (resources.find(path) != resources.end())
+        resources.erase(path);
+    resources.emplace(path, ResourceFactory(path));
 }
 
 void ResourceManager::unloadAll() {

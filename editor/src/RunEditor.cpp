@@ -262,10 +262,19 @@ static void saveLevel(
 
     auto loadImageButtonFunc = [&resources, &thumbnail, &loadedImage, &thumbnailGpu, &displayThumbnail]() {
         thumbnail.loadFromFile(askForFileBlocking()); //turn this into a resourceManager allocation
+        const sf::Vector2u texSize = thumbnail.getSize();
+        const sf::Vector2u desiredSize = { 1920U / 2U, 1080U / 2U };
+
+        const sf::Vector2f scaleFactor = {
+            desiredSize.x / static_cast<float>(texSize.x),
+            desiredSize.y / static_cast<float>(texSize.y) 
+        };
+
 		thumbnailGpu.loadFromImage(thumbnail);
 		displayThumbnail.setTexture(thumbnailGpu);
-		displayThumbnail.setScale({ 0.5f, 0.5f });
-		displayThumbnail.setPosition({ 1920 / 2.f, 1080 / 2.f });
+
+		displayThumbnail.setScale(scaleFactor);
+		displayThumbnail.setPosition({ 1920 / 4.f, 1080 / 4.f });
         loadedImage = true; 
     };
 
@@ -276,7 +285,7 @@ static void saveLevel(
 
     Button browseThumbnailsButton({ 300.f, 100.f }, { 1920.f / 2.f - (300.f/2.f), 1080.f / 1.3f });
     browseThumbnailsButton.setTextInsideButton(true);
-    browseThumbnailsButton.setText("set level thumbnail", &textFont, 18U);
+    browseThumbnailsButton.setText("set level thumbnail", &textFont, 24U);
     browseThumbnailsButton.setColor({ 128, 128, 128 });
     browseThumbnailsButton.setTextColor({ 0, 0, 0 });
     browseThumbnailsButton.setFunction(loadImageButtonFunc);
@@ -294,6 +303,11 @@ static void saveLevel(
 
         window.display();
         window.clear();
+
+        if (input.shouldClose()) {
+            if(askToExit(window, input, resources))
+                std::exit(0);
+        }
     }
 }
 
