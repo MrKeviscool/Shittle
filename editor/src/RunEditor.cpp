@@ -40,10 +40,21 @@ static void saveLevel(
 );
 
 static bool askToExit(sf::RenderWindow& window, InputState& input, ResourceManager& resources) {
-    const sf::Font* textFont = static_cast<sf::Font*>(resources.getResource("resources/robotto.ttf"));
+    const sf::Font* textFont = static_cast<sf::Font*>(resources.getResource<sf::Font>("resources/robotto.ttf"));
 
-    Button yesButton({ 200, 100 }, { 1920.f / 4, 1080 * 0.75f }, static_cast<sf::Texture*>(resources.getResource("resources/okButton.png")));
-    Button noButton({ 200, 100 }, { 1920.f * 0.75f, 1080 * 0.75f }, static_cast<sf::Texture*>(resources.getResource("resources/cancelButton.png")));
+    auto yesimage = resources.getResource<sf::Image>("resources/okButton.png");
+    auto noImage = resources.getResource<sf::Image>("resources/cancelButton.png");
+
+    auto yesTexture = std::make_unique<sf::Texture>();
+    yesTexture->loadFromImage(*yesimage);
+    auto noTexture = std::make_unique<sf::Texture>();
+    noTexture->loadFromImage(*noImage);
+
+    resources.createVirtualResource<sf::Texture>(std::move(yesTexture), "virt/okButton.tex");
+    resources.createVirtualResource<sf::Texture>(std::move(noTexture), "virt/cancelButton.tex");
+
+    Button yesButton({ 200, 100 }, { 1920.f / 4, 1080 * 0.75f }, resources.getResource<sf::Texture>("virt/okButton.tex"));
+    Button noButton({ 200, 100 }, { 1920.f * 0.75f, 1080 * 0.75f }, resources.getResource<sf::Texture>("virt/cancelButton.tex"));
 
     sf::Text exitText("exit editor?", *textFont, 60);
     exitText.setPosition((static_cast<float>(1920.f / 2) - exitText.getGlobalBounds().width / 2.f), static_cast<float>(1080.f / 4));
@@ -235,23 +246,24 @@ static void loadButtonResourcesIntoMemory(ResourceManager& resources) {
     sf::Image tempImage;
     for (int i = 0; i < amountOfImages + 1; i++) {
         tempImage.loadFromFile(imageLocations[i]);
-        sf::Texture* tex = new sf::Texture;
+        //sf::Texture* tex = new sf::Texture;
+        auto tex = std::make_unique<sf::Texture>();
         tex->loadFromImage(tempImage);
-        resources.createVirtualResource(tex, virtualTextureStorageLocations[i]);
+        resources.createVirtualResource<sf::Texture>(std::move(tex), virtualTextureStorageLocations[i]);
         resources.unload(imageLocations[i]);
     }
 }
 
 static std::unordered_map<ButtonType, Button> initaliseButtons(ResourceManager& resources, CursorType& cursorType){
-    const sf::Font* textFont = static_cast<const sf::Font*>(resources.getResource("resources/robotto.ttf"));
+    const sf::Font* textFont = static_cast<const sf::Font*>(resources.getResource<sf::Font>("resources/robotto.ttf"));
     loadButtonResourcesIntoMemory(resources);
 
     std::unordered_map<ButtonType, Button> buttons = {
-        {ButtonType::cursorPeg, Button(sf::Vector2f{50, 50}, sf::Vector2f{0, 0}, static_cast<sf::Texture*>(resources.getResource("virt/pegButton.tex")))},
-        {ButtonType::cursorBrick, Button(sf::Vector2f{50, 50}, sf::Vector2f{50, 0}, static_cast<sf::Texture*>(resources.getResource("virt/brickButton.tex")))},
-        {ButtonType::cursorSelect, Button(sf::Vector2f{50, 50}, sf::Vector2f{100, 0}, static_cast<sf::Texture*>(resources.getResource("virt/jankyCursor.tex")))},
-        {ButtonType::save, Button(sf::Vector2f{50, 50}, sf::Vector2f{1920 - 60, 0}, static_cast<sf::Texture*>(resources.getResource("virt/floppyIcon.tex")))},
-        {ButtonType::loadImage, Button({50.f, 50.f}, {1920.f - (60.f * 2.f + 15.f), 0.f}, static_cast<sf::Texture*>(resources.getResource("virt/loadImage.tex")))}
+        {ButtonType::cursorPeg, Button(sf::Vector2f{50, 50}, sf::Vector2f{0, 0}, resources.getResource<sf::Texture>("virt/pegButton.tex"))},
+        {ButtonType::cursorBrick, Button(sf::Vector2f{50, 50}, sf::Vector2f{50, 0}, resources.getResource<sf::Texture>("virt/brickButton.tex"))},
+        {ButtonType::cursorSelect, Button(sf::Vector2f{50, 50}, sf::Vector2f{100, 0}, resources.getResource<sf::Texture>("virt/jankyCursor.tex"))},
+        {ButtonType::save, Button(sf::Vector2f{50, 50}, sf::Vector2f{1920 - 60, 0}, resources.getResource<sf::Texture>("virt/floppyIcon.tex"))},
+        {ButtonType::loadImage, Button({50.f, 50.f}, {1920.f - (60.f * 2.f + 15.f), 0.f}, resources.getResource<sf::Texture>("virt/loadImage.tex"))}
     };
 
     buttons[ButtonType::cursorPeg].setText("peg", textFont, 15U, 0.0f);
@@ -281,7 +293,7 @@ static void saveLevel(
     //add to list
     //clear pegs, bgImage and selected pegs
 
-    sf::Font& textFont = *static_cast<sf::Font*>(resources.getResource("resources/robotto.ttf"));
+    sf::Font& textFont = *static_cast<sf::Font*>(resources.getResource<sf::Font>("resources/robotto.ttf"));
     TextField nameField(input, textFont, "enter level name: ");
     sf::Image thumbnail;
 
