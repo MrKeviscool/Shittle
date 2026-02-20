@@ -107,5 +107,5 @@ void Button::setTextInsideButton(const bool textInsideButton) {
 }
 
 void Button::setTextColor(sf::Color color){
-	m_text.setColor(color);
+	m_text.setFillColor(color);
 }

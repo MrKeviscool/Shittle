@@ -214,14 +214,44 @@ static void handleMouseEvents(const MouseState mouseState, CursorType& cursorTyp
     }
 }
 
+static void loadButtonResourcesIntoMemory(ResourceManager& resources) {
+    const int amountOfImages = 4;
+    const char* imageLocations[] = {
+        "resources/jankyCursor.png",
+        "resources/pegButton.png",
+        "resources/brickButton.png",
+        "resources/floppyIcon.png",
+        "resources/loadImage.png",
+    };
+
+    const char* virtualTextureStorageLocations[] = {
+		"virt/jankyCursor.tex",
+        "virt/pegButton.tex",
+        "virt/brickButton.tex",
+        "virt/floppyIcon.tex",
+        "virt/loadImage.tex",
+    };
+
+    sf::Image tempImage;
+    for (int i = 0; i < amountOfImages + 1; i++) {
+        tempImage.loadFromFile(imageLocations[i]);
+        sf::Texture* tex = new sf::Texture;
+        tex->loadFromImage(tempImage);
+        resources.createVirtualResource(tex, virtualTextureStorageLocations[i]);
+        resources.unload(imageLocations[i]);
+    }
+}
+
 static std::unordered_map<ButtonType, Button> initaliseButtons(ResourceManager& resources, CursorType& cursorType){
     const sf::Font* textFont = static_cast<const sf::Font*>(resources.getResource("resources/robotto.ttf"));
+    loadButtonResourcesIntoMemory(resources);
+
     std::unordered_map<ButtonType, Button> buttons = {
-        {ButtonType::cursorPeg, Button(sf::Vector2f{50, 50}, sf::Vector2f{0, 0}, static_cast<sf::Texture*>(resources.getResource("resources/pegButton.png")))},
-        {ButtonType::cursorBrick, Button(sf::Vector2f{50, 50}, sf::Vector2f{50, 0}, static_cast<sf::Texture*>(resources.getResource("resources/brickButton.png")))},
-        {ButtonType::cursorSelect, Button(sf::Vector2f{50, 50}, sf::Vector2f{100, 0}, static_cast<sf::Texture*>(resources.getResource("resources/jankyCursor.png")))},
-        {ButtonType::save, Button(sf::Vector2f{50, 50}, sf::Vector2f{1920 - 60, 0}, static_cast<sf::Texture*>(resources.getResource("resources/floppyIcon.png")))},
-        {ButtonType::loadImage, Button({50.f, 50.f}, {1920.f - (60.f * 2.f + 15.f), 0.f}, static_cast<sf::Texture*>(resources.getResource("resources/loadImage.png")))}
+        {ButtonType::cursorPeg, Button(sf::Vector2f{50, 50}, sf::Vector2f{0, 0}, static_cast<sf::Texture*>(resources.getResource("virt/pegButton.tex")))},
+        {ButtonType::cursorBrick, Button(sf::Vector2f{50, 50}, sf::Vector2f{50, 0}, static_cast<sf::Texture*>(resources.getResource("virt/brickButton.tex")))},
+        {ButtonType::cursorSelect, Button(sf::Vector2f{50, 50}, sf::Vector2f{100, 0}, static_cast<sf::Texture*>(resources.getResource("virt/jankyCursor.tex")))},
+        {ButtonType::save, Button(sf::Vector2f{50, 50}, sf::Vector2f{1920 - 60, 0}, static_cast<sf::Texture*>(resources.getResource("virt/floppyIcon.tex")))},
+        {ButtonType::loadImage, Button({50.f, 50.f}, {1920.f - (60.f * 2.f + 15.f), 0.f}, static_cast<sf::Texture*>(resources.getResource("virt/loadImage.tex")))}
     };
 
     buttons[ButtonType::cursorPeg].setText("peg", textFont, 15U, 0.0f);

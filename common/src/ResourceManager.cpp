@@ -1,19 +1,20 @@
 #include "ResourceManager.hpp"
 
-#include "ResourceManger/ResourceFactory.hpp"
-
-void* ResourceManager::getResource(const std::string& path){
-    if(resources.find(path) == resources.end()){
-        resources.emplace(path, ResourceFactory(path));
-    }
-    
-    return resources[path].get()->getResource();
+void* ResourceManager::createResource(const std::string& path) {
+	resources.emplace(path, path);
+	return resources.at(path).resource;
 }
 
-void ResourceManager::createVirtualResource(void* resource, const std::string& path){
-    if (resources.find(path) != resources.end())
-        resources.erase(path);
-    resources.emplace(path, ResourceFactory(path));
+void* ResourceManager::getResource(const std::string& path) {
+	const auto foundResourceIter = resources.find(path);
+	if (foundResourceIter == resources.end())
+		return createResource(path);
+
+	return foundResourceIter->second.resource;
+}
+
+void ResourceManager::createVirtualResource(void* resource, const std::string& path) {
+	resources.emplace(path, Resource(resource, path));
 }
 
 void ResourceManager::unloadAll() {

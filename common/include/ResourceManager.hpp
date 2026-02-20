@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <memory>
 
-#include "ResourceManger/Resource.hpp"
+#include "ResourceManagerResource.hpp"
 
 class ResourceManager {
 public:
@@ -16,5 +16,6 @@ public:
     void unload(const std::string& path);
 
 private:
-    std::unordered_map<std::string, std::unique_ptr<Resource>> resources;
+    void* createResource(const std::string& path);
+    std::unordered_map<std::string, Resource> resources;
 };
