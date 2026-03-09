@@ -34,10 +34,6 @@ add_executable(
     ${CMAKE_SOURCE_DIR}/common/src/InputState.cpp
     ${CMAKE_SOURCE_DIR}/common/src/ResourceManager.cpp
     ${CMAKE_SOURCE_DIR}/common/src/Algorithms.cpp
-    ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/FontResource.cpp
-    ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/ImageResource.cpp
-    ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/Resource.cpp
-    ${CMAKE_SOURCE_DIR}/common/src/ResourceManager/ResourceFactory.cpp
     ${CMAKE_SOURCE_DIR}/common/src/FileStreamCommon.cpp
     ${CMAKE_SOURCE_DIR}/common/src/FilesystemCommon.cpp
     ${CMAKE_SOURCE_DIR}/common/src/TextField.cpp
