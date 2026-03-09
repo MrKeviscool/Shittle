@@ -1,87 +1,112 @@
 #include "Peg.hpp"
 
-#include <cmath>
+#include <SFML/Graphics/CircleShape.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 
 #include "Algorithms.hpp"
+#include "PegShape.hpp"
 
-Peg::Peg(const PegShape shape) : m_pegShape(shape){
-    if (shape == PegShape::Circle) {
-        new(m_shapeData) sf::CircleShape;
-        reinterpret_cast<sf::CircleShape*>(m_shapeData)->setRadius(30.0f);
-    }
-    else {
-        new(m_shapeData) sf::RectangleShape;
-        reinterpret_cast<sf::RectangleShape*>(m_shapeData)->setSize({ 60.0f, 30.0f });
-    }
+const float defualtCircleRad = 30.f;
+const sf::Vector2f defaultRectSize = {60.f, 30.f};
+
+Peg::Peg(const PegShape shape) : shapeType(shape){
+	if(shape == PegShape::Circle)
+		new(&circleShape) sf::CircleShape(defualtCircleRad);
+	else 
+		new(&rectangleShape) sf::RectangleShape(defaultRectSize);
 }
 
-Peg::Peg(const Peg& other) : m_shapeData() {
-    m_pegShape = other.m_pegShape;
-    if(m_pegShape == PegShape::Circle){
-        sf::CircleShape* circShapeData = reinterpret_cast<sf::CircleShape*>(m_shapeData);
-        new (circShapeData) sf::CircleShape;
-        (*circShapeData) = *(reinterpret_cast<const sf::CircleShape*>(other.m_shapeData));
-    }
-    else{
-        sf::RectangleShape* rectShapeData = reinterpret_cast<sf::RectangleShape*>(m_shapeData);
-        new (rectShapeData) sf::RectangleShape;
-        (*rectShapeData) = *reinterpret_cast<const sf::RectangleShape*>(other.m_shapeData);
-    }
+Peg::Peg(const Peg& other) : shapeType(other.shapeType) {
+	if(shapeType == PegShape::Circle)
+		new(&circleShape) sf::CircleShape(other.circleShape);
+	else new(&rectangleShape) sf::RectangleShape(other.rectangleShape);
+}
+
+Peg::~Peg(){
+	destructShape();
+}
+
+Peg& Peg::operator=(const Peg& other){
+	destructShape();
+
+	shapeType = other.shapeType;
+	if(shapeType == PegShape::Circle)
+		new(&circleShape) sf::CircleShape(other.circleShape);
+	else new(&rectangleShape) sf::RectangleShape(other.rectangleShape);
+	return *this;
+}
+
+Peg& Peg::operator=(Peg&& other){
+	destructShape();
+
+	shapeType = other.shapeType;
+	if(shapeType == PegShape::Circle)
+		new (&circleShape) sf::CircleShape(std::move(other.circleShape));
+	else new(&rectangleShape) sf::RectangleShape(std::move(other.rectangleShape));
+	return *this;
+}
+
+Peg& Peg::operator=(PegShape pegShape){
+	destructShape();
+
+	shapeType = pegShape;
+	if(pegShape == PegShape::Circle)
+		new (&circleShape) sf::CircleShape(defualtCircleRad);
+	else new (&rectangleShape) sf::RectangleShape(defaultRectSize);
+	return *this;
 }
 
 PegShape Peg::getShapeType() const {
-    return m_pegShape;
+    return shapeType;
 }
 
 sf::Shape& Peg::getShape() {
-    return *(reinterpret_cast<sf::Shape*>(m_shapeData));
+    return *(reinterpret_cast<sf::Shape*>(&circleShape));
 }
 
 const sf::Shape& Peg::getShape() const {
-    return *(reinterpret_cast<const sf::Shape*>(m_shapeData));
+    return *(reinterpret_cast<const sf::Shape*>(&circleShape));
 } 
 
 bool Peg::contains(const sf::Vector2f pos) const {
-    if(m_pegShape == PegShape::Circle){
-        const sf::CircleShape* shape = reinterpret_cast<const sf::CircleShape*>(m_shapeData);
-        const sf::Vector2f middlePosition = {shape->getPosition().x + shape->getRadius(), shape->getPosition().y + shape->getRadius()};
+    if(shapeType == PegShape::Circle){
+        const sf::Vector2f middlePosition = {circleShape.getPosition().x + circleShape.getRadius(), circleShape.getPosition().y + circleShape.getRadius()};
         const sf::Vector2f distanceFromMiddle = pos - middlePosition;
 
-        return getDistance({0,0}, distanceFromMiddle) < shape->getRadius();
+        return getDistance({0,0}, distanceFromMiddle) < circleShape.getRadius();
     }
-    else{
-        const sf::RectangleShape* shape = reinterpret_cast<const sf::RectangleShape*>(m_shapeData);
-        return shape->getGlobalBounds().contains(pos);
-    }
+    else
+        return rectangleShape.getGlobalBounds().contains(pos);
 }
 
 sf::Vector2f Peg::getSize() const {
-    if (m_pegShape == PegShape::Circle) {
-        const sf::CircleShape* shape = reinterpret_cast<const sf::CircleShape*>(m_shapeData);
-        const float diamiter = shape->getRadius() * 2.f;
+    if (shapeType == PegShape::Circle) {
+        const float diamiter = circleShape.getRadius() * 2.f;
         return { diamiter, diamiter };
     }
-    else {
-        const sf::RectangleShape* shape = reinterpret_cast<const sf::RectangleShape*>(m_shapeData);
-        return shape->getSize();
-    }
+    else 
+        return rectangleShape.getSize();
 }
 
 void Peg::setSize(const sf::Vector2f newSize) {
-    if(m_pegShape == PegShape::Circle){
-        reinterpret_cast<sf::CircleShape*>(m_shapeData)->setRadius(newSize.x / 2);
-    }
-    else {
-        reinterpret_cast<sf::RectangleShape*>(m_shapeData)->setSize(newSize);
-    }
+    if(shapeType == PegShape::Circle)
+        circleShape.setRadius(newSize.x / 2);
+    else
+        setSize(newSize);
 }
 
 Peg::operator SerializedPeg() const {
-    auto& shape = getShape();
+    const auto& shape = getShape();
     SerializedPeg info;
     info.position = shape.getPosition();
     info.size = getSize();
     info.rotation = shape.getRotation();
-    info.shape = m_pegShape;
+    info.shape = shapeType;
     return info;
+}
+
+void Peg::destructShape(){
+	if(shapeType == PegShape::Circle)
+		circleShape.~CircleShape();
+	else rectangleShape.~RectangleShape();
 }
