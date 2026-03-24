@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <memory>
 #include <vector>
-#include <fstream>
 
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Font.hpp>
@@ -18,10 +17,6 @@ public:
     
     template<typename T>
     T* getResource(const std::string& path);
-    template<>
-    sf::Image* getResource<sf::Image>(const std::string& path);
-    template<>
-    sf::Font* getResource<sf::Font>(const std::string& path);
 
     template<typename T>
     void createVirtualResource(std::unique_ptr<T> resource, const std::string& path);
@@ -50,7 +45,7 @@ template<>
 inline sf::Image* ResourceManager::getResource<sf::Image>(const std::string& path) {
     const auto resourcePositionIter = resources.find(path);
     if (resourcePositionIter == resources.end()) {
-        auto image = std::make_unique<sf::Image>();
+		auto image = std::unique_ptr<sf::Image>(new sf::Image());
         const auto imageLoadSuccess = image->loadFromFile(path);
         if (!imageLoadSuccess) return nullptr;
         resources.emplace(path, image.release());
@@ -63,7 +58,7 @@ template<>
 inline sf::Font* ResourceManager::getResource<sf::Font>(const std::string& path) {
     const auto resourcePositionIter = resources.find(path);
     if (resourcePositionIter == resources.end()) {
-        auto font = std::make_unique<sf::Font>();
+        auto font = std::unique_ptr<sf::Font>(new sf::Font());
         const auto imageLoadSuccess = font->loadFromFile(path);
         if (!imageLoadSuccess) return nullptr;
         resources.emplace(path, font.release());

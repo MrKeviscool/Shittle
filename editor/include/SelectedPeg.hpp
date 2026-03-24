@@ -1,8 +1,10 @@
 #pragma once
-
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
-#include <Peg.hpp>
+
+#include "Bigger.hpp"
+
+#include "Peg.hpp"
 
 namespace std {
 	template<typename T>

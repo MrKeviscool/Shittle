@@ -45,10 +45,10 @@ static bool askToExit(sf::RenderWindow& window, InputState& input, ResourceManag
 	auto yesimage = resources.getResource<sf::Image>("resources/okButton.png");
 	auto noImage = resources.getResource<sf::Image>("resources/cancelButton.png");
 
-	auto yesTexture = std::make_unique<sf::Texture>();
-	yesTexture->loadFromImage(*yesimage);
-	auto noTexture = std::make_unique<sf::Texture>();
-	noTexture->loadFromImage(*noImage);
+    auto yesTexture = std::unique_ptr<sf::Texture>(new sf::Texture());
+    yesTexture->loadFromImage(*yesimage);
+    auto noTexture = std::unique_ptr<sf::Texture>(new sf::Texture());
+    noTexture->loadFromImage(*noImage);
 
 	resources.createVirtualResource<sf::Texture>(std::move(yesTexture), "virt/okButton.tex");
 	resources.createVirtualResource<sf::Texture>(std::move(noTexture), "virt/cancelButton.tex");
@@ -243,15 +243,15 @@ static void loadButtonResourcesIntoMemory(ResourceManager& resources) {
 		"virt/loadImage.tex",
 	};
 
-	sf::Image tempImage;
-	for (int i = 0; i < amountOfImages + 1; i++) {
-		tempImage.loadFromFile(imageLocations[i]);
-		//sf::Texture* tex = new sf::Texture;
-		auto tex = std::make_unique<sf::Texture>();
-		tex->loadFromImage(tempImage);
-		resources.createVirtualResource<sf::Texture>(std::move(tex), virtualTextureStorageLocations[i]);
-		resources.unload(imageLocations[i]);
-	}
+    sf::Image tempImage;
+    for (int i = 0; i < amountOfImages + 1; i++) {
+        tempImage.loadFromFile(imageLocations[i]);
+        //sf::Texture* tex = new sf::Texture;
+        auto tex = std::unique_ptr<sf::Texture>(new sf::Texture());
+        tex->loadFromImage(tempImage);
+        resources.createVirtualResource<sf::Texture>(std::move(tex), virtualTextureStorageLocations[i]);
+        resources.unload(imageLocations[i]);
+    }
 }
 
 static std::unordered_map<ButtonType, Button> initaliseButtons(ResourceManager& resources, CursorType& cursorType){

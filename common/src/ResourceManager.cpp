@@ -1,5 +1,8 @@
 #include "ResourceManager.hpp"
 
+#include <fstream>
+#include <memory>
+
 void ResourceManager::unloadAll() {
     resources.clear();
 }
@@ -14,7 +17,7 @@ std::unique_ptr<BinaryBlobVec> ResourceManager::loadResourceBin(const std::strin
 	if (!fileStream.is_open()) return nullptr;
 
 	const auto fileSize = fileStream.tellg();
-	auto fileData = std::make_unique<BinaryBlobVec>(static_cast<size_t>(fileSize));
+	auto fileData = std::unique_ptr<BinaryBlobVec>(new BinaryBlobVec(static_cast<size_t>(fileSize)));
 
 	fileStream.read(reinterpret_cast<char*>(fileData->data()), fileSize);
 	return fileData;

@@ -1,11 +1,8 @@
 #pragma once
 
-#include <cstdint>
-
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 
-#include "Bigger.hpp"
 #include "PegShape.hpp"
 #include "SerializedData.hpp"
 
@@ -13,6 +10,11 @@ class Peg{
 public:
     Peg(const PegShape pegShape);
     Peg(const Peg& other);
+	~Peg();
+
+	Peg& operator=(const Peg& other);
+	Peg& operator=(Peg&& other);
+	Peg& operator=(PegShape pegShape);
 
     PegShape getShapeType() const;
     sf::Shape& getShape();
@@ -25,6 +27,10 @@ public:
     operator SerializedPeg() const;
 
 private:
-    PegShape m_pegShape;
-    uint8_t m_shapeData[sizeof(Bigger<sf::CircleShape, sf::RectangleShape>::type)];
+    PegShape shapeType;
+	union {
+		sf::CircleShape circleShape;
+		sf::RectangleShape rectangleShape;
+	};
+	void destructShape();
 };
