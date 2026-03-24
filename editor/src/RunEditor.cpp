@@ -24,157 +24,157 @@
 #include "LevelSaveLoad.hpp"
 
 enum class MouseState : uint8_t {
-    None,
-    Selecting,
-    Dragging,
+	None,
+	Selecting,
+	Dragging,
 };
 
 static void saveLevel(
-    sf::RenderWindow& window,
-    InputState& input,
-    ResourceManager& resources,
-    std::forward_list<Peg>& pegs,
-    std::unordered_set<SelectedPeg>& selectedPegs,
-    sf::Texture& bgImage,
-    std::list<Level>& levels
+	sf::RenderWindow& window,
+	InputState& input,
+	ResourceManager& resources,
+	std::forward_list<Peg>& pegs,
+	std::unordered_set<SelectedPeg>& selectedPegs,
+	sf::Texture& bgImage,
+	std::list<Level>& levels
 );
 
 static bool askToExit(sf::RenderWindow& window, InputState& input, ResourceManager& resources) {
-    const sf::Font* textFont = static_cast<sf::Font*>(resources.getResource<sf::Font>("resources/robotto.ttf"));
+	const sf::Font* textFont = static_cast<sf::Font*>(resources.getResource<sf::Font>("resources/robotto.ttf"));
 
-    auto yesimage = resources.getResource<sf::Image>("resources/okButton.png");
-    auto noImage = resources.getResource<sf::Image>("resources/cancelButton.png");
+	auto yesimage = resources.getResource<sf::Image>("resources/okButton.png");
+	auto noImage = resources.getResource<sf::Image>("resources/cancelButton.png");
 
-    auto yesTexture = std::make_unique<sf::Texture>();
-    yesTexture->loadFromImage(*yesimage);
-    auto noTexture = std::make_unique<sf::Texture>();
-    noTexture->loadFromImage(*noImage);
+	auto yesTexture = std::make_unique<sf::Texture>();
+	yesTexture->loadFromImage(*yesimage);
+	auto noTexture = std::make_unique<sf::Texture>();
+	noTexture->loadFromImage(*noImage);
 
-    resources.createVirtualResource<sf::Texture>(std::move(yesTexture), "virt/okButton.tex");
-    resources.createVirtualResource<sf::Texture>(std::move(noTexture), "virt/cancelButton.tex");
+	resources.createVirtualResource<sf::Texture>(std::move(yesTexture), "virt/okButton.tex");
+	resources.createVirtualResource<sf::Texture>(std::move(noTexture), "virt/cancelButton.tex");
 
-    Button yesButton({ 200, 100 }, { 1920.f / 4, 1080 * 0.75f }, resources.getResource<sf::Texture>("virt/okButton.tex"));
-    Button noButton({ 200, 100 }, { 1920.f * 0.75f, 1080 * 0.75f }, resources.getResource<sf::Texture>("virt/cancelButton.tex"));
+	Button yesButton({ 200, 100 }, { 1920.f / 4, 1080 * 0.75f }, resources.getResource<sf::Texture>("virt/okButton.tex"));
+	Button noButton({ 200, 100 }, { 1920.f * 0.75f, 1080 * 0.75f }, resources.getResource<sf::Texture>("virt/cancelButton.tex"));
 
-    sf::Text exitText("exit editor?", *textFont, 60);
-    exitText.setPosition((static_cast<float>(1920.f / 2) - exitText.getGlobalBounds().width / 2.f), static_cast<float>(1080.f / 4));
+	sf::Text exitText("exit editor?", *textFont, 60);
+	exitText.setPosition((static_cast<float>(1920.f / 2) - exitText.getGlobalBounds().width / 2.f), static_cast<float>(1080.f / 4));
 
 
-    yesButton.setText("exit", textFont, 20U);
-    noButton.setText("cancel", textFont, 20U);
+	yesButton.setText("exit", textFont, 20U);
+	noButton.setText("cancel", textFont, 20U);
 
-    window.setMouseCursorVisible(true);
-    while (window.isOpen()) {
-        input.pollEvents();
-        if (yesButton.poll()) return true;
-        if (noButton.poll()) return false;
-        for (auto& event : input.keyEvents()) {
-            if (event.key == sf::Keyboard::Escape
-                && event.buttonState == InputState::ButtonState::released)
-            {
-                return false;
-            }
-        }
-        window.clear();
-        yesButton.draw(window);
-        noButton.draw(window);
-        window.draw(exitText);
-        window.display();
-    }
-    return false;
+	window.setMouseCursorVisible(true);
+	while (window.isOpen()) {
+		input.pollEvents();
+		if (yesButton.poll()) return true;
+		if (noButton.poll()) return false;
+		for (auto& event : input.keyEvents()) {
+			if (event.key == sf::Keyboard::Escape
+				&& event.buttonState == InputState::ButtonState::released)
+			{
+				return false;
+			}
+		}
+		window.clear();
+		yesButton.draw(window);
+		noButton.draw(window);
+		window.draw(exitText);
+		window.display();
+	}
+	return false;
 }
 
 static void placePeg(const CursorType& cursorType, std::forward_list<Peg>& pegs) {
-    pegs.emplace_front(cursorType.peg);
+	pegs.emplace_front(cursorType.peg);
 }
 
 static void exitCheck(sf::RenderWindow& window, InputState& input, ResourceManager& resources) {
-    if(input.shouldClose()){
-        if(askToExit(window, input, resources)){
-            window.close();
-        }
-        return;
-    }
-    for (auto& keyEvnt : input.keyEvents()) {
-        if (keyEvnt.key == sf::Keyboard::Escape
-            && keyEvnt.buttonState == InputState::ButtonState::released)
-        {
-            if(askToExit(window, input, resources)){
-                window.close();
-            }
-            return;
-        }
-    }
+	if(input.shouldClose()){
+		if(askToExit(window, input, resources)){
+			window.close();
+		}
+		return;
+	}
+	for (auto& keyEvnt : input.keyEvents()) {
+		if (keyEvnt.key == sf::Keyboard::Escape
+			&& keyEvnt.buttonState == InputState::ButtonState::released)
+		{
+			if(askToExit(window, input, resources)){
+				window.close();
+			}
+			return;
+		}
+	}
 }
 
 //returns true if a button is hovered
 static bool pollButtons(std::unordered_map<ButtonType, Button>& buttons) {
-    bool out = false;
-    for (auto& butt : buttons) {
-        butt.second.poll();
-        out = out || butt.second.isHovering();
-    }
-    return out;
+	bool out = false;
+	for (auto& butt : buttons) {
+		butt.second.poll();
+		out = out || butt.second.isHovering();
+	}
+	return out;
 }
 
 static void selectBox(const sf::Vector2i origin, const sf::Vector2i curMousePos, sf::RenderWindow& window, std::forward_list<Peg>& pegs, std::unordered_set<SelectedPeg>& selectedPegs){
-    sf::RectangleShape selectShape;
+	sf::RectangleShape selectShape;
 
-    selectShape.setFillColor({0, 0, 255, 127});
-    selectShape.setPosition({static_cast<float>(origin.x), static_cast<float>(origin.y)});
-    if(curMousePos.x < origin.x){
-        selectShape.setSize({static_cast<float>(origin.x - curMousePos.x), selectShape.getSize().y});
-        selectShape.setPosition(static_cast<float>(curMousePos.x), selectShape.getPosition().y);
-    }
-    else {
-        selectShape.setSize({static_cast<float>(curMousePos.x - origin.x), selectShape.getSize().y});
-    }
-    if(static_cast<float>(curMousePos.y) < origin.y){
-        selectShape.setSize({selectShape.getSize().x, static_cast<float>(origin.y - curMousePos.y)});
-        selectShape.setPosition(selectShape.getPosition().x, static_cast<float>(curMousePos.y));
-    }
-    else {
-        selectShape.setSize({selectShape.getSize().x, static_cast<float>(curMousePos.y - origin.y)});
-    }
+	selectShape.setFillColor({0, 0, 255, 127});
+	selectShape.setPosition({static_cast<float>(origin.x), static_cast<float>(origin.y)});
+	if(curMousePos.x < origin.x){
+		selectShape.setSize({static_cast<float>(origin.x - curMousePos.x), selectShape.getSize().y});
+		selectShape.setPosition(static_cast<float>(curMousePos.x), selectShape.getPosition().y);
+	}
+	else {
+		selectShape.setSize({static_cast<float>(curMousePos.x - origin.x), selectShape.getSize().y});
+	}
+	if(static_cast<float>(curMousePos.y) < origin.y){
+		selectShape.setSize({selectShape.getSize().x, static_cast<float>(origin.y - curMousePos.y)});
+		selectShape.setPosition(selectShape.getPosition().x, static_cast<float>(curMousePos.y));
+	}
+	else {
+		selectShape.setSize({selectShape.getSize().x, static_cast<float>(curMousePos.y - origin.y)});
+	}
 
-    window.draw(selectShape);
+	window.draw(selectShape);
 
-    const sf::Vector2f startPos = selectShape.getPosition();
-    const sf::Vector2f endPos = selectShape.getPosition() + selectShape.getSize();
+	const sf::Vector2f startPos = selectShape.getPosition();
+	const sf::Vector2f endPos = selectShape.getPosition() + selectShape.getSize();
 
-    for(auto& peg : pegs){
-        const sf::Vector2f pegPos = peg.getShape().getPosition();
-        const sf::Vector2f endPegPos = pegPos + peg.getSize();
+	for(auto& peg : pegs){
+		const sf::Vector2f pegPos = peg.getShape().getPosition();
+		const sf::Vector2f endPegPos = pegPos + peg.getSize();
 
-        if(startPos.x <= endPegPos.x && endPos.x >= pegPos.x
-        && startPos.y <= endPegPos.y && endPos.y >= pegPos.y){
-            selectedPegs.insert(&peg);
-        }
-    }
+		if(startPos.x <= endPegPos.x && endPos.x >= pegPos.x
+		&& startPos.y <= endPegPos.y && endPos.y >= pegPos.y){
+			selectedPegs.insert(&peg);
+		}
+	}
 
 }
 
 static void resizeCursor(const int delta, CursorType& cursorType){
-    const sf::Vector2f curSize = cursorType.peg.getSize();
-    const sf::Vector2f newSize = {
-        curSize.x * std::pow(1.1f, static_cast<float>(delta)),
-        ((cursorType.peg.getShapeType() == PegShape::Rect)? curSize.y * std::pow(1.1f, static_cast<float>(delta)) : 0),
-    };
-    cursorType.peg.setSize(newSize);
+	const sf::Vector2f curSize = cursorType.peg.getSize();
+	const sf::Vector2f newSize = {
+		curSize.x * std::pow(1.1f, static_cast<float>(delta)),
+		((cursorType.peg.getShapeType() == PegShape::Rect)? curSize.y * std::pow(1.1f, static_cast<float>(delta)) : 0),
+	};
+	cursorType.peg.setSize(newSize);
 }
 
 static MouseState getMouseState(const CursorType& cursorType, const InputState& input, std::forward_list<Peg>& pegs, std::unordered_set<SelectedPeg>& selectedPegs){
-    if(!cursorType.isCursor) return MouseState::None;
-    
-    Peg* pegUnderCursor = getPegOnMouse(input, pegs);
-    if(pegUnderCursor && selectedPegs.find(pegUnderCursor) != selectedPegs.end()) 
-        return MouseState::Dragging;
-    
-    return MouseState::Selecting;	
+	if(!cursorType.isCursor) return MouseState::None;
+	
+	Peg* pegUnderCursor = getPegOnMouse(input, pegs);
+	if(pegUnderCursor && selectedPegs.find(pegUnderCursor) != selectedPegs.end()) 
+		return MouseState::Dragging;
+	
+	return MouseState::Selecting;	
 }
 
 static bool shouldUpdateMouseState(const InputState& input){
-    return input.mouseEvents().find({sf::Mouse::Left, InputState::ButtonState::pressed}) != input.mouseEvents().end();
+	return input.mouseEvents().find({sf::Mouse::Left, InputState::ButtonState::pressed}) != input.mouseEvents().end();
 }
 
 //TODO
@@ -183,232 +183,246 @@ static void rotateCursor(){
 }
 
 static void rotateOrScale(const MouseState mouseState, const InputState& input, CursorType& cursorType, std::unordered_set<SelectedPeg>& selectedPegs){
-    if(input.mouseScrollDelta() != 0){
-        const bool ctrlPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::LControl);
+	if(input.mouseScrollDelta() != 0){
+		const bool ctrlPressed = sf::Keyboard::isKeyPressed(sf::Keyboard::LControl);
 
-        if(mouseState == MouseState::None && !ctrlPressed){
-            resizeCursor(input.mouseScrollDelta(), cursorType);
-        }
-        else if(!ctrlPressed){
-            resizeSelected(input.mouseScrollDelta(), selectedPegs);
-        }
-        else if(mouseState == MouseState::None) {
-            rotateCursor();
-        }
-        else{
-            rotateSelected(input.mouseScrollDelta(), selectedPegs);
-        }
-    }
+		if(mouseState == MouseState::None && !ctrlPressed){
+			resizeCursor(input.mouseScrollDelta(), cursorType);
+		}
+		else if(!ctrlPressed){
+			resizeSelected(input.mouseScrollDelta(), selectedPegs);
+		}
+		else if(mouseState == MouseState::None) {
+			rotateCursor();
+		}
+		else{
+			rotateSelected(input.mouseScrollDelta(), selectedPegs);
+		}
+	}
 }
 
 static void handleMouseEvents(const MouseState mouseState, CursorType& cursorType, sf::RenderWindow& window, InputState& input, std::forward_list<Peg>& pegs, std::unordered_set<SelectedPeg>& selectedPegs) {
-    const bool mouseIsDown = sf::Mouse::isButtonPressed(sf::Mouse::Left);
-    
-    rotateOrScale(mouseState, input, cursorType, selectedPegs);
-    
-    if(mouseState == MouseState::Selecting && mouseIsDown && !sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
-        deselectAll(selectedPegs);
+	const bool mouseIsDown = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+	
+	rotateOrScale(mouseState, input, cursorType, selectedPegs);
+	
+	if(mouseState == MouseState::Selecting && mouseIsDown && !sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+		deselectAll(selectedPegs);
 
-    if(mouseState == MouseState::None 
-        && input.mouseEvents().find({sf::Mouse::Left, InputState::ButtonState::released}) != input.mouseEvents().end()){
-        placePeg(cursorType, pegs);
-        return;
-    }
-    if(mouseState == MouseState::Selecting && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-        selectBox(input.mouseDownOrigin(), input.mousePos(), window, pegs, selectedPegs);
-        return;
-    }
+	if(mouseState == MouseState::None 
+		&& input.mouseEvents().find({sf::Mouse::Left, InputState::ButtonState::released}) != input.mouseEvents().end()){
+		placePeg(cursorType, pegs);
+		return;
+	}
+	if(mouseState == MouseState::Selecting && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+		selectBox(input.mouseDownOrigin(), input.mousePos(), window, pegs, selectedPegs);
+		return;
+	}
 
-    if(mouseState == MouseState::Dragging && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-        moveSelected(input.mouseMoveAmount(), selectedPegs);
-        return;
-    }
+	if(mouseState == MouseState::Dragging && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+		moveSelected(input.mouseMoveAmount(), selectedPegs);
+		return;
+	}
 }
 
 static void loadButtonResourcesIntoMemory(ResourceManager& resources) {
-    const int amountOfImages = 4;
-    const char* imageLocations[] = {
-        "resources/jankyCursor.png",
-        "resources/pegButton.png",
-        "resources/brickButton.png",
-        "resources/floppyIcon.png",
-        "resources/loadImage.png",
-    };
+	const int amountOfImages = 4;
+	const char* imageLocations[] = {
+		"resources/jankyCursor.png",
+		"resources/pegButton.png",
+		"resources/brickButton.png",
+		"resources/floppyIcon.png",
+		"resources/loadImage.png",
+	};
 
-    const char* virtualTextureStorageLocations[] = {
+	const char* virtualTextureStorageLocations[] = {
 		"virt/jankyCursor.tex",
-        "virt/pegButton.tex",
-        "virt/brickButton.tex",
-        "virt/floppyIcon.tex",
-        "virt/loadImage.tex",
-    };
+		"virt/pegButton.tex",
+		"virt/brickButton.tex",
+		"virt/floppyIcon.tex",
+		"virt/loadImage.tex",
+	};
 
-    sf::Image tempImage;
-    for (int i = 0; i < amountOfImages + 1; i++) {
-        tempImage.loadFromFile(imageLocations[i]);
-        //sf::Texture* tex = new sf::Texture;
-        auto tex = std::make_unique<sf::Texture>();
-        tex->loadFromImage(tempImage);
-        resources.createVirtualResource<sf::Texture>(std::move(tex), virtualTextureStorageLocations[i]);
-        resources.unload(imageLocations[i]);
-    }
+	sf::Image tempImage;
+	for (int i = 0; i < amountOfImages + 1; i++) {
+		tempImage.loadFromFile(imageLocations[i]);
+		//sf::Texture* tex = new sf::Texture;
+		auto tex = std::make_unique<sf::Texture>();
+		tex->loadFromImage(tempImage);
+		resources.createVirtualResource<sf::Texture>(std::move(tex), virtualTextureStorageLocations[i]);
+		resources.unload(imageLocations[i]);
+	}
 }
 
 static std::unordered_map<ButtonType, Button> initaliseButtons(ResourceManager& resources, CursorType& cursorType){
-    const sf::Font* textFont = static_cast<const sf::Font*>(resources.getResource<sf::Font>("resources/robotto.ttf"));
-    loadButtonResourcesIntoMemory(resources);
+	const sf::Font* textFont = static_cast<const sf::Font*>(resources.getResource<sf::Font>("resources/robotto.ttf"));
+	loadButtonResourcesIntoMemory(resources);
 
-    std::unordered_map<ButtonType, Button> buttons = {
-        {ButtonType::cursorPeg, Button(sf::Vector2f{50, 50}, sf::Vector2f{0, 0}, resources.getResource<sf::Texture>("virt/pegButton.tex"))},
-        {ButtonType::cursorBrick, Button(sf::Vector2f{50, 50}, sf::Vector2f{50, 0}, resources.getResource<sf::Texture>("virt/brickButton.tex"))},
-        {ButtonType::cursorSelect, Button(sf::Vector2f{50, 50}, sf::Vector2f{100, 0}, resources.getResource<sf::Texture>("virt/jankyCursor.tex"))},
-        {ButtonType::save, Button(sf::Vector2f{50, 50}, sf::Vector2f{1920 - 60, 0}, resources.getResource<sf::Texture>("virt/floppyIcon.tex"))},
-        {ButtonType::loadImage, Button({50.f, 50.f}, {1920.f - (60.f * 2.f + 15.f), 0.f}, resources.getResource<sf::Texture>("virt/loadImage.tex"))}
-    };
+	std::unordered_map<ButtonType, Button> buttons = {
+		{ButtonType::cursorPeg, Button(sf::Vector2f{50, 50}, sf::Vector2f{0, 0}, resources.getResource<sf::Texture>("virt/pegButton.tex"))},
+		{ButtonType::cursorBrick, Button(sf::Vector2f{50, 50}, sf::Vector2f{50, 0}, resources.getResource<sf::Texture>("virt/brickButton.tex"))},
+		{ButtonType::cursorSelect, Button(sf::Vector2f{50, 50}, sf::Vector2f{100, 0}, resources.getResource<sf::Texture>("virt/jankyCursor.tex"))},
+		{ButtonType::save, Button(sf::Vector2f{50, 50}, sf::Vector2f{1920 - 60, 0}, resources.getResource<sf::Texture>("virt/floppyIcon.tex"))},
+		{ButtonType::loadImage, Button({50.f, 50.f}, {1920.f - (60.f * 2.f + 15.f), 0.f}, resources.getResource<sf::Texture>("virt/loadImage.tex"))}
+	};
 
-    buttons[ButtonType::cursorPeg].setText("peg", textFont, 15U, 0.0f);
-    buttons[ButtonType::cursorBrick].setText("brick", textFont, 15U, 0.0f);
-    buttons[ButtonType::cursorSelect].setText("select", textFont, 15U, 0.0f);
-    buttons[ButtonType::save].setText("save", textFont, 15U, 0.0f);
-    buttons[ButtonType::loadImage].setText("load image", textFont, 15U, 0.f);
+	buttons[ButtonType::cursorPeg].setText("peg", textFont, 15U, 0.0f);
+	buttons[ButtonType::cursorBrick].setText("brick", textFont, 15U, 0.0f);
+	buttons[ButtonType::cursorSelect].setText("select", textFont, 15U, 0.0f);
+	buttons[ButtonType::save].setText("save", textFont, 15U, 0.0f);
+	buttons[ButtonType::loadImage].setText("load image", textFont, 15U, 0.f);
 
-    buttons[ButtonType::cursorPeg].   setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Circle), false);});
-    buttons[ButtonType::cursorBrick]. setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Rect), false);});
-    buttons[ButtonType::cursorSelect].setFunction([&cursorType](){cursorType.isCursor = true;});
+	buttons[ButtonType::cursorPeg].   setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Circle), false);});
+	buttons[ButtonType::cursorBrick]. setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Rect), false);});
+	buttons[ButtonType::cursorSelect].setFunction([&cursorType](){cursorType.isCursor = true;});
 
-    return buttons;
+	return buttons;
 }
 
 static void saveLevel(
-    sf::RenderWindow& window,
+	sf::RenderWindow& window,
 	InputState& input,
-    ResourceManager& resources,
+	ResourceManager& resources,
 	std::forward_list<Peg>& pegs,
 	std::unordered_set<SelectedPeg>& selectedPegs,
-	sf::Texture& bgImage,
+	sf::Image& bgImage,
 	std::list<Level>& levels
 ) {
-    //display list of levels
-    //ask for new level name (make sure its has not already been submitted)
-    //add to list
-    //clear pegs, bgImage and selected pegs
+	//display list of levels
+	//ask for new level name (make sure its has not already been submitted)
+	//add to list
+	//clear pegs, bgImage and selected pegs
 
-    sf::Font& textFont = *static_cast<sf::Font*>(resources.getResource<sf::Font>("resources/robotto.ttf"));
-    TextField nameField(input, textFont, "enter level name: ");
-    sf::Image thumbnail;
+	sf::Font& textFont = *static_cast<sf::Font*>(resources.getResource<sf::Font>("resources/robotto.ttf"));
+	TextField nameField(input, textFont, "enter level name: ");
+	sf::Image* thumbnail = nullptr;
 
-    sf::Texture thumbnailGpu;
-    sf::Sprite displayThumbnail;
+	sf::Texture thumbnailGpu;
+	sf::Sprite thumbnailSprite;
 
-    bool loadedImage = false;
+	bool loadedImage = false;
 
-    auto loadImageButtonFunc = [&resources, &thumbnail, &loadedImage, &thumbnailGpu, &displayThumbnail]() {
-        thumbnail.loadFromFile(askForFileBlocking()); //turn this into a resourceManager allocation
-        const sf::Vector2u texSize = thumbnail.getSize();
-        const sf::Vector2u desiredSize = { 1920U / 2U, 1080U / 2U };
+	auto loadImageButtonFunc = [&resources, &thumbnail, &loadedImage, &thumbnailGpu, &thumbnailSprite]() {
+		//thumbnail.loadFromFile(askForFileBlocking()); //turn this into a resourceManager allocation
+		thumbnail = resources.getResource<sf::Image>(askForFileBlocking());
+		if (!thumbnail) return;
+		const sf::Vector2u texSize = thumbnail->getSize();
+		const sf::Vector2u desiredSize = { 1920U / 2U, 1080U / 2U };
 
-        const sf::Vector2f scaleFactor = {
-            desiredSize.x / static_cast<float>(texSize.x),
-            desiredSize.y / static_cast<float>(texSize.y) 
-        };
+		const sf::Vector2f scaleFactor = {
+			desiredSize.x / static_cast<float>(texSize.x),
+			desiredSize.y / static_cast<float>(texSize.y) 
+		};
 
-		thumbnailGpu.loadFromImage(thumbnail);
-		displayThumbnail.setTexture(thumbnailGpu);
+		thumbnailGpu.loadFromImage(*thumbnail);
+		thumbnailSprite.setTexture(thumbnailGpu);
 
-		displayThumbnail.setScale(scaleFactor);
-		displayThumbnail.setPosition({ 1920 / 4.f, 1080 / 4.f });
-        loadedImage = true; 
-    };
+		thumbnailSprite.setScale(scaleFactor);
+		thumbnailSprite.setPosition({ 1920 / 4.f, 1080 / 4.f });
+		loadedImage = true; 
+	};
 
-    const sf::Vector2f textBoxSize{ 800.f, 50.f };
-    nameField.setPosition({ (1920.f / 2.f) - textBoxSize.x / 2, 1080.f / 8.f });
-    nameField.setBgColor(sf::Color{ 255, 255, 255, 128 / 2 });
-    nameField.setSize(textBoxSize);
+	const sf::Vector2f textBoxSize{ 800.f, 50.f };
+	nameField.setPosition({ (1920.f / 2.f) - textBoxSize.x / 2, 1080.f / 8.f });
+	nameField.setBgColor(sf::Color{ 255, 255, 255, 128 / 2 });
+	nameField.setSize(textBoxSize);
 
-    Button browseThumbnailsButton({ 300.f, 100.f }, { 1920.f / 2.f - (300.f/2.f), 1080.f / 1.3f });
-    browseThumbnailsButton.setTextInsideButton(true);
-    browseThumbnailsButton.setText("set level thumbnail", &textFont, 24U);
-    browseThumbnailsButton.setColor({ 128, 128, 128 });
-    browseThumbnailsButton.setTextColor({ 0, 0, 0 });
-    browseThumbnailsButton.setFunction(loadImageButtonFunc);
+	Button browseThumbnailsButton({ 1920 / 2.f, 1080 / 2.f }, { 1920 / 4.f, 1080 / 4.f });
+	browseThumbnailsButton.setTextInsideButton(true);
+	browseThumbnailsButton.setText("set level thumbnail", &textFont, 80U);
+	browseThumbnailsButton.setColor({ 128, 128, 128 });
+	browseThumbnailsButton.setTextColor({ 0, 0, 0 });
+	browseThumbnailsButton.setFunction(loadImageButtonFunc);
 
+	Button saveButton({ 300, 100 }, { 1920 / 2.f - 300 / 2.f, 1080 / 1.1 - 100 });
+	saveButton.setTextInsideButton(true);
+	saveButton.setText("save level", &textFont, 30U);
+	saveButton.setColor({ 128, 128, 128 });
+	saveButton.setTextColor({ 0,0,0 });
 
-    for (;;) {
-        input.pollEvents();
+	for (;;) {
+		input.pollEvents();
 
-        nameField.poll();
-        browseThumbnailsButton.poll();
-        nameField.display(window);
-        browseThumbnailsButton.draw(window);
-        if(loadedImage)
-			window.draw(displayThumbnail);
+		nameField.poll();
+		browseThumbnailsButton.poll();
+		nameField.display(window);
+		browseThumbnailsButton.draw(window);
+		saveButton.draw(window);
+		if(loadedImage)
+			window.draw(thumbnailSprite);
 
-        window.display();
-        window.clear();
+		if (saveButton.poll()) {
+			levels.emplace_back(Level{ pegs, bgImage, LevelThumbnail{ nameField.enteredText(), thumbnail } });
+			return;
+		}
 
-        if (input.shouldClose()) {
-            if(askToExit(window, input, resources))
-                std::exit(0);
-        }
-    }
+		window.display();
+		window.clear();
+
+		if (input.shouldClose()) {
+			if(askToExit(window, input, resources))
+				std::exit(0);
+		}
+	}
 }
 
 void runEditor() {
-    const sf::Vector2u defaultWindowSize{1920u, 1080u};
-    sf::RenderWindow window(sf::VideoMode(defaultWindowSize.x, defaultWindowSize.y), "Peg Edit", sf::Style::Default);
+	const sf::Vector2u defaultWindowSize{1920u, 1080u};
+	sf::RenderWindow window(sf::VideoMode(defaultWindowSize.x, defaultWindowSize.y), "Peg Edit", sf::Style::Default);
 
-    ResourceManager resources;
-    CursorType cursorType;
-    ScreenRatioScaler scaler(defaultWindowSize);
-    MouseState mouseState = MouseState::None;
+	ResourceManager resources;
+	CursorType cursorType;
+	ScreenRatioScaler scaler(defaultWindowSize);
+	MouseState mouseState = MouseState::None;
 
-    std::unordered_map<ButtonType, Button> buttons = initaliseButtons(resources, cursorType);
+	std::unordered_map<ButtonType, Button> buttons = initaliseButtons(resources, cursorType);
 
-    InputState::initalise(&window);
-    InputState& input = InputState::getRef();
+	InputState::initalise(&window);
+	InputState& input = InputState::getRef();
 
-    std::forward_list<Peg> pegs;
-    std::unordered_set<SelectedPeg> selectedPegs;
-    sf::Texture bgTex;
+	std::forward_list<Peg> pegs;
+	std::unordered_set<SelectedPeg> selectedPegs;
+	sf::Image bgImage;
+	sf::Texture bgTex;
 
-    std::list<Level> levels;
+	std::list<Level> levels;
 
-    buttons[ButtonType::save].setFunction([&window, &pegs, &selectedPegs, &bgTex, &levels, &input, &resources]() {saveLevel(window, input, resources, pegs, selectedPegs, bgTex, levels); });
+	buttons[ButtonType::save].setFunction([&window, &pegs, &selectedPegs, &bgImage, &levels, &input, &resources]() {saveLevel(window, input, resources, pegs, selectedPegs, bgImage, levels); });
 
-    window.setFramerateLimit(60);
-    while (window.isOpen()) {
-        input.pollEvents();
-        if (input.resisedWindow()) {
-            scaler.adjustViewSize(window);
-            input.setMouseScale(scaler.getPixelScale());
-            input.setBaseMouseOffset(scaler.getPixelBaseOffset());
-            continue;
-        }
+	window.setFramerateLimit(60);
+	while (window.isOpen()) {
+		input.pollEvents();
+		if (input.resisedWindow()) {
+			scaler.adjustViewSize(window);
+			input.setMouseScale(scaler.getPixelScale());
+			input.setBaseMouseOffset(scaler.getPixelBaseOffset());
+			continue;
+		}
 
-        exitCheck(window, input, resources);
+		exitCheck(window, input, resources);
 
-        const bool buttonIsHovered = pollButtons(buttons);
+		const bool buttonIsHovered = pollButtons(buttons);
 
-        if(shouldUpdateMouseState(input)){
-            mouseState = getMouseState(cursorType, input, pegs, selectedPegs);
-        }
+		if(shouldUpdateMouseState(input)){
+			mouseState = getMouseState(cursorType, input, pegs, selectedPegs);
+		}
 
-        if(!buttonIsHovered){
-            handleMouseEvents(mouseState, cursorType, window, input, pegs, selectedPegs);
-        }
+		if(!buttonIsHovered){
+			handleMouseEvents(mouseState, cursorType, window, input, pegs, selectedPegs);
+		}
 
-        if(input.keyEvents().find({sf::Keyboard::Backspace, InputState::ButtonState::pressed}) != input.keyEvents().end()){
-            deleteSelected(pegs, selectedPegs);
-        }
+		if(input.keyEvents().find({sf::Keyboard::Backspace, InputState::ButtonState::pressed}) != input.keyEvents().end()){
+			deleteSelected(pegs, selectedPegs);
+		}
 
-        drawCursorType(window, buttonIsHovered, input.mousePos(), cursorType);
-        drawSelected(window, selectedPegs);
+		drawCursorType(window, buttonIsHovered, input.mousePos(), cursorType);
+		drawSelected(window, selectedPegs);
 
-        drawPegs(window, pegs);
+		drawPegs(window, pegs);
 
-        drawButtons(window, buttons);
+		drawButtons(window, buttons);
 
-        window.display();
-        window.clear();
-    }
+		window.display();
+		window.clear();
+	}
 }
