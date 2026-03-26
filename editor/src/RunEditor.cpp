@@ -1,4 +1,5 @@
-#include <type_traits>
+#include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <unordered_map>
 #include <forward_list>
 #include <unordered_set>
@@ -9,11 +10,11 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Window.hpp>
 
+#include "ButtonType.hpp"
 #include "FilePrompt.hpp"
 #include "InputState.hpp"
 #include "ResourceManager.hpp"
 #include "CursorType.hpp"
-#include "Algorithms.hpp"
 #include "SelectCommon.hpp"
 #include "PegCommon.hpp"
 #include "DrawCommon.hpp"
@@ -108,7 +109,7 @@ static void exitCheck(sf::RenderWindow& window, InputState& input, ResourceManag
 }
 
 //returns true if a button is hovered
-static bool pollButtons(std::unordered_map<ButtonType, Button>& buttons) {
+static bool pollButtonsAndCheckForHover(std::unordered_map<ButtonType, Button>& buttons) {
 	bool out = false;
 	for (auto& butt : buttons) {
 		butt.second.poll();
@@ -254,7 +255,25 @@ static void loadButtonResourcesIntoMemory(ResourceManager& resources) {
     }
 }
 
-static std::unordered_map<ButtonType, Button> initaliseButtons(ResourceManager& resources, CursorType& cursorType){
+static void saveLevelToMemory(
+	sf::RenderWindow& window,
+	InputState& input,
+	ResourceManager& resources,
+	std::forward_list<Peg>& pegs,
+	std::unordered_set<SelectedPeg>& selectedPegs,
+	sf::Image& bgImage,
+	std::list<Level>& levels
+);
+static std::unordered_map<ButtonType, Button> initaliseButtons(
+	ResourceManager& resources,
+	CursorType& cursorType,
+	sf::RenderWindow& window,
+	InputState& input,
+	std::forward_list<Peg>& pegs,
+	std::unordered_set<SelectedPeg>& selectedPegs,
+	sf::Image& bgImage,
+	std::list<Level>& levels
+	){
 	const sf::Font* textFont = static_cast<const sf::Font*>(resources.getResource<sf::Font>("resources/robotto.ttf"));
 	loadButtonResourcesIntoMemory(resources);
 
@@ -275,11 +294,12 @@ static std::unordered_map<ButtonType, Button> initaliseButtons(ResourceManager& 
 	buttons[ButtonType::cursorPeg].   setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Circle), false);});
 	buttons[ButtonType::cursorBrick]. setFunction([&cursorType](){cursorType = CursorType(Peg(PegShape::Rect), false);});
 	buttons[ButtonType::cursorSelect].setFunction([&cursorType](){cursorType.isCursor = true;});
+	buttons[ButtonType::save].		  setFunction(std::bind(saveLevelToMemory, std::ref(window), std::ref(input), std::ref(resources), std::ref(pegs), std::ref(selectedPegs), std::ref(bgImage), std::ref(levels)));
 
 	return buttons;
 }
 
-static void saveLevel(
+static void saveLevelToMemory(
 	sf::RenderWindow& window,
 	InputState& input,
 	ResourceManager& resources,
@@ -352,7 +372,8 @@ static void saveLevel(
 			window.draw(thumbnailSprite);
 
 		if (saveButton.poll()) {
-			levels.emplace_back(Level{ pegs, bgImage, LevelThumbnail{ nameField.enteredText(), thumbnail } });
+			levels.emplace_back(Level{std::move(pegs), std::move(bgImage), LevelThumbnail{ nameField.enteredText(), std::move(thumbnail) } });
+			input.pollEvents();
 			return;
 		}
 
@@ -375,7 +396,6 @@ void runEditor() {
 	ScreenRatioScaler scaler(defaultWindowSize);
 	MouseState mouseState = MouseState::None;
 
-	std::unordered_map<ButtonType, Button> buttons = initaliseButtons(resources, cursorType);
 
 	InputState::initalise(&window);
 	InputState& input = InputState::getRef();
@@ -386,8 +406,7 @@ void runEditor() {
 	sf::Texture bgTex;
 
 	std::list<Level> levels;
-
-	buttons[ButtonType::save].setFunction([&window, &pegs, &selectedPegs, &bgImage, &levels, &input, &resources]() {saveLevel(window, input, resources, pegs, selectedPegs, bgImage, levels); });
+	std::unordered_map<ButtonType, Button> buttons = initaliseButtons(resources, cursorType, window, input, pegs, selectedPegs, bgImage, levels);
 
 	window.setFramerateLimit(60);
 	while (window.isOpen()) {
@@ -401,7 +420,7 @@ void runEditor() {
 
 		exitCheck(window, input, resources);
 
-		const bool buttonIsHovered = pollButtons(buttons);
+		const bool buttonIsHovered = pollButtonsAndCheckForHover(buttons);
 
 		if(shouldUpdateMouseState(input)){
 			mouseState = getMouseState(cursorType, input, pegs, selectedPegs);
